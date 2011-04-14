@@ -24,55 +24,55 @@ void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,
 
 CK_RV generateKeyPair(CK_FUNCTION_LIST_PTR p11, 
                       CK_SESSION_HANDLE session,
-                      CK_ULONG modulusBits)
+                      CK_ULONG size)
 {
 	CK_RV rv = CKR_HOST_MEMORY;
     CK_OBJECT_HANDLE hPublicKey, hPrivateKey;
     CK_MECHANISM mechanism = { CKM_RSA_PKCS_KEY_PAIR_GEN , NULL_PTR , 0 };        
-    CK_BYTE publicExponent[3] = { 0x01, 0x00, 0x01 };
+    CK_BYTE exponent[3] = { 0x01, 0x00, 0x01 };
     CK_BBOOL t = TRUE;
     CK_ATTRIBUTE attrs[2];
     CK_BYTE *tmp = NULL;
     CK_ATTRIBUTE kid[1];
-    CK_OBJECT_CLASS	prv_class = CKO_PRIVATE_KEY;
-    CK_OBJECT_CLASS pub_class = CKO_PUBLIC_KEY;
-    CK_KEY_TYPE key_type = CKK_RSA;
-    CK_ATTRIBUTE publicKeyTemplate[6] = {
-        /* { CKA_CLASS , &pub_class , sizeof(pub_class) },  */
-        /* { CKA_KEY_TYPE , &key_type , sizeof(key_type) }, */
-        { CKA_TOKEN,           &t,              sizeof(CK_BBOOL) },
-        { CKA_ENCRYPT,         &t,              sizeof(CK_BBOOL) },
-        { CKA_VERIFY,          &t,              sizeof(CK_BBOOL) },
-        { CKA_WRAP,            &t,              sizeof(CK_BBOOL) }, 
-        { CKA_MODULUS_BITS,    &modulusBits,    sizeof(modulusBits) },
-        { CKA_PUBLIC_EXPONENT, &publicExponent, sizeof(publicExponent) },
+    CK_OBJECT_CLASS	prv = CKO_PRIVATE_KEY;
+    CK_OBJECT_CLASS pub = CKO_PUBLIC_KEY;
+    CK_KEY_TYPE type = CKK_RSA;
+    CK_ATTRIBUTE publicKeyTemplate[8] = {
+        { CKA_CLASS ,          &pub,      sizeof(pub)      },
+        { CKA_KEY_TYPE,        &type,     sizeof(type)     },
+        { CKA_TOKEN,           &t,        sizeof(CK_BBOOL) },
+        { CKA_ENCRYPT,         &t,        sizeof(CK_BBOOL) },
+        { CKA_VERIFY,          &t,        sizeof(CK_BBOOL) },
+        { CKA_WRAP,            &t,        sizeof(CK_BBOOL) },
+        { CKA_MODULUS_BITS,    &size,     sizeof(size)     },
+        { CKA_PUBLIC_EXPONENT, &exponent, sizeof(exponent) },
     };
-    CK_ATTRIBUTE privateKeyTemplate[6] = {
-        /* { CKA_CLASS , &pub_class , sizeof(pub_class) },  */
-        /* { CKA_KEY_TYPE , &key_type , sizeof(key_type) }, */
-        { CKA_TOKEN,           &t,              sizeof(CK_BBOOL) }, 
-        { CKA_PRIVATE,         &t,              sizeof(CK_BBOOL) },              
-        { CKA_SENSITIVE,       &t,              sizeof(CK_BBOOL) }, 
-        { CKA_DECRYPT,         &t,              sizeof(CK_BBOOL) }, 
-        { CKA_SIGN,            &t,              sizeof(CK_BBOOL) }, 
-        { CKA_UNWRAP,          &t,              sizeof(CK_BBOOL) },
+    CK_ATTRIBUTE privateKeyTemplate[8] = {
+        { CKA_CLASS,      &prv,       sizeof(prv)       },
+        { CKA_KEY_TYPE,   &type,      sizeof(type)      },
+        { CKA_TOKEN,      &t,         sizeof(CK_BBOOL)  },
+        { CKA_PRIVATE,    &t,         sizeof(CK_BBOOL)  },
+        { CKA_SENSITIVE,  &t,         sizeof(CK_BBOOL)  },
+        { CKA_DECRYPT,    &t,         sizeof(CK_BBOOL)  },
+        { CKA_SIGN,       &t,         sizeof(CK_BBOOL)  },
+        { CKA_UNWRAP,     &t,         sizeof(CK_BBOOL)  },
     };
 
-	if(p11) {
+	if(!p11) {
         goto done;
     }
     
-    ;
-    
     if((rv = p11->C_GenerateKeyPair
-        (session, &mechanism, publicKeyTemplate, 6,
-         privateKeyTemplate, 6, &hPublicKey, &hPrivateKey)) != CKR_OK ) {
+        (session, &mechanism, publicKeyTemplate, 8,
+         privateKeyTemplate, 8, &hPublicKey, &hPrivateKey)) != CKR_OK ) {
+        show_error(stdout, "C_GenerateKeyPair", rv );
         goto done;
     }
     
     if((hPublicKey  == CK_INVALID_HANDLE) ||       
        (hPrivateKey == CK_INVALID_HANDLE)) {
         rv = CKR_HOST_MEMORY; /* */
+        show_error(stdout, "C_GenerateKeyPair", rv );
         goto done;
     }
 
@@ -81,17 +81,20 @@ CK_RV generateKeyPair(CK_FUNCTION_LIST_PTR p11,
         
     if ((rv = p11->C_GetAttributeValue
          (session, hPublicKey, attrs, 2)) != CKR_OK) {
+        show_error(stdout, "C_GetAttributeValue", rv );
         goto done;
     }
 
     if (((attrs[0].pValue = malloc(attrs[0].ulValueLen)) == NULL) ||
         ((attrs[1].pValue = malloc(attrs[1].ulValueLen)) == NULL)) {
         rv = CKR_HOST_MEMORY; 
+        show_error(stdout, "C_GetAttributeValue", rv );
         goto done;
     }
 
     if ((rv = p11->C_GetAttributeValue
          (session, hPublicKey, attrs, 2)) != CKR_OK) {
+        show_error(stdout, "C_GetAttributeValue", rv );
         goto done;
     }
             
@@ -102,7 +105,15 @@ CK_RV generateKeyPair(CK_FUNCTION_LIST_PTR p11,
         kid[0].ulValueLen = SHA_DIGEST_LENGTH;
 				
         rv = p11->C_SetAttributeValue(session, hPublicKey , kid, 1);
+        if(rv != CKR_OK) {
+            show_error(stdout, "C_SetAttributeValue", rv );
+            goto done;
+        }
         rv = p11->C_SetAttributeValue(session, hPrivateKey, kid, 1);
+        if(rv != CKR_OK) {
+            show_error(stdout, "C_SetAttributeValue", rv );
+            goto done;
+        }
     }
  done:
 	return rv;
@@ -174,6 +185,7 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
                     rc = FALSE;
                     goto done;
                 }
+                printf("----------------\nObject %ld\n", j);
             } else {
                 printf("----------------\nObject %ld has size %ld\n", j, k);
             }

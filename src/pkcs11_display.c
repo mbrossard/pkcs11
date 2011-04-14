@@ -651,12 +651,12 @@ type_spec ck_attribute_specs[] = {
     { ATTRIBUTE(CKA_SECONDARY_AUTH),              print_generic, NULL },
     { ATTRIBUTE(CKA_AUTH_PIN_FLAGS),              print_generic, NULL },
     { ATTRIBUTE(CKA_ALWAYS_AUTHENTICATE),         print_boolean, NULL },
-    { ATTRIBUTE(CKA_WRAP_WITH_TRUSTED),           print_generic, NULL },
+    { ATTRIBUTE(CKA_WRAP_WITH_TRUSTED),           print_boolean, NULL },
     { ATTRIBUTE(CKA_WRAP_TEMPLATE),               print_generic, NULL },
     { ATTRIBUTE(CKA_UNWRAP_TEMPLATE),             print_generic, NULL },
     { ATTRIBUTE(CKA_HW_FEATURE_TYPE),             print_generic, NULL },
-    { ATTRIBUTE(CKA_RESET_ON_INIT),               print_generic, NULL },
-    { ATTRIBUTE(CKA_HAS_RESET),                   print_generic, NULL },
+    { ATTRIBUTE(CKA_RESET_ON_INIT),               print_boolean, NULL },
+    { ATTRIBUTE(CKA_HAS_RESET),                   print_boolean, NULL },
     { ATTRIBUTE(CKA_PIXEL_X),                     print_generic, NULL },
     { ATTRIBUTE(CKA_PIXEL_Y),                     print_generic, NULL },
     { ATTRIBUTE(CKA_RESOLUTION),                  print_generic, NULL },
@@ -829,28 +829,36 @@ void print_mech_info(FILE *f, CK_MECHANISM_TYPE type,
     CK_ULONG known_flags = CKF_HW|CKF_ENCRYPT|CKF_DECRYPT|CKF_DIGEST|
         CKF_SIGN|CKF_SIGN_RECOVER|CKF_VERIFY|CKF_VERIFY_RECOVER|
         CKF_GENERATE|CKF_GENERATE_KEY_PAIR|CKF_WRAP|CKF_UNWRAP|
-        CKF_DERIVE;
+        CKF_DERIVE|CKF_EC_F_P|CKF_EC_F_2M|CKF_EC_ECPARAMETERS|
+        CKF_EC_NAMEDCURVE|CKF_EC_UNCOMPRESS|CKF_EC_COMPRESS;
+
 
     if (name) {
         fprintf(f, "%-30s: ", name);
     } else {
         fprintf(f, "  Unknown Mechanism (%08lx): ", type);
     }
-    printf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
-           (minfo->flags & CKF_HW)                ? "Hardware " : "",
-           (minfo->flags & CKF_ENCRYPT)           ? "Encrypt "  : "",
-           (minfo->flags & CKF_DECRYPT)           ? "Decrypt "  : "",
-           (minfo->flags & CKF_DIGEST)            ? "Digest "   : "",
-           (minfo->flags & CKF_SIGN)              ? "Sign "     : "",
-           (minfo->flags & CKF_SIGN_RECOVER)      ? "SigRecov " : "",
-           (minfo->flags & CKF_VERIFY)            ? "Verify "   : "",
-           (minfo->flags & CKF_VERIFY_RECOVER)    ? "VerRecov " : "",
-           (minfo->flags & CKF_GENERATE)          ? "Generate " : "",
-           (minfo->flags & CKF_GENERATE_KEY_PAIR) ? "KeyPair "  : "",
-           (minfo->flags & CKF_WRAP)              ? "Wrap "     : "",
-           (minfo->flags & CKF_UNWRAP)            ? "Unwrap "   : "",
-           (minfo->flags & CKF_DERIVE)            ? "Derive "   : "",
-           (minfo->flags & ~known_flags)          ? "Unknown "  : "");
+    printf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
+           (minfo->flags & CKF_HW)                ? "Hardware "   : "",
+           (minfo->flags & CKF_ENCRYPT)           ? "Encrypt "    : "",
+           (minfo->flags & CKF_DECRYPT)           ? "Decrypt "    : "",
+           (minfo->flags & CKF_DIGEST)            ? "Digest "     : "",
+           (minfo->flags & CKF_SIGN)              ? "Sign "       : "",
+           (minfo->flags & CKF_SIGN_RECOVER)      ? "SigRecov "   : "",
+           (minfo->flags & CKF_VERIFY)            ? "Verify "     : "",
+           (minfo->flags & CKF_VERIFY_RECOVER)    ? "VerRecov "   : "",
+           (minfo->flags & CKF_GENERATE)          ? "Generate "   : "",
+           (minfo->flags & CKF_GENERATE_KEY_PAIR) ? "KeyPair "    : "",
+           (minfo->flags & CKF_WRAP)              ? "Wrap "       : "",
+           (minfo->flags & CKF_UNWRAP)            ? "Unwrap "     : "",
+           (minfo->flags & CKF_DERIVE)            ? "Derive "     : "",
+           (minfo->flags & CKF_EC_F_P)            ? "F(P) "       : "",
+           (minfo->flags & CKF_EC_F_2M)           ? "F(2^M) "     : "",
+           (minfo->flags & CKF_EC_ECPARAMETERS)   ? "EcParams "   : "",
+           (minfo->flags & CKF_EC_NAMEDCURVE)     ? "NamedCurve " : "",
+           (minfo->flags & CKF_EC_UNCOMPRESS)     ? "Uncompress " : "",
+           (minfo->flags & CKF_EC_COMPRESS)       ? "Compress "   : "",
+           (minfo->flags & ~known_flags)          ? "Unknown "    : "");
     fprintf(f, "%32s(min:%lu max:%lu flags:0x%06lX)\n", "",
             minfo->ulMinKeySize, minfo->ulMaxKeySize, minfo->flags);
 }

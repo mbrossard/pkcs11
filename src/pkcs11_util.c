@@ -161,10 +161,16 @@ CK_RV pkcs11_initialize(CK_FUNCTION_LIST_PTR funcs)
             } else {
                 char *l = "configdir='%s' certPrefix='' keyPrefix='' secmod='secmod.db'";
                 char path[256];
+                DIR *dir;
                 snprintf(path, 256, "%s/.mozilla", getenv("HOME"));
-                if (!opendir(path))
+                dir = opendir(path);
+                if (!dir)   {
                     if (mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH))
                         return CKR_GENERAL_ERROR;
+		}
+		else   {
+			closedir(dir);
+		}
                 search_file(path, 256, "secmod.db");
                 snprintf(buffer, 256, l, path);
             }

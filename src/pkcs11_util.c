@@ -164,15 +164,10 @@ CK_RV pkcs11_initialize(CK_FUNCTION_LIST_PTR funcs)
                 char path[256];
                 DIR *dir;
                 snprintf(path, 256, "%s/.mozilla", getenv("HOME"));
-                dir = opendir(path);
-                if (!dir)   {
-                    if (mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH))
-                        return CKR_GENERAL_ERROR;
-		}
-		else   {
-			closedir(dir);
-		}
-                search_file(path, 256, "secmod.db");
+                if ((dir = opendir(path)))   {
+                    search_file(path, 256, "secmod.db");
+                    closedir(dir);
+                }
                 snprintf(buffer, 256, l, path);
             }
 

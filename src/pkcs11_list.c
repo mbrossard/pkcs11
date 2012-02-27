@@ -334,6 +334,131 @@ CK_RV generateEcdsaKeyPair(CK_FUNCTION_LIST_PTR p11,
 	return rv;
 }
 
+#define CKK_GOSTR3410              0x00000030
+#define CKM_GOSTR3410_KEY_PAIR_GEN 0x00001200
+#define CKA_GOSTR3410PARAMS        0x00000250
+
+static CK_BYTE gostR3410_params_0_oid[] =  { 0x06, 0x07, 0x2a, 0x85, 0x03, 0x02, 0x02, 0x23, 0x00 }; /* 1 2 643 2 2 35 0 */
+static CK_BYTE gostR3410_params_A_oid[] =  { 0x06, 0x07, 0x2a, 0x85, 0x03, 0x02, 0x02, 0x23, 0x01 }; /* 1 2 643 2 2 35 1 */
+static CK_BYTE gostR3410_params_B_oid[] =  { 0x06, 0x07, 0x2a, 0x85, 0x03, 0x02, 0x02, 0x23, 0x02 }; /* 1 2 643 2 2 35 2 */
+static CK_BYTE gostR3410_params_C_oid[] =  { 0x06, 0x07, 0x2a, 0x85, 0x03, 0x02, 0x02, 0x23, 0x03 }; /* 1 2 643 2 2 35 3 */
+static CK_BYTE gostR3410_params_XA_oid[] = { 0x06, 0x07, 0x2a, 0x85, 0x03, 0x02, 0x02, 0x24, 0x01 }; /* 1 2 643 2 2 36 1 */
+static CK_BYTE gostR3410_params_XB_oid[] = { 0x06, 0x07, 0x2a, 0x85, 0x03, 0x02, 0x02, 0x24, 0x02 }; /* 1 2 643 2 2 36 2 */
+
+void gostEncryption(CK_ATTRIBUTE *pubTemplate, CK_ATTRIBUTE *privTemplate, CK_BBOOL *t, CK_BBOOL *f)
+{
+    pubTemplate[2].pValue = f;
+    pubTemplate[3].pValue = t;
+    pubTemplate[4].pValue = t;
+    privTemplate[1].pValue = f;
+    privTemplate[2].pValue = t;
+    privTemplate[3].pValue = t;
+}
+
+CK_RV generateGostKeyPair(CK_FUNCTION_LIST_PTR p11,
+                          CK_SESSION_HANDLE session,
+                          char *name)
+{
+
+	CK_RV rv = CKR_HOST_MEMORY;
+    CK_OBJECT_HANDLE hPublicKey, hPrivateKey;
+    CK_ATTRIBUTE attrs[1];
+
+    CK_MECHANISM mechanism = { CKM_GOSTR3410_KEY_PAIR_GEN, NULL_PTR, 0 }; 
+    CK_BBOOL t = TRUE;
+    CK_BBOOL f = FALSE;
+    CK_KEY_TYPE kt = CKK_GOSTR3410;
+    CK_ATTRIBUTE pubTemplate[] = {
+        { CKA_GOSTR3410PARAMS,     NULL, 9          },
+        { CKA_KEY_TYPE,            &kt,  sizeof(kt) },
+        { CKA_VERIFY,              &t,   sizeof(t)  },
+        { CKA_ENCRYPT,             &f,   sizeof(f)  },
+        { CKA_WRAP,                &f,   sizeof(f)  },
+        { CKA_TOKEN,               &t,   sizeof(t)  }
+    };
+
+    CK_ATTRIBUTE privTemplate[] = {
+        { CKA_KEY_TYPE,            &kt, sizeof(kt) },
+        { CKA_SIGN,                &t,  sizeof(t)  },
+        { CKA_DECRYPT,             &f,  sizeof(f)  },
+        { CKA_UNWRAP,              &f,  sizeof(f)  },
+        { CKA_SENSITIVE,           &t,  sizeof(t)  },
+        { CKA_TOKEN,               &t,  sizeof(t)  },
+        { CKA_PRIVATE,             &t,  sizeof(t)  },
+        { CKA_EXTRACTABLE,         &f,  sizeof(f)  }
+    };
+
+	if(!p11) {
+        goto done;
+    }
+
+    if(!name) {
+        rv = CKR_DOMAIN_PARAMS_INVALID;
+        goto done;
+    } else if(!strcmp(name, "gost0") || !strcmp(name, "gostr3410-0")) {
+        pubTemplate[0].pValue = gostR3410_params_0_oid;
+    } else if(!strcmp(name, "gostA") || !strcmp(name, "gostr3410-A")) {
+        pubTemplate[0].pValue = gostR3410_params_A_oid;
+    } else if(!strcmp(name, "gostB") || !strcmp(name, "gostr3410-B")) {
+        pubTemplate[0].pValue = gostR3410_params_B_oid;
+    } else if(!strcmp(name, "gostC") || !strcmp(name, "gostr3410-C")) {
+        pubTemplate[0].pValue = gostR3410_params_C_oid;
+    } else if(!strcmp(name, "gostXA") || !strcmp(name, "gostr3410-XA")) {
+        pubTemplate[0].pValue = gostR3410_params_XA_oid;
+        gostEncryption(pubTemplate, privTemplate, &t, &f);
+    } else if(!strcmp(name, "gostXB") || !strcmp(name, "gostr3410-XB")) {
+        pubTemplate[0].pValue = gostR3410_params_XB_oid;
+        gostEncryption(pubTemplate, privTemplate, &t, &f);
+    } else {
+        rv = CKR_DOMAIN_PARAMS_INVALID;
+        goto done;
+    }
+
+    if((rv = p11->C_GenerateKeyPair
+        (session, &mechanism, pubTemplate, 6,
+         privTemplate, 8, &hPublicKey, &hPrivateKey)) != CKR_OK ) {
+        show_error(stdout, "C_GenerateKeyPair", rv );
+        goto done;
+    }
+
+    fprintf(stdout, "GOST R34.10-2001 Key generated\n");
+
+    if((hPublicKey  == CK_INVALID_HANDLE) ||
+       (hPrivateKey == CK_INVALID_HANDLE)) {
+        rv = CKR_HOST_MEMORY; /* Maybe there's something clearer */
+        show_error(stdout, "C_GenerateKeyPair", rv );
+        goto done;
+    }
+
+    fillAttribute(&attrs[0], CKA_VALUE, NULL, 0);
+    if ((rv = p11->C_GetAttributeValue
+         (session, hPublicKey, attrs, 1)) != CKR_OK) {
+        show_error(stdout, "C_GetAttributeValue", rv );
+        goto done;
+    }
+
+    if (((attrs[0].pValue = malloc(attrs[0].ulValueLen)) == NULL)) {
+        rv = CKR_HOST_MEMORY;
+        show_error(stdout, "C_GetAttributeValue", rv );
+        goto done;
+    }
+
+    if ((rv = p11->C_GetAttributeValue
+         (session, hPublicKey, attrs, 1)) != CKR_OK) {
+        show_error(stdout, "C_GetAttributeValue", rv );
+        goto done;
+    }
+
+#ifdef HAVE_OPENSSL
+    rv = setKeyId(p11, session, hPublicKey, hPrivateKey, attrs);
+#endif
+
+ done:
+	return rv;
+}
+
+
+
 int do_list_token_objects(CK_FUNCTION_LIST *funcs,
                           CK_SLOT_ID        SLOT_ID,
                           CK_BYTE          *user_pin,
@@ -756,6 +881,10 @@ int main( int argc, char **argv )
             if(gen_param != tmp) {
                 fprintf(stdout, "Generating RSA key with size %ld\n", keysize);
                 rc = generateRsaKeyPair(funcs, h_session, keysize);
+            } else if(strncmp(gen_param, "gost", 4) == 0) {
+                fprintf(stdout, "Generating GOST R34.10-2001 key (%s) in slot %ld\n",
+                        gen_param, pslots[islot]);
+                rc = generateGostKeyPair(funcs, h_session, gen_param);
             } else {
                 CK_BBOOL full;
                 rc = ecdsaNeedsEcParams(funcs, pslots[islot], &full);

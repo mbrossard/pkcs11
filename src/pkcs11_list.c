@@ -22,6 +22,7 @@ void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,
 	attr->ulValueLen = ulong;
 }
 
+#ifdef HAVE_OPENSSL
 CK_RV setKeyId(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
                CK_OBJECT_HANDLE hPublicKey, CK_OBJECT_HANDLE hPrivateKey,
                CK_ATTRIBUTE_PTR attrs)
@@ -54,6 +55,7 @@ CK_RV setKeyId(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
  done:
 	return rv;
 }
+#endif
 
 CK_RV generateRsaKeyPair(CK_FUNCTION_LIST_PTR p11,
                          CK_SESSION_HANDLE session,
@@ -128,8 +130,9 @@ CK_RV generateRsaKeyPair(CK_FUNCTION_LIST_PTR p11,
         show_error(stdout, "C_GetAttributeValue", rv );
         goto done;
     }
-
+#ifdef HAVE_OPENSSL
     rv = setKeyId(p11, session, hPublicKey, hPrivateKey, attrs);
+#endif
 
  done:
 	return rv;
@@ -323,7 +326,9 @@ CK_RV generateEcdsaKeyPair(CK_FUNCTION_LIST_PTR p11,
         goto done;
     }
 
+#ifdef HAVE_OPENSSL
     rv = setKeyId(p11, session, hPublicKey, hPrivateKey, attrs);
+#endif
 
  done:
 	return rv;

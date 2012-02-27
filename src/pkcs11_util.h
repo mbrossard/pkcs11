@@ -27,8 +27,13 @@
 #define CK_DECLARE_FUNCTION(returnType, name) \
    returnType __declspec(dllexport) name
 
+#ifdef __MINGW32__
 #define CK_DECLARE_FUNCTION_POINTER(returnType, name) \
+   returnType (* name)
+#else
+#define CK_DECLARE_FUNCTION_POINTER(returnType, name)    \
    returnType __declspec(dllimport) (* name)
+#endif
 
 #define CK_CALLBACK_FUNCTION(returnType, name) \
    returnType (* name)

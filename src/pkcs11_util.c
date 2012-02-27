@@ -16,12 +16,13 @@
 
 #define __USE_BSD 1
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
 #else
 #include <windows.h>
 #endif
+
+#include <stdio.h>
 
 #include "pkcs11_util.h"
 

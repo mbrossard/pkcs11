@@ -18,6 +18,8 @@
 
 #include <stdlib.h>
 #include <dirent.h>
+
+#include <sys/stat.h>
 #else
 #include <windows.h>
 #endif
@@ -100,6 +102,13 @@ int search_file(char *buffer, int size, char *key)
     struct dirent *ent;
     int found = 0;
 
+    if (!buffer)
+	    return 0;
+
+    dir = opendir(buffer);
+    if (!dir)
+	    return 0;
+
     while((found == 0) && (ent = readdir(dir))) {
         if((ent->d_type & DT_DIR)) {
             int len = strlen(buffer);
@@ -153,7 +162,16 @@ CK_RV pkcs11_initialize(CK_FUNCTION_LIST_PTR funcs)
             } else {
                 char *l = "configdir='%s' certPrefix='' keyPrefix='' secmod='secmod.db'";
                 char path[256];
+                DIR *dir;
                 snprintf(path, 256, "%s/.mozilla", getenv("HOME"));
+                dir = opendir(path);
+                if (!dir)   {
+                    if (mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH))
+                        return CKR_GENERAL_ERROR;
+		}
+		else   {
+			closedir(dir);
+		}
                 search_file(path, 256, "secmod.db");
                 snprintf(buffer, 256, l, path);
             }

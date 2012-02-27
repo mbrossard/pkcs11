@@ -504,7 +504,7 @@ int do_GetTokenMech(CK_FUNCTION_LIST *funcs,
 
     rc = funcs->C_GetMechanismList(slot_id, pMechanismList, &ulMechCount);
     if (rc != CKR_OK) {
-        fprintf(stderr, "Failed on line %d\n", __LINE__);
+        show_error(stdout, "C_GetMechanismList", rc );
         return rc;
     }
 

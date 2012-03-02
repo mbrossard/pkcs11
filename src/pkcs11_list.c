@@ -647,7 +647,7 @@ int do_GetTokenMech(CK_FUNCTION_LIST *funcs,
     return rc;
 }
 
-char *app_name = "obj_list";
+char *app_name = "pkcs11_list";
 
 const struct option options[] = {
     { "show-info",          0, 0,           'I' },
@@ -676,46 +676,6 @@ const char *option_help[] = {
     "Generate key",
 };
 
-void print_usage_and_die(void)
-{
-    int i = 0;
-    printf("Usage: %s [OPTIONS]\nOptions:\n", app_name);
-
-    while (options[i].name) {
-        char buf[40], tmp[5];
-        const char *arg_str;
-
-        /* Skip "hidden" options */
-        if (option_help[i] == NULL) {
-            i++;
-            continue;
-        }
-
-        if (options[i].val > 0 && options[i].val < 128)
-            sprintf(tmp, ", -%c", options[i].val);
-        else
-            tmp[0] = 0;
-        switch (options[i].has_arg) {
-            case 1:
-                arg_str = " <arg>";
-                break;
-            case 2:
-                arg_str = " [arg]";
-                break;
-            default:
-                arg_str = "";
-                break;
-        }
-        sprintf(buf, "--%s%s%s", options[i].name, tmp, arg_str);
-        if (strlen(buf) > 29) {
-            printf("  %s\n", buf);
-            buf[0] = '\0';
-        }
-        printf("  %-29s %s\n", buf, option_help[i]);
-        i++;
-    }
-    exit(2);
-}
 
 #define NEED_SESSION_RO 0x01
 #define NEED_SESSION_RW 0x02
@@ -805,7 +765,7 @@ int main( int argc, char **argv )
                 break;
             case 'h':
             default:
-                print_usage_and_die();
+                print_usage_and_die(app_name, options, option_help);
         }
     }
 

@@ -181,3 +181,44 @@ CK_RV pkcs11_initialize(CK_FUNCTION_LIST_PTR funcs)
     }
     return rc;
 }
+
+void print_usage_and_die(char *name, const struct option *opts, const char **help)
+{
+    int i = 0;
+    printf("Usage: %s [OPTIONS]\nOptions:\n", name);
+
+    while (opts[i].name) {
+        char buf[40], tmp[5];
+        const char *arg_str;
+
+        /* Skip "hidden" opts */
+        if (help[i] == NULL) {
+            i++;
+            continue;
+        }
+
+        if (opts[i].val > 0 && opts[i].val < 128)
+            sprintf(tmp, ", -%c", opts[i].val);
+        else
+            tmp[0] = 0;
+        switch (opts[i].has_arg) {
+            case 1:
+                arg_str = " <arg>";
+                break;
+            case 2:
+                arg_str = " [arg]";
+                break;
+            default:
+                arg_str = "";
+                break;
+        }
+        sprintf(buf, "--%s%s%s", opts[i].name, tmp, arg_str);
+        if (strlen(buf) > 29) {
+            printf("  %s\n", buf);
+            buf[0] = '\0';
+        }
+        printf("  %-29s %s\n", buf, help[i]);
+        i++;
+    }
+    exit(2);
+}

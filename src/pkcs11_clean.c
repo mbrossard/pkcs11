@@ -20,7 +20,7 @@ const struct option options[] = {
     { "slot",               1, 0,           's' },
     { "module",             1, 0,           'm' },
     { "directory",          1, 0,           'd' },
-    { "read-only",          0, 0,           'r' },
+    { "read-write",         0, 0,           'r' },
     { 0, 0, 0, 0 }
 };
 
@@ -29,7 +29,8 @@ const char *option_help[] = {
     "Supply PIN on the command line",
     "Specify number of the slot to use",
     "Specify the module to load",
-    "Specify the directory for NSS database"
+    "Specify the directory for NSS database",
+    "Actually delete objects"
 };
 
 void dump_generic(FILE *f, char *text, CK_VOID_PTR value, CK_ULONG size)
@@ -63,7 +64,7 @@ int main( int argc, char **argv )
     CK_ULONG          opt_slot = -1;
     CK_SESSION_HANDLE h_session;
     char *opt_module = NULL, *opt_dir = NULL;
-    int long_optind = 0, ro = 0, destroy = 0, i;
+    int long_optind = 0, rw = 0, destroy = 0, i;
     char c;
 
     while (1) {
@@ -87,7 +88,7 @@ int main( int argc, char **argv )
                 opt_module = optarg;
                 break;
             case 'r':
-                ro = 1;
+                rw = 1;
                 break;
             case 'h':
             default:
@@ -219,7 +220,7 @@ int main( int argc, char **argv )
             if(pub_count == 0) {
                 fprintf(stderr, "Didn't find matching public key. Skipping\n");
             } else {
-                if(ro) {
+                if(!rw) {
                     fprintf(stderr, "Read-only mode: Found candidate private key and public key with handles 0x%x 0x%x\n",
                             all_keys[i], h_pub);
                 } else {

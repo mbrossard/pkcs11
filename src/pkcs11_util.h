@@ -54,6 +54,7 @@ extern "C" {
 
 CK_FUNCTION_LIST  *pkcs11_get_function_list( const char *param );
 CK_RV pkcs11_initialize(CK_FUNCTION_LIST_PTR funcs);
+CK_RV pkcs11_initialize_nss(CK_FUNCTION_LIST_PTR funcs, const char *path);
 void print_usage_and_die(char *name, const struct option *opts, const char **help);
 
 #ifdef __cplusplus

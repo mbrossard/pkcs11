@@ -23,7 +23,7 @@ CFLAGS  +=-arch i386
 endif
 endif
 
-TARGETS = src/pkcs11_list
+TARGETS = src/pkcs11_list src/pkcs11_speed src/pkcs11_clean
 
 all: $(TARGETS)
 
@@ -32,6 +32,13 @@ all: $(TARGETS)
 
 src/pkcs11_list: src/pkcs11_list.o src/pkcs11_util.o src/pkcs11_display.o
 	$(CC) -o $@  $^ $(LDFLAGS) 
+
+src/pkcs11_clean: src/pkcs11_clean.o src/pkcs11_util.o src/pkcs11_display.o
+	$(CC) -o $@  $^ $(LDFLAGS)
+
+src/pkcs11_speed: src/pkcs11_speed.o src/pkcs11_util.o src/pkcs11_display.o
+	$(CC) -o $@  $^ $(LDFLAGS) -lpthread
+
 
 clean:
 	rm -f $(TARGETS) src/*.o *~ */*~

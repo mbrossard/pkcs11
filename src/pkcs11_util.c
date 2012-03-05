@@ -138,47 +138,65 @@ int search_file(char *buffer, int size, char *key)
 
 CK_RV pkcs11_initialize(CK_FUNCTION_LIST_PTR funcs)
 {
+    return pkcs11_initialize_nss(funcs, NULL);
+}
+
+CK_RV pkcs11_initialize_nss(CK_FUNCTION_LIST_PTR funcs, const char *path)
+{
     CK_RV rc = CKR_HOST_MEMORY;
+
     if(funcs) {
         rc = funcs->C_Initialize( NULL );
-#ifndef WIN32
-        if (rc == CKR_ARGUMENTS_BAD) {
-            char buffer[256];
-            char *z;
-            CK_C_INITIALIZE_ARGS *iap = NULL;
-            struct {
-                CK_CREATEMUTEX CreateMutex;
-                CK_DESTROYMUTEX DestroyMutex;
-                CK_LOCKMUTEX LockMutex;
-                CK_UNLOCKMUTEX UnlockMutex;
-                CK_FLAGS flags;
-                CK_CHAR_PTR LibraryParameters;
-                CK_VOID_PTR pReserved;
-            } ia;
-            
-            (void)memset(&ia, 0, sizeof(ia));
-            if ((z = getenv("MOZILLA_INIT"))) {
-                snprintf(buffer, 256, "%s", z);
-            } else {
-                char *l = "configdir='%s' certPrefix='' keyPrefix='' secmod='secmod.db'";
-                char path[256];
-                DIR *dir;
-                snprintf(path, 256, "%s/.mozilla", getenv("HOME"));
-                if ((dir = opendir(path)))   {
-                    search_file(path, 256, "secmod.db");
-                    closedir(dir);
-                }
-                snprintf(buffer, 256, l, path);
-            }
-
-            iap = (CK_C_INITIALIZE_ARGS *)&ia;
-            ia.flags = CKF_OS_LOCKING_OK;
-            ia.LibraryParameters = (CK_CHAR_PTR)buffer;
-            ia.pReserved = NULL_PTR;
-            rc = funcs->C_Initialize( (CK_VOID_PTR)iap );
-        }
-#endif
     }
+
+    if(funcs && (rc == CKR_ARGUMENTS_BAD)) {
+        static const char *nss_init_string = "configdir='%s' certPrefix='' keyPrefix='' secmod='secmod.db'";
+        char buffer[256];
+        CK_C_INITIALIZE_ARGS *iap = NULL;
+        struct {
+            CK_CREATEMUTEX CreateMutex;
+            CK_DESTROYMUTEX DestroyMutex;
+            CK_LOCKMUTEX LockMutex;
+            CK_UNLOCKMUTEX UnlockMutex;
+            CK_FLAGS flags;
+            CK_CHAR_PTR LibraryParameters;
+            CK_VOID_PTR pReserved;
+        } ia;
+        char *z;
+
+        iap = (CK_C_INITIALIZE_ARGS *)&ia;
+        ia.flags = CKF_OS_LOCKING_OK;
+        ia.LibraryParameters = (CK_CHAR_PTR)buffer;
+        ia.pReserved = NULL_PTR;
+ 
+        if(path) {
+            snprintf(buffer, 256, nss_init_string, path);
+        } else if((z = getenv("NSS_INIT"))) {
+            snprintf(buffer, 256, "%s", z);
+        } else if((z = getenv("NSS_DIR"))) {
+            snprintf(buffer, 256, nss_init_string, z);
+        } else {
+            int found = 0;
+#ifndef WIN32
+            char search[256];
+            DIR *dir;
+            snprintf(search, 256, "%s/.mozilla", getenv("HOME"));
+            if ((dir = opendir(search)))   {
+                if(search_file(search, 256, "secmod.db")) {
+                    found = 1;
+                }
+                closedir(dir);
+            }
+            snprintf(buffer, 256, nss_init_string, search);
+
+            if(!found) {
+                return CKR_ARGUMENTS_BAD;
+            }
+#endif
+        }
+        rc = funcs->C_Initialize( (CK_VOID_PTR)iap );
+    }
+
     return rc;
 }
 

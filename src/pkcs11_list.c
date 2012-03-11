@@ -659,6 +659,7 @@ const struct option options[] = {
     { "pin",                1, 0,           'p' },
     { "slot",               1, 0,           's' },
     { "module",             1, 0,           'm' },
+    { "directory",          1, 0,           'd' },
     { "genkey",             1, 0,           'g' },
     { 0, 0, 0, 0 }
 };
@@ -673,6 +674,7 @@ const char *option_help[] = {
     "Supply PIN on the command line (if used in scripts: careful!)",
     "Specify number of the slot to use",
     "Specify the module to load",
+    "Specify the directory for NSS database",
     "Generate key",
 };
 
@@ -690,7 +692,7 @@ int main( int argc, char **argv )
     CK_ULONG          opt_pin_len = 0;
     CK_RV             rc;
     CK_ULONG          opt_slot = -1;
-    char *opt_module = NULL;
+    char *opt_module = NULL, *opt_dir = NULL;
     char *gen_param = NULL;
     int long_optind = 0;
     int do_show_info = 0;
@@ -719,11 +721,14 @@ int main( int argc, char **argv )
 #endif
 
     while (1) {
-        c = getopt_long(argc, argv, "ILMOhlp:s:g:m:",
+        c = getopt_long(argc, argv, "ILMOd:hlp:s:g:m:",
                         options, &long_optind);
         if (c == -1)
             break;
         switch (c) {
+            case 'd':
+                opt_dir = optarg;
+                break;
             case 'I':
                 do_show_info = 1;
                 action_count++;
@@ -772,10 +777,15 @@ int main( int argc, char **argv )
     funcs = pkcs11_get_function_list( opt_module );
     if (!funcs) {
         printf("Could not get function list.\n");
+        if(!opt_module) {
+            print_usage_and_die(app_name, options, option_help);
+        }
         return -1;
     }
 
-    rc = pkcs11_initialize(funcs);
+    fprintf(stderr, "Using %s\n", opt_dir);
+
+    rc = pkcs11_initialize_nss(funcs, opt_dir);
     if (rc != CKR_OK) {
         show_error(stdout, "C_Initialize", rc );
         return rc;

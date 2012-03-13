@@ -959,3 +959,56 @@ void print_session_info(FILE *f, CK_SESSION_INFO *info)
     }
     fprintf(f, "%20s:  %0lx\n", "Device Error", info->ulDeviceError );
 }
+
+int print_object_info(CK_FUNCTION_LIST *funcs, FILE *f, CK_ULONG j,
+                      CK_SESSION_HANDLE h_session, CK_OBJECT_HANDLE  obj)
+{
+    CK_ULONG k, l;
+    CK_ATTRIBUTE attribute;
+    CK_RV rc;
+
+    rc = funcs->C_GetObjectSize( h_session, obj, &k );
+    if (rc != CKR_OK) {
+        if(rc != CKR_FUNCTION_NOT_SUPPORTED) {
+            show_error(stdout, "C_GetObjectSize", rc );
+            rc = FALSE;
+            goto done;
+        }
+        fprintf(f, "----------------\nObject %ld\n", j);
+    } else {
+        fprintf(f, "----------------\nObject %ld has size %ld\n", j, k);
+    }
+
+    for(k = 0, l = 0; k < ck_attribute_num; k++) {
+        attribute.type = ck_attribute_specs[k].type;
+        attribute.pValue = NULL;
+        attribute.ulValueLen = 0;
+
+        rc = funcs->C_GetAttributeValue( h_session, obj, &attribute, 1);
+        if ((rc == CKR_OK) && ((CK_LONG)attribute.ulValueLen != -1)) {
+            attribute.pValue = (CK_VOID_PTR) malloc(attribute.ulValueLen);
+
+            rc = funcs->C_GetAttributeValue(h_session, obj, &attribute, 1);
+            if (rc == CKR_OK) {
+                fprintf(f, "(%02ld) %s ", l++, ck_attribute_specs[k].name);
+
+                ck_attribute_specs[k].display
+                    (stdout, attribute.type, attribute.pValue,
+                     attribute.ulValueLen, ck_attribute_specs[k].arg);
+            }
+            free(attribute.pValue);
+        } else if(rc == CKR_ATTRIBUTE_SENSITIVE) {
+            fprintf(f, "(%02ld) %s is sensitive\n", l++,
+                   ck_attribute_specs[k].name);
+        } else if((rc != CKR_ATTRIBUTE_TYPE_INVALID) &&
+                  (rc != CKR_TEMPLATE_INCONSISTENT)) {
+            show_error(stdout, "C_GetAttributeValue", rc );
+            rc = FALSE;
+            goto done;
+        }
+    }
+
+    rc = TRUE;
+ done:
+    return rc;
+}

@@ -72,6 +72,9 @@ void print_attribute_list_req(FILE *f, CK_ATTRIBUTE_PTR pTemplate,
                               CK_ULONG  ulCount);
 void print_session_info(FILE *f, CK_SESSION_INFO *info);
 
+int print_object_info(CK_FUNCTION_LIST *funcs, FILE *f, CK_ULONG j,
+                      CK_SESSION_HANDLE h_session, CK_OBJECT_HANDLE  obj);
+
 extern type_spec ck_attribute_specs[];
 extern CK_ULONG ck_attribute_num;
 extern enum_spec ck_types[];

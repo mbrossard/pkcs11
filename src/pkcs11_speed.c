@@ -19,7 +19,8 @@ const struct option options[] = {
     { "pin",                1, 0,           'p' },
     { "slot",               1, 0,           's' },
     { "module",             1, 0,           'm' },
-    { "id",                 1, 0,           'i' },
+    { "label",              1, 0,           'l' },
+    //    { "id",                 1, 0,           'i' },
     { "threads",            1, 0,           't' },
     { "operations",         1, 0,           'o' },
     { 0, 0, 0, 0 }
@@ -31,13 +32,19 @@ const char *option_help[] = {
     "Specify number of the slot to use",
     "Specify the module to load",
     "Specify label of the private key to use",
+    //    "Specify id of the private key to use",
     "Specify number of threads to start",
     "Specify number of operations to perform"
 };
 
+pthread_mutex_t join_mut = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+int thread_ready = 0;
+
 CK_FUNCTION_LIST *funcs = NULL;
 int operations = 1;
 CK_OBJECT_HANDLE key;
+CK_BBOOL failure;
 
 typedef struct {
     CK_SESSION_HANDLE session;
@@ -52,9 +59,15 @@ void *do_sign(void *arg)
     CK_RV rc;
     int i;
 
+    pthread_mutex_lock(&join_mut);
+    thread_ready += 1;
+    pthread_cond_wait(&cond, &join_mut);
+    pthread_mutex_unlock(&join_mut);
+
     for(i = 0; i < operations; i++) {
         rc = funcs->C_SignInit(w->session, &mech, key);
         if (rc != CKR_OK) {
+            failure = CK_TRUE;
             show_error(stdout, "C_SignInit", rc );
             pthread_exit(NULL);
         }
@@ -63,6 +76,7 @@ void *do_sign(void *arg)
         CK_ULONG len = 256;
         rc = funcs->C_Sign(w->session, (CK_UTF8CHAR *)"Hello, World!", 13, (CK_BYTE_PTR)sig, &len);
         if (rc != CKR_OK) {
+            failure = CK_TRUE;
             show_error(stdout, "C_Sign", rc );
             pthread_exit(NULL);
         }
@@ -74,6 +88,7 @@ void *do_sign(void *arg)
 int main( int argc, char **argv )
 {
     CK_BYTE           opt_pin[32] = "";
+    char             *opt_label = NULL;
     CK_ULONG          opt_pin_len = 0;
     CK_RV             rc;
     CK_ULONG          opt_slot = -1;
@@ -86,7 +101,7 @@ int main( int argc, char **argv )
     char c;
 
     while (1) {
-        c = getopt_long(argc, argv, "hp:s:g:m:t:o:",
+        c = getopt_long(argc, argv, "hp:s:g:l:m:t:o:",
                         options, &long_optind);
         if (c == -1)
             break;
@@ -109,6 +124,9 @@ int main( int argc, char **argv )
             case 'm':
                 opt_module = optarg;
                 break;
+            case 'l':
+                opt_label = optarg;
+                break;
             case 'h':
             default:
                 print_usage_and_die(app_name, options, option_help);
@@ -128,12 +146,18 @@ int main( int argc, char **argv )
     }
 
     CK_OBJECT_CLASS class = CKO_PRIVATE_KEY;
-    CK_ATTRIBUTE search[] =
+    CK_ATTRIBUTE search[2] =
     {
-        /* { CKA_LABEL, label, strlen ((char *) label)}, */
-        { CKA_CLASS, &class, sizeof(class)}
+        { CKA_CLASS, &class, sizeof(class)},
+        { CKA_LABEL, NULL,  0}
     };
-    CK_ULONG count;
+    CK_ULONG count = 1;
+
+    if(opt_label) {
+        search[1].pValue = opt_label;
+        search[1].ulValueLen = strlen(opt_label);
+        count = 2;
+    }
 
     rc = funcs->C_OpenSession(opt_slot, CKF_SERIAL_SESSION, NULL_PTR, NULL_PTR, &h_session);
     if (rc != CKR_OK) {
@@ -149,7 +173,7 @@ int main( int argc, char **argv )
         }
     }
 
-    rc = funcs->C_FindObjectsInit(h_session, search, 1);
+    rc = funcs->C_FindObjectsInit(h_session, search, count);
     if (rc != CKR_OK) {
         show_error(stdout, "C_FindObjectsInit", rc );
         return rc;
@@ -161,11 +185,15 @@ int main( int argc, char **argv )
         return rc;
     }
 
+    print_object_info(funcs, stdout, 0, h_session, key);
+
     rc = funcs->C_FindObjectsFinal(h_session);
     if (rc != CKR_OK) {
         show_error(stdout, "C_FindObjectsFinal", rc );
         return rc;
     }
+
+    failure = CK_FALSE;
 
     pthread_attr_init(&pattr);
     pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
@@ -182,11 +210,22 @@ int main( int argc, char **argv )
         }
     }
 
-    gettimeofday(&start, NULL);
-
     for (i = 0; i < threads; i++) {
         rc = pthread_create( &(work[i].thread), &pattr, do_sign, (void *) &(work[i]));
     }
+
+    /* Wait until all threads are ready */
+    i = 0;
+    do {
+        usleep(100);
+        pthread_mutex_lock(&join_mut);
+        i = thread_ready;
+        pthread_mutex_unlock(&join_mut);
+    } while (i != threads);
+
+    gettimeofday(&start, NULL);
+    /* Unleash all threads */
+    pthread_cond_broadcast(&cond);
 
     for (i = 0; i < threads; i++) {
         void *status;
@@ -200,6 +239,10 @@ int main( int argc, char **argv )
     double speed = threads * operations / elapsed;
 
     printf("Processed %d signatures in %.2fs = %.2f sig/s\n", threads * operations, elapsed, speed);
+
+    if(failure) {
+        printf("Failure recorded at some point, the result might not be trustworthy\n");
+    }
 
     for (i = 0; i < threads; i++) {
         rc = funcs->C_CloseSession(work[i].session);

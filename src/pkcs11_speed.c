@@ -23,6 +23,8 @@ const struct option options[] = {
     //    { "id",                 1, 0,           'i' },
     { "threads",            1, 0,           't' },
     { "operations",         1, 0,           'o' },
+    { "directory",          1, 0,           'd' },
+    { "elliptic",           0, 0,           'e' },
     { 0, 0, 0, 0 }
 };
 
@@ -34,7 +36,9 @@ const char *option_help[] = {
     "Specify label of the private key to use",
     //    "Specify id of the private key to use",
     "Specify number of threads to start",
-    "Specify number of operations to perform"
+    "Specify number of operations to perform",
+    "Specify the directory for NSS database",
+    "Test ECDSA performance",
 };
 
 pthread_mutex_t join_mut = PTHREAD_MUTEX_INITIALIZER;
@@ -45,6 +49,7 @@ CK_FUNCTION_LIST *funcs = NULL;
 int operations = 1;
 CK_OBJECT_HANDLE key;
 CK_BBOOL failure;
+CK_ULONG sig_mech = CKM_RSA_PKCS;
 
 typedef struct {
     CK_SESSION_HANDLE session;
@@ -55,7 +60,7 @@ void *do_sign(void *arg)
 {
     workload_t *w = (workload_t*)arg;
 
-    CK_MECHANISM mech = { CKM_RSA_PKCS, NULL_PTR, 0 };
+    CK_MECHANISM mech = { sig_mech, NULL_PTR, 0 };
     CK_RV rc;
     int i;
 
@@ -99,13 +104,25 @@ int main( int argc, char **argv )
     struct timeval start, stop;
     pthread_attr_t pattr;
     char c;
+    CK_OBJECT_CLASS class = CKO_PRIVATE_KEY;
+    CK_KEY_TYPE kt = CKK_RSA;
+    CK_ATTRIBUTE search[3] =
+    {
+        { CKA_CLASS,    &class, sizeof(class)},
+        { CKA_KEY_TYPE, &kt,    sizeof(kt)   },
+        { CKA_LABEL,    NULL,   0            }
+    };
+    CK_ULONG count = 2;
+    char *nss_dir = NULL;
 
     while (1) {
-        c = getopt_long(argc, argv, "hp:s:g:l:m:t:o:",
+        c = getopt_long(argc, argv, "hd:ep:s:g:l:m:t:o:",
                         options, &long_optind);
         if (c == -1)
             break;
         switch (c) {
+            case 'd':
+                nss_dir = optarg;
             case 'p':
                 opt_pin_len = strlen(optarg);
                 opt_pin_len = (opt_pin_len < sizeof(opt_pin)) ?
@@ -127,6 +144,10 @@ int main( int argc, char **argv )
             case 'l':
                 opt_label = optarg;
                 break;
+            case 'e':
+                kt = CKK_EC;
+                sig_mech = CKM_ECDSA;
+                break;
             case 'h':
             default:
                 print_usage_and_die(app_name, options, option_help);
@@ -139,19 +160,15 @@ int main( int argc, char **argv )
         return -1;
     }
 
-    rc = pkcs11_initialize(funcs);
+    if(nss_dir) {
+        rc = pkcs11_initialize_nss(funcs, nss_dir);
+    } else {
+        rc = pkcs11_initialize(funcs);
+    }
     if (rc != CKR_OK) {
         show_error(stdout, "C_Initialize", rc );
         return rc;
     }
-
-    CK_OBJECT_CLASS class = CKO_PRIVATE_KEY;
-    CK_ATTRIBUTE search[2] =
-    {
-        { CKA_CLASS, &class, sizeof(class)},
-        { CKA_LABEL, NULL,  0}
-    };
-    CK_ULONG count = 1;
 
     if(opt_label) {
         search[1].pValue = opt_label;
@@ -183,6 +200,11 @@ int main( int argc, char **argv )
     if (rc != CKR_OK) {
         show_error(stdout, "C_FindObjects", rc );
         return rc;
+    }
+
+    if(count == 0) {
+        printf("No object found\n");
+        exit(-1);
     }
 
     print_object_info(funcs, stdout, 0, h_session, key);
@@ -222,6 +244,8 @@ int main( int argc, char **argv )
         i = thread_ready;
         pthread_mutex_unlock(&join_mut);
     } while (i != threads);
+
+    printf("\n\nStarting test (%d threads, %d operations)\n", threads, operations);
 
     gettimeofday(&start, NULL);
     /* Unleash all threads */

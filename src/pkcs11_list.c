@@ -801,23 +801,23 @@ int main( int argc, char **argv )
         }
     }
 
-    if(opt_slot != -1) {
-        pslots = &opt_slot;
-        nslots = 1;
-    } else {
-        if(do_list_slots) {
-            rc = funcs->C_GetSlotList(0, NULL_PTR, &nslots);
-            if (rc != CKR_OK) {
-                show_error(stdout, "C_GetSlotList", rc );
-                return rc;
-            }
-            pslots = malloc(sizeof(CK_SLOT_ID) * nslots);
-            rc = funcs->C_GetSlotList(0, pslots, &nslots);
-            if (rc != CKR_OK) {
-                show_error(stdout, "C_GetSlotList", rc );
-                return rc;
-            }
+    if (opt_slot == -1 && do_list_slots) {
+        rc = funcs->C_GetSlotList(0, NULL_PTR, &nslots);
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_GetSlotList", rc );
+            return rc;
         }
+        pslots = malloc(sizeof(CK_SLOT_ID) * nslots);
+        rc = funcs->C_GetSlotList(0, pslots, &nslots);
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_GetSlotList", rc );
+            return rc;
+        }
+    } else {
+	if(opt_slot == -1)
+		opt_slot = 0;
+	pslots = &opt_slot;
+	nslots = 1;
     }
 
     for (islot = 0; islot < nslots; islot++) {

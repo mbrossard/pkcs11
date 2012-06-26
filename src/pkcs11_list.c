@@ -655,7 +655,6 @@ const struct option options[] = {
     { "list-mechanisms",    0, 0,           'M' },
     { "list-objects",       0, 0,           'O' },
     { "help",               0, 0,           'h' },
-    { "login",              0, 0,           'l' },
     { "pin",                1, 0,           'p' },
     { "slot",               1, 0,           's' },
     { "module",             1, 0,           'm' },
@@ -670,7 +669,6 @@ const char *option_help[] = {
     "List mechanisms supported by the token",
     "List objects contained in the token",
     "Print this help and exit",
-    "Log into the token first (not needed when using --pin)",
     "Supply PIN on the command line (if used in scripts: careful!)",
     "Specify number of the slot to use",
     "Specify the module to load",
@@ -700,7 +698,6 @@ int main( int argc, char **argv )
     int do_list_mechs = 0;
     int do_list_objects = 0;
     int need_session = 0;
-    int opt_login = 0;
     int action_count = 0;
     int genkey = 0;
 
@@ -721,7 +718,7 @@ int main( int argc, char **argv )
 #endif
 
     while (1) {
-        c = getopt_long(argc, argv, "ILMOd:hlp:s:g:m:",
+        c = getopt_long(argc, argv, "ILMOd:hp:s:g:m:",
                         options, &long_optind);
         if (c == -1)
             break;
@@ -746,13 +743,8 @@ int main( int argc, char **argv )
                 do_list_objects = 1;
                 action_count++;
                 break;
-            case 'l':
-                need_session |= NEED_SESSION_RW;
-                opt_login = 1;
-                break;
             case 'p':
                 need_session |= NEED_SESSION_RW;
-                opt_login = 1;
                 opt_pin_len = strlen(optarg);
                 opt_pin_len = (opt_pin_len < 20) ? opt_pin_len : 19;
                 memcpy( opt_pin, optarg, opt_pin_len );
@@ -783,7 +775,9 @@ int main( int argc, char **argv )
         return -1;
     }
 
-    fprintf(stderr, "Using %s\n", opt_dir);
+    if(opt_dir) {
+        fprintf(stderr, "Using %s directory\n", opt_dir);
+    }
 
     rc = pkcs11_initialize_nss(funcs, opt_dir);
     if (rc != CKR_OK) {
@@ -805,18 +799,20 @@ int main( int argc, char **argv )
         pslots = &opt_slot;
         nslots = 1;
     } else {
-        if(do_list_slots) {
-            rc = funcs->C_GetSlotList(0, NULL_PTR, &nslots);
-            if (rc != CKR_OK) {
-                show_error(stdout, "C_GetSlotList", rc );
+        rc = funcs->C_GetSlotList(0, NULL_PTR, &nslots);
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_GetSlotList", rc );
                 return rc;
-            }
-            pslots = malloc(sizeof(CK_SLOT_ID) * nslots);
-            rc = funcs->C_GetSlotList(0, pslots, &nslots);
-            if (rc != CKR_OK) {
-                show_error(stdout, "C_GetSlotList", rc );
-                return rc;
-            }
+        }
+        pslots = malloc(sizeof(CK_SLOT_ID) * nslots);
+        rc = funcs->C_GetSlotList(0, pslots, &nslots);
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_GetSlotList", rc );
+            return rc;
+        }
+
+        if(opt_pin_len) {
+            printf("No slot specified, the '--pin' parameter will be ignored\n");
         }
     }
 
@@ -830,19 +826,23 @@ int main( int argc, char **argv )
         }
 
         if(do_list_objects) {
-            if(opt_pin_len) {
-                do_list_token_objects(funcs, pslots[islot],
-                                      opt_pin, opt_pin_len);
+            if(opt_pin_len && (opt_slot != -1)) {
+                /* We don't try to log into all slots with the same
+                   pin to avoid locking them. */
+                do_list_token_objects(funcs, pslots[islot], opt_pin, opt_pin_len);
             } else {
                 do_list_token_objects(funcs, pslots[islot], NULL, 0);
             }
         }
-        if(genkey) {
+    }
+
+    if(genkey) {
+        if(opt_slot != -1) {
             char             *tmp;
             long              keysize;
             CK_SESSION_HANDLE h_session;
             CK_FLAGS          flags = CKF_SERIAL_SESSION | CKF_RW_SESSION;
-            rc = funcs->C_OpenSession( pslots[islot], flags, NULL, NULL, &h_session );
+            rc = funcs->C_OpenSession( opt_slot, flags, NULL, NULL, &h_session );
             if(opt_pin_len) {
                 rc = funcs->C_Login( h_session, CKU_USER, opt_pin, opt_pin_len );
             }
@@ -853,18 +853,20 @@ int main( int argc, char **argv )
                 rc = generateRsaKeyPair(funcs, h_session, keysize);
             } else if(strncmp(gen_param, "gost", 4) == 0) {
                 fprintf(stdout, "Generating GOST R34.10-2001 key (%s) in slot %ld\n",
-                        gen_param, pslots[islot]);
+                        gen_param, opt_slot);
                 rc = generateGostKeyPair(funcs, h_session, gen_param);
             } else {
                 CK_BBOOL full;
-                rc = ecdsaNeedsEcParams(funcs, pslots[islot], &full);
+                rc = ecdsaNeedsEcParams(funcs, opt_slot, &full);
                 if(rc == CKR_OK) {
                     fprintf(stdout, "Generating ECDSA key with curve '%s' "
-                            "in slot %ld with %s\n", gen_param, pslots[islot],
+                            "in slot %ld with %s\n", gen_param, opt_slot,
                             full ? "EC Parameters" : "Named Curve");
                     rc = generateEcdsaKeyPair(funcs, h_session, gen_param, full);
                 }
             }
+        } else {
+            printf("The key generation function requires the '--slot' parameter\n");
         }
     }
 

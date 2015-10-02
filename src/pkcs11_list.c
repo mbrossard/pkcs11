@@ -469,7 +469,7 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
     CK_SESSION_HANDLE h_session;
     CK_OBJECT_HANDLE  obj;
 
-    if(user_pin) {
+    if(user_pin && user_pin_len) {
         /* create a USER/SO R/W session */
         flags = CKF_SERIAL_SESSION | CKF_RW_SESSION;
         rc = funcs->C_OpenSession( SLOT_ID, flags, NULL, NULL, &h_session );
@@ -789,22 +789,23 @@ int main( int argc, char **argv )
         }
     }
 
+    rc = funcs->C_GetSlotList(0, NULL_PTR, &nslots);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_GetSlotList", rc );
+        return rc;
+    }
+    pslots = malloc(sizeof(CK_SLOT_ID) * nslots);
+    rc = funcs->C_GetSlotList(0, pslots, &nslots);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_GetSlotList", rc );
+        return rc;
+    }
+    
     if(opt_slot != -1) {
+        /* TODO: Look in pslots */
         pslots = &opt_slot;
         nslots = 1;
     } else {
-        rc = funcs->C_GetSlotList(0, NULL_PTR, &nslots);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_GetSlotList", rc );
-                return rc;
-        }
-        pslots = malloc(sizeof(CK_SLOT_ID) * nslots);
-        rc = funcs->C_GetSlotList(0, pslots, &nslots);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_GetSlotList", rc );
-            return rc;
-        }
-
         if(opt_pin_len) {
             printf("No slot specified, the '--pin' parameter will be ignored\n");
         }
@@ -820,17 +821,30 @@ int main( int argc, char **argv )
         }
 
         if(do_list_objects) {
-            if(opt_pin_len && (opt_slot != -1)) {
-                /* We don't try to log into all slots with the same
-                   pin to avoid locking them. */
                 do_list_token_objects(funcs, pslots[islot], opt_pin, opt_pin_len);
-            } else {
-                do_list_token_objects(funcs, pslots[islot], NULL, 0);
-            }
         }
     }
 
     if(genkey) {
+
+        if(opt_slot == -1) {
+            rc = funcs->C_GetSlotList(0, NULL_PTR, &nslots);
+            if (rc != CKR_OK) {
+                show_error(stdout, "C_GetSlotList", rc );
+                return rc;
+            }
+
+            if(nslots == 1) {
+                rc = funcs->C_GetSlotList(0, &opt_slot, &nslots);
+                if (rc != CKR_OK) {
+                    show_error(stdout, "C_GetSlotList", rc );
+                    return rc;
+                } else {
+                    printf("Using slot %ld\n", opt_slot);
+                }
+            }
+        }
+
         if(opt_slot != -1) {
             char             *tmp;
             long              keysize;
@@ -839,6 +853,25 @@ int main( int argc, char **argv )
             rc = funcs->C_OpenSession( opt_slot, flags, NULL, NULL, &h_session );
             if(opt_pin_len) {
                 rc = funcs->C_Login( h_session, CKU_USER, opt_pin, opt_pin_len );
+                if (rc != CKR_OK) {
+                    show_error(stdout, "C_Login", rc );
+                }
+            } else {
+                CK_TOKEN_INFO  info;
+                
+                rc = funcs->C_GetTokenInfo( opt_slot, &info );
+                if (rc != CKR_OK) {
+                    show_error(stdout, "   C_GetTokenInfo", rc );
+                    return FALSE;
+                }
+
+                if(info.flags & CKF_PROTECTED_AUTHENTICATION_PATH) {
+                    rc = funcs->C_Login( h_session, CKU_USER, NULL, 0 );
+                    if (rc != CKR_OK) {
+                        show_error(stdout, "C_Login", rc );
+                        return rc;
+                    }
+                }
             }
             fprintf(stdout, "Generating key with param '%s'\n", gen_param);
             keysize = strtol(gen_param, &tmp, 10);

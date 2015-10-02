@@ -980,11 +980,6 @@ int print_object_info(CK_FUNCTION_LIST *funcs, FILE *f, CK_ULONG j,
 
     rc = funcs->C_GetObjectSize( h_session, obj, &k );
     if (rc != CKR_OK) {
-        if(rc != CKR_FUNCTION_NOT_SUPPORTED) {
-            show_error(stdout, "C_GetObjectSize", rc );
-            rc = FALSE;
-            goto done;
-        }
         fprintf(f, "----------------\nObject %ld\n", j);
     } else {
         fprintf(f, "----------------\nObject %ld has size %ld\n", j, k);

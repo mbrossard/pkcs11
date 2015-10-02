@@ -518,11 +518,6 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
 
             rc = funcs->C_GetObjectSize( h_session, obj, &k );
             if (rc != CKR_OK) {
-                if(rc != CKR_FUNCTION_NOT_SUPPORTED) {
-                    show_error(stdout, "C_GetObjectSize", rc );
-                    rc = FALSE;
-                    goto done;
-                }
                 printf("----------------\nObject %ld\n", j);
             } else {
                 printf("----------------\nObject %ld has size %ld\n", j, k);

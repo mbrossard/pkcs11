@@ -256,8 +256,7 @@ CK_RV generateEcdsaKeyPair(CK_FUNCTION_LIST_PTR p11,
         { CKA_EC_PARAMS,  NULL, 0                 },
         { CKA_TOKEN,      &t,   sizeof(CK_BBOOL)  }
     };
-    CK_ATTRIBUTE privTemplate[5] = {
-        { CKA_EC_PARAMS,  NULL, 0                 },
+    CK_ATTRIBUTE privTemplate[4] = {
         { CKA_TOKEN,      &t,   sizeof(CK_BBOOL)  },
         { CKA_PRIVATE,    &t,   sizeof(CK_BBOOL)  },
         { CKA_SENSITIVE,  &t,   sizeof(CK_BBOOL)  },
@@ -295,7 +294,7 @@ CK_RV generateEcdsaKeyPair(CK_FUNCTION_LIST_PTR p11,
 
     if((rv = p11->C_GenerateKeyPair
         (session, &mechanism, pubTemplate, 2,
-         privTemplate, 5, &hPublicKey, &hPrivateKey)) != CKR_OK ) {
+         privTemplate, 4, &hPublicKey, &hPrivateKey)) != CKR_OK ) {
         show_error(stdout, "C_GenerateKeyPair", rv );
         goto done;
     }

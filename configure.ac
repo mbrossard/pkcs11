@@ -43,6 +43,22 @@ else
 fi
 AM_CONDITIONAL(HAVE_LD_VERSION_SCRIPT, test "$have_ld_version_script" = "yes")
 
+SOFTKN_PATH=
+AC_PATH_PROG([PKG_CONFIG], [pkg-config])
+if test x"$PKG_CONFIG" != x""; then
+    NSS_LIBDIR=`$PKG_CONFIG nss --variable=libdir 2>/dev/null`
+    if test x"NSS_LIBDIR" != x""; then
+        if test `uname` == "Darwin" ; then
+           NSS_LIBNAME="libsoftn3.dylib" ;
+        else
+           NSS_LIBNAME="libsoftn3.so" ;
+        fi
+        SOFTKN_PATH="$NSS_LIBDIR/$NSS_LIBNAME"
+    fi
+fi
+AC_SUBST(SOFTKN_PATH)
+AC_DEFINE_UNQUOTED([SOFTKN_PATH], [$SOFTKN_PATH], [Path to NSS soft-token dynamic library])
+
 AX_APPEND_LINK_FLAGS([ -Wl,--as-needed -Wl,--gc-sections ],[LDFLAGS])
 
 AC_C_BIGENDIAN

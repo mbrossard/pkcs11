@@ -47,3 +47,16 @@ pkcs11_speed_SOURCES = \
 	src/pkcs11_speed.c
 
 pkcs11_speed_LDADD = -lpthread
+
+lib_LTLIBRARIES = pkcs11-token.la
+
+pkcs11_token_la_SOURCES = \
+	src/cryptoki.c \
+	src/iniparser.c \
+	src/dictionary.c
+
+pkcs11_token_la_LDFLAGS = \
+	-version-info @VERSION_INFO@ \
+	-avoid-version -module
+
+pkcs11_token_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_VISIBILITY)

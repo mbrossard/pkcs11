@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Mathias Brossard <mathias@brossard.org>
+ * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
 #include <string.h>

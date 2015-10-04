@@ -6,9 +6,12 @@
 #include <unistd.h>
 #include <getopt.h>
 
+#include "config.h"
+
 #ifdef HAVE_OPENSSL
 #include <openssl/evp.h>
 #include <openssl/sha.h>
+#include <openssl/ecdsa.h>
 #endif
 
 #include "pkcs11_util.h"
@@ -25,11 +28,12 @@ void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,
 #ifdef HAVE_OPENSSL
 CK_RV setKeyId(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
                CK_OBJECT_HANDLE hPublicKey, CK_OBJECT_HANDLE hPrivateKey,
-               CK_ATTRIBUTE_PTR attrs)
+               CK_ATTRIBUTE_PTR attrs, CK_BYTE_PTR label)
 {
 	CK_RV rv = CKR_HOST_MEMORY;
     CK_BYTE *tmp = NULL;
-    CK_ATTRIBUTE kid[1];
+    CK_ATTRIBUTE kid[2];
+    int i = 1;
 
     if ((tmp = (CK_BYTE *)malloc(SHA_DIGEST_LENGTH)) != NULL) {
         SHA1((unsigned char*)attrs[0].pValue, attrs[0].ulValueLen, tmp);
@@ -37,14 +41,21 @@ CK_RV setKeyId(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
         kid[0].pValue = tmp;
         kid[0].ulValueLen = SHA_DIGEST_LENGTH;
 
-        rv = p11->C_SetAttributeValue(session, hPublicKey , kid, 1);
+        if(label) {
+            kid[1].type = CKA_LABEL;
+            kid[1].pValue = label;
+            kid[1].ulValueLen = strlen((char *)label);
+            i += 1;
+        }
+
+        rv = p11->C_SetAttributeValue(session, hPublicKey , kid, i);
 
         if(rv != CKR_OK) {
             free(tmp);
             show_error(stdout, "C_SetAttributeValue", rv );
             goto done;
         }
-        rv = p11->C_SetAttributeValue(session, hPrivateKey, kid, 1);
+        rv = p11->C_SetAttributeValue(session, hPrivateKey, kid, i);
         free(tmp);
         if(rv != CKR_OK) {
             show_error(stdout, "C_SetAttributeValue", rv );
@@ -59,7 +70,7 @@ CK_RV setKeyId(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
 
 CK_RV generateRsaKeyPair(CK_FUNCTION_LIST_PTR p11,
                          CK_SESSION_HANDLE session,
-                         CK_ULONG size)
+                         CK_ULONG size, CK_BYTE_PTR label)
 {
 	CK_RV rv = CKR_HOST_MEMORY;
     CK_OBJECT_HANDLE hPublicKey, hPrivateKey;
@@ -131,7 +142,7 @@ CK_RV generateRsaKeyPair(CK_FUNCTION_LIST_PTR p11,
         goto done;
     }
 #ifdef HAVE_OPENSSL
-    rv = setKeyId(p11, session, hPublicKey, hPrivateKey, attrs);
+    rv = setKeyId(p11, session, hPublicKey, hPrivateKey, attrs, label);
 #endif
 
  done:
@@ -245,7 +256,7 @@ CK_RV ecdsaNeedsEcParams(CK_FUNCTION_LIST *funcs,
 
 CK_RV generateEcdsaKeyPair(CK_FUNCTION_LIST_PTR p11,
                            CK_SESSION_HANDLE session,
-                           char *name, CK_BBOOL full)
+                           char *name, CK_BBOOL full, CK_BYTE_PTR label)
 {
 	CK_RV rv = CKR_HOST_MEMORY;
     CK_OBJECT_HANDLE hPublicKey, hPrivateKey;
@@ -326,7 +337,7 @@ CK_RV generateEcdsaKeyPair(CK_FUNCTION_LIST_PTR p11,
     }
 
 #ifdef HAVE_OPENSSL
-    rv = setKeyId(p11, session, hPublicKey, hPrivateKey, attrs);
+    rv = setKeyId(p11, session, hPublicKey, hPrivateKey, attrs, label);
 #endif
 
  done:
@@ -356,7 +367,7 @@ void gostEncryption(CK_ATTRIBUTE *pubTemplate, CK_ATTRIBUTE *privTemplate, CK_BB
 
 CK_RV generateGostKeyPair(CK_FUNCTION_LIST_PTR p11,
                           CK_SESSION_HANDLE session,
-                          char *name)
+                          char *name, CK_BYTE_PTR label)
 {
 
 	CK_RV rv = CKR_HOST_MEMORY;
@@ -449,7 +460,7 @@ CK_RV generateGostKeyPair(CK_FUNCTION_LIST_PTR p11,
     }
 
 #ifdef HAVE_OPENSSL
-    rv = setKeyId(p11, session, hPublicKey, hPrivateKey, attrs);
+    rv = setKeyId(p11, session, hPublicKey, hPrivateKey, attrs, label);
 #endif
 
  done:
@@ -645,6 +656,7 @@ char *app_name = "pkcs11_list";
 
 const struct option options[] = {
     { "show-info",          0, 0,           'I' },
+    { "label",              0, 0,           'l' },
     { "list-slots",         0, 0,           'L' },
     { "list-mechanisms",    0, 0,           'M' },
     { "list-objects",       0, 0,           'O' },
@@ -680,6 +692,7 @@ int main( int argc, char **argv )
     CK_SLOT_ID        *pslots = NULL;
     CK_FUNCTION_LIST  *funcs = NULL;
     CK_BYTE           opt_pin[20] = "";
+    CK_BYTE_PTR       opt_label = NULL;
     CK_INFO           info;
     CK_ULONG          opt_pin_len = 0;
     CK_RV             rc;
@@ -712,7 +725,7 @@ int main( int argc, char **argv )
 #endif
 
     while (1) {
-        c = getopt_long(argc, argv, "ILMOd:hp:s:g:m:",
+        c = getopt_long(argc, argv, "ILMOd:hl:p:s:g:m:",
                         options, &long_optind);
         if (c == -1)
             break;
@@ -723,6 +736,9 @@ int main( int argc, char **argv )
             case 'I':
                 do_show_info = 1;
                 action_count++;
+                break;
+            case 'l':
+                opt_label = (CK_BYTE_PTR)optarg;
                 break;
             case 'L':
                 do_list_slots = 1;
@@ -877,11 +893,11 @@ int main( int argc, char **argv )
             keysize = strtol(gen_param, &tmp, 10);
             if(gen_param != tmp) {
                 fprintf(stdout, "Generating RSA key with size %ld\n", keysize);
-                rc = generateRsaKeyPair(funcs, h_session, keysize);
+                rc = generateRsaKeyPair(funcs, h_session, keysize, opt_label);
             } else if(strncmp(gen_param, "gost", 4) == 0) {
                 fprintf(stdout, "Generating GOST R34.10-2001 key (%s) in slot %ld\n",
                         gen_param, opt_slot);
-                rc = generateGostKeyPair(funcs, h_session, gen_param);
+                rc = generateGostKeyPair(funcs, h_session, gen_param, opt_label);
             } else {
                 CK_BBOOL full;
                 rc = ecdsaNeedsEcParams(funcs, opt_slot, &full);
@@ -889,7 +905,7 @@ int main( int argc, char **argv )
                     fprintf(stdout, "Generating ECDSA key with curve '%s' "
                             "in slot %ld with %s\n", gen_param, opt_slot,
                             full ? "EC Parameters" : "Named Curve");
-                    rc = generateEcdsaKeyPair(funcs, h_session, gen_param, full);
+                    rc = generateEcdsaKeyPair(funcs, h_session, gen_param, full, opt_label);
                 }
             }
         } else {

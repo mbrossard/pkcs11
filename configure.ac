@@ -67,6 +67,12 @@ AC_CHECK_HEADERS([getopt.h])
 AC_CHECK_FUNCS([getopt_long])
 
 AX_CHECK_OPENSSL
+if test x"$OPENSSL_LIBS" != x""; then
+   HAVE_OPENSSL=1
+fi
+
+AC_SUBST(HAVE_OPENSSL)
+AC_DEFINE_UNQUOTED([HAVE_OPENSSL], [$HAVE_OPENSSL], [Compiled with OpenSSL])
 
 AC_CONFIG_FILES([Makefile])
 

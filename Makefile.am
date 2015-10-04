@@ -36,6 +36,9 @@ pkcs11_list_SOURCES = \
 	src/pkcs11_util.c \
 	src/pkcs11_list.c
 
+pkcs11_list_LDFLAGS = @OPENSSL_LDFLAGS@
+pkcs11_list_LDADD = @OPENSSL_LIBS@
+
 pkcs11_clean_SOURCES = \
 	src/pkcs11_display.c \
 	src/pkcs11_util.c \

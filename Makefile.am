@@ -33,9 +33,10 @@ bin_PROGRAMS = pkcs11_list pkcs11_speed pkcs11_clean
 
 pkcs11_list_SOURCES = \
 	src/base64.c \
-	src/pkcs11_display.c \
-	src/keypair.c \
 	src/common.c \
+	src/crypto.c \
+	src/keypair.c \
+	src/pkcs11_display.c \
 	src/pkcs11_list.c
 
 pkcs11_list_LDFLAGS = @OPENSSL_LDFLAGS@

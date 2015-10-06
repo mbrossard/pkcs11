@@ -1,5 +1,5 @@
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef CRYPTO_H
+#define CRYPTO_H
 
 /*
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
@@ -15,4 +15,4 @@ void init_crypto();
 };
 #endif
 
-#endif /* COMMON_H */
+#endif /* CRYPTO_H */

@@ -8,10 +8,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_OPENSSL
-#include <openssl/evp.h>
-#endif
-
+#include "crypto.h"
 #include "common.h"
 #include "keypair.h"
 #include "pkcs11_display.h"
@@ -264,9 +261,7 @@ int main( int argc, char **argv )
         opt_pin_len = 0;
     }
 
-#ifdef HAVE_OPENSSL
-    OPENSSL_add_all_algorithms_noconf();
-#endif
+    init_crypto();
 
     while (1) {
         c = getopt_long(argc, argv, "ILMOd:hl:p:s:g:m:",

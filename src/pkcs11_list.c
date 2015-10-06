@@ -203,7 +203,6 @@ char *app_name = "pkcs11_list";
 
 const struct option options[] = {
     { "show-info",          0, 0,           'I' },
-    { "label",              1, 0,           'l' },
     { "list-slots",         0, 0,           'L' },
     { "list-mechanisms",    0, 0,           'M' },
     { "list-objects",       0, 0,           'O' },
@@ -213,12 +212,12 @@ const struct option options[] = {
     { "module",             1, 0,           'm' },
     { "directory",          1, 0,           'd' },
     { "genkey",             1, 0,           'g' },
+    { "label",              1, 0,           'l' },
     { 0, 0, 0, 0 }
 };
 
 const char *option_help[] = {
     "Show global token information",
-    "Set label on key object",
     "List slots available on the token",
     "List mechanisms supported by the token",
     "List objects contained in the token",
@@ -228,6 +227,7 @@ const char *option_help[] = {
     "Specify the module to load",
     "Specify the directory for NSS database",
     "Generate key",
+    "Set label on generated keys",
 };
 
 

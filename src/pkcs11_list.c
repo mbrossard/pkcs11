@@ -14,7 +14,7 @@
 #include <openssl/ecdsa.h>
 #endif
 
-#include "pkcs11_util.h"
+#include "common.h"
 #include "pkcs11_display.h"
 
 void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,

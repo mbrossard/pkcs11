@@ -26,7 +26,7 @@
 
 #include <stdio.h>
 
-#include "pkcs11_util.h"
+#include "common.h"
 
 #ifndef WIN32
 #define DEFAULT_PKCSLIB "/usr/lib/pkcs11/opensc-pkcs11.so"

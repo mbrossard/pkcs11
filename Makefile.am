@@ -33,7 +33,7 @@ bin_PROGRAMS = pkcs11_list pkcs11_speed pkcs11_clean
 
 pkcs11_list_SOURCES = \
 	src/pkcs11_display.c \
-	src/pkcs11_util.c \
+	src/common.c \
 	src/pkcs11_list.c
 
 pkcs11_list_LDFLAGS = @OPENSSL_LDFLAGS@
@@ -41,12 +41,12 @@ pkcs11_list_LDADD = @OPENSSL_LIBS@
 
 pkcs11_clean_SOURCES = \
 	src/pkcs11_display.c \
-	src/pkcs11_util.c \
+	src/common.c \
 	src/pkcs11_clean.c
 
 pkcs11_speed_SOURCES = \
 	src/pkcs11_display.c \
-	src/pkcs11_util.c \
+	src/common.c \
 	src/pkcs11_speed.c
 
 pkcs11_speed_LDADD = -lpthread

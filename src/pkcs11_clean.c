@@ -9,7 +9,7 @@
 #include <pthread.h>
 #include <sys/time.h>
 
-#include "pkcs11_util.h"
+#include "common.h"
 #include "pkcs11_display.h"
 
 char *app_name = "pkcs11_clean";

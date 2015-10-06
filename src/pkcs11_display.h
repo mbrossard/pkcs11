@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "pkcs11_util.h"
+#include "common.h"
 
 #ifdef __cplusplus
 extern "C" {

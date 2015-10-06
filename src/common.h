@@ -1,5 +1,5 @@
-#ifndef PKCS11_UTIL_H
-#define PKCS11_UTIL_H
+#ifndef COMMON_H
+#define COMMON_H
 
 /*
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
@@ -52,7 +52,7 @@
 extern "C" {
 #endif
 
-CK_FUNCTION_LIST  *pkcs11_get_function_list( const char *param );
+CK_FUNCTION_LIST *pkcs11_get_function_list(const char *param);
 CK_RV pkcs11_initialize(CK_FUNCTION_LIST_PTR funcs);
 CK_RV pkcs11_initialize_nss(CK_FUNCTION_LIST_PTR funcs, const char *path);
 void print_usage_and_die(char *name, const struct option *opts, const char **help);
@@ -61,4 +61,4 @@ void print_usage_and_die(char *name, const struct option *opts, const char **hel
 };
 #endif
 
-#endif
+#endif /* COMMON_H */

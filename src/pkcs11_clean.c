@@ -187,7 +187,7 @@ int main( int argc, char **argv )
         return rc;
     }
 
-    fprintf(stderr, "Found %d private keys\n", key_count);
+    printf("Found %lu private keys\n", key_count);
 
     for(i = 0; i < key_count; i++) {
         CK_BYTE id[32];
@@ -205,8 +205,8 @@ int main( int argc, char **argv )
             return rc;
         }
 
-        fprintf(stderr, "Handling key #%d with handle 0x%x\n", i, all_keys[i]);
-        dump_generic(stderr, "Key ID", id, search_crt[0].ulValueLen);
+        printf("Handling key #%d with handle 0x%lx\n", i, all_keys[i]);
+        dump_generic(stdout, "Key ID", id, search_crt[0].ulValueLen);
 
         rc = funcs->C_FindObjectsInit(h_session, search_crt, 2);
         if (rc != CKR_OK) {
@@ -235,7 +235,7 @@ int main( int argc, char **argv )
             CK_OBJECT_HANDLE h_pub;
             CK_ULONG pub_count = 1;
             
-            fprintf(stderr, "Didn't find matching certificate. Now looking for public key.\n");
+            printf("Didn't find matching certificate. Now looking for public key.\n");
 
             rc = funcs->C_FindObjectsInit(h_session, search_pub, 2);
             if (rc != CKR_OK) {
@@ -256,13 +256,13 @@ int main( int argc, char **argv )
             }
 
             if(pub_count == 0) {
-                fprintf(stderr, "Didn't find matching public key. Skipping\n");
+                printf("Didn't find matching public key. Skipping\n");
             } else {
                 if(!rw) {
-                    fprintf(stderr, "Read-only mode: Found candidate private key and public key with handles 0x%x 0x%x\n",
-                            all_keys[i], h_pub);
+                    printf("Read-only mode: Found candidate private key and public key with handles 0x%lx 0x%lx\n",
+                           all_keys[i], h_pub);
                 } else {
-                    fprintf(stderr, "Deleting private key and public key with handles 0x%x 0x%x\n", all_keys[i], h_pub);
+                    printf("Deleting private key and public key with handles 0x%lx 0x%lx\n", all_keys[i], h_pub);
                     
                     rc = funcs->C_DestroyObject(h_session, all_keys[i]);
                     if (rc != CKR_OK) {
@@ -279,7 +279,7 @@ int main( int argc, char **argv )
                 }
             }
         } else {
-            fprintf(stderr, "Found matching certificate\n");
+            printf("Found matching certificate\n");
         }
 
     }
@@ -305,7 +305,7 @@ int main( int argc, char **argv )
     }
 
     if(destroy > 0) {
-        fprintf(stderr, "\nDeleted %d objects\n", destroy);
+        printf("\nDeleted %d objects\n", destroy);
     }
 
     rc = funcs->C_Finalize( NULL );

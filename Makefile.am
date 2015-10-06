@@ -32,7 +32,9 @@ AM_CFLAGS = @OPENSSL_INCLUDES@ \
 bin_PROGRAMS = pkcs11_list pkcs11_speed pkcs11_clean
 
 pkcs11_list_SOURCES = \
+	src/base64.c \
 	src/pkcs11_display.c \
+	src/keypair.c \
 	src/common.c \
 	src/pkcs11_list.c
 

@@ -203,7 +203,7 @@ char *app_name = "pkcs11_list";
 
 const struct option options[] = {
     { "show-info",          0, 0,           'I' },
-    { "label",              0, 0,           'l' },
+    { "label",              1, 0,           'l' },
     { "list-slots",         0, 0,           'L' },
     { "list-mechanisms",    0, 0,           'M' },
     { "list-objects",       0, 0,           'O' },
@@ -218,6 +218,7 @@ const struct option options[] = {
 
 const char *option_help[] = {
     "Show global token information",
+    "Set label on key object",
     "List slots available on the token",
     "List mechanisms supported by the token",
     "List objects contained in the token",
@@ -264,11 +265,7 @@ int main( int argc, char **argv )
     }
 
 #ifdef HAVE_OPENSSL
-    if (OPENSSL_VERSION_NUMBER > 0x00907000L) {
-        OpenSSL_add_all_algorithms();
-    } else {
-        OPENSSL_add_all_algorithms_noconf();
-    }
+    OPENSSL_add_all_algorithms_noconf();
 #endif
 
     while (1) {

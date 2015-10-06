@@ -1018,3 +1018,23 @@ int print_object_info(CK_FUNCTION_LIST *funcs, FILE *f, CK_ULONG j,
  done:
     return rc;
 }
+
+void dump_generic(FILE *f, char *text, CK_VOID_PTR value, CK_ULONG size)
+{
+    CK_ULONG i;
+    if(size > 0) {
+        fprintf(f, "%s (size: %ld)\t", (text != NULL) ? (char *)text : "", size);
+        for(i = 0; i < size; i++) {
+            if (i != 0) {
+                if ((i % 32) == 0)
+                    fprintf(f, "\n    ");
+                else if((i % 4) == 0)
+                    fprintf(f, " ");
+            }
+            fprintf(f, "%02X", ((CK_BYTE *)value)[i]);
+        }
+    } else {
+        fprintf(f, "EMPTY");
+    }
+    fprintf(f, "\n");
+}

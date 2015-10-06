@@ -58,6 +58,8 @@ void print_print(FILE *f, CK_ULONG type, CK_VOID_PTR value,
                     CK_ULONG size, CK_VOID_PTR arg);
 void show_error(FILE *f, char *str, CK_RV rc);
 
+void dump_generic(FILE *f, char *text, CK_VOID_PTR value, CK_ULONG size);
+
 void print_ck_info(FILE *f, CK_INFO *info);
 void print_slot_list(FILE *f, CK_SLOT_ID_PTR pSlotList, CK_ULONG ulCount);
 void print_slot_info(FILE *f, CK_SLOT_INFO *info);

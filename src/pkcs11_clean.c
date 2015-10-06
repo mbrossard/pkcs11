@@ -33,26 +33,6 @@ const char *option_help[] = {
     "Actually delete objects"
 };
 
-void dump_generic(FILE *f, char *text, CK_VOID_PTR value, CK_ULONG size)
-{
-    CK_ULONG i;
-    if(size > 0) {
-        fprintf(f, "%s (size: %ld)\t", (text != NULL) ? (char *)text : "", size);
-        for(i = 0; i < size; i++) {
-            if (i != 0) {
-                if ((i % 32) == 0)
-                    fprintf(f, "\n    ");
-                else if((i % 4) == 0)
-                    fprintf(f, " ");
-            }
-            fprintf(f, "%02X", ((CK_BYTE *)value)[i]);
-        }
-    } else {
-        fprintf(f, "EMPTY");
-    }
-    fprintf(f, "\n");
-}
-
 CK_FUNCTION_LIST *funcs = NULL;
 
 int main( int argc, char **argv )

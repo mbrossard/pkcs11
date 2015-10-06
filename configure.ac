@@ -60,6 +60,7 @@ AC_SUBST(SOFTKN_PATH)
 AC_DEFINE_UNQUOTED([SOFTKN_PATH], [$SOFTKN_PATH], [Path to NSS soft-token dynamic library])
 
 AX_APPEND_LINK_FLAGS([ -Wl,--as-needed -Wl,--gc-sections ],[LDFLAGS])
+AX_APPEND_COMPILE_FLAGS([ -Wall -pedantic --std=c11 ])
 
 AC_C_BIGENDIAN
 

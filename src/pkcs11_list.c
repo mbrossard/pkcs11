@@ -255,12 +255,6 @@ int main( int argc, char **argv )
 
     char c;
 
-    if((argc == 2) && ((opt_pin_len = strlen(argv[1])) < 20)) {
-        memcpy( opt_pin, argv[1] , opt_pin_len );
-    } else {
-        opt_pin_len = 0;
-    }
-
     init_crypto();
 
     while (1) {

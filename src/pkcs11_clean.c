@@ -53,15 +53,14 @@ void dump_generic(FILE *f, char *text, CK_VOID_PTR value, CK_ULONG size)
     fprintf(f, "\n");
 }
 
-
 CK_FUNCTION_LIST *funcs = NULL;
 
 int main( int argc, char **argv )
 {
     CK_BYTE           opt_pin[32] = "";
-    CK_ULONG          opt_pin_len = 0;
+    CK_ULONG          opt_pin_len = -1;
     CK_RV             rc;
-    CK_ULONG          opt_slot = -1;
+    CK_ULONG          nslots, opt_slot = -1;
     CK_SESSION_HANDLE h_session;
     char *opt_module = NULL, *opt_dir = NULL;
     int long_optind = 0, rw = 0, destroy = 0, i;
@@ -108,6 +107,26 @@ int main( int argc, char **argv )
         return rc;
     }
 
+    if(opt_slot == -1) {
+        rc = funcs->C_GetSlotList(0, NULL_PTR, &nslots);
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_GetSlotList", rc );
+            return rc;
+        }
+
+        if(nslots == 1) {
+            rc = funcs->C_GetSlotList(0, &opt_slot, &nslots);
+            if (rc != CKR_OK) {
+                show_error(stdout, "C_GetSlotList", rc );
+                return rc;
+            } else {
+                printf("Using slot %ld\n", opt_slot);
+            }
+        } else {
+            printf("Found %ld slots, use --slot parameter to choose.\n", nslots);
+        }
+    }
+
     rc = funcs->C_OpenSession(opt_slot, CKF_SERIAL_SESSION | CKF_RW_SESSION,
                               NULL_PTR, NULL_PTR, &h_session);
     if (rc != CKR_OK) {
@@ -115,11 +134,30 @@ int main( int argc, char **argv )
         return rc;
     }
 
-    if(*opt_pin != '\0') {
+    if(opt_pin_len != -1) {
         rc = funcs->C_Login(h_session, CKU_USER, opt_pin, opt_pin_len );
         if (rc != CKR_OK) {
             show_error(stdout, "C_Login", rc );
             return rc;
+        }
+    } else {
+        CK_TOKEN_INFO  info;
+        
+        rc = funcs->C_GetTokenInfo( opt_slot, &info );
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_GetTokenInfo", rc );
+            return rc;
+        }
+
+        if(info.flags & CKF_PROTECTED_AUTHENTICATION_PATH) {
+            rc = funcs->C_Login( h_session, CKU_USER, NULL, 0 );
+            if (rc != CKR_OK) {
+                show_error(stdout, "C_Login", rc );
+                return rc;
+            }
+        } else {
+            printf("No PIN provided and no protected authentication path.\n");
+            return -1;
         }
     }
 

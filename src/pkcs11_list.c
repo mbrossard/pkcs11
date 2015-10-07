@@ -338,15 +338,8 @@ int main( int argc, char **argv )
         }
     }
 
-    rc = funcs->C_GetSlotList(0, NULL_PTR, &nslots);
+    rc = pkcs11_get_slots(funcs, stdout, &pslots, &nslots);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_GetSlotList", rc );
-        return rc;
-    }
-    pslots = malloc(sizeof(CK_SLOT_ID) * nslots);
-    rc = funcs->C_GetSlotList(0, pslots, &nslots);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_GetSlotList", rc );
         return rc;
     }
     
@@ -370,7 +363,7 @@ int main( int argc, char **argv )
         }
 
         if(do_list_objects) {
-                do_list_token_objects(funcs, pslots[islot], opt_pin, opt_pin_len);
+            do_list_token_objects(funcs, pslots[islot], opt_pin, opt_pin_len);
         }
     }
 
@@ -407,10 +400,10 @@ int main( int argc, char **argv )
                 }
             } else {
                 CK_TOKEN_INFO  info;
-                
+
                 rc = funcs->C_GetTokenInfo( opt_slot, &info );
                 if (rc != CKR_OK) {
-                    show_error(stdout, "   C_GetTokenInfo", rc );
+                    show_error(stdout, "C_GetTokenInfo", rc );
                     return FALSE;
                 }
 

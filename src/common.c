@@ -24,9 +24,8 @@
 #include <windows.h>
 #endif
 
-#include <stdio.h>
-
 #include "common.h"
+#include "pkcs11_display.h"
 
 #ifndef WIN32
 #define DEFAULT_PKCSLIB "/usr/lib/pkcs11/opensc-pkcs11.so"
@@ -239,4 +238,37 @@ void print_usage_and_die(char *name, const struct option *opts, const char **hel
         i++;
     }
     exit(2);
+}
+
+CK_RV pkcs11_get_slots(CK_FUNCTION_LIST_PTR funcs, FILE *out,
+                       CK_SLOT_ID_PTR *slots, CK_ULONG_PTR nslots)
+{
+    CK_SLOT_ID *s;
+    CK_ULONG n;
+    CK_RV rc;
+
+    if(!slots || !nslots) {
+        return CKR_ARGUMENTS_BAD;
+    }
+
+    rc = funcs->C_GetSlotList(0, NULL_PTR, &n);
+    if (rc != CKR_OK) {
+        if(out) {
+            show_error(out, "C_GetSlotList", rc );
+        }
+        return rc;
+    }
+    s = malloc(sizeof(CK_SLOT_ID) * n);
+    rc = funcs->C_GetSlotList(0, s, &n);
+    if (rc != CKR_OK) {
+        if(out) {
+            show_error(out, "C_GetSlotList", rc );
+        }
+        return rc;
+    }
+
+    *slots = s;
+    *nslots = n;
+
+    return rc;
 }

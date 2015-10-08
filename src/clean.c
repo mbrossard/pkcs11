@@ -12,9 +12,9 @@
 #include "common.h"
 #include "pkcs11_display.h"
 
-char *app_name = "pkcs11_clean";
+static char *app_name = "pkcs11-util clean";
 
-const struct option options[] = {
+static const struct option options[] = {
     { "help",               0, 0,           'h' },
     { "pin",                1, 0,           'p' },
     { "slot",               1, 0,           's' },
@@ -24,7 +24,7 @@ const struct option options[] = {
     { 0, 0, 0, 0 }
 };
 
-const char *option_help[] = {
+static const char *option_help[] = {
     "Print this help and exit",
     "Supply PIN on the command line",
     "Specify number of the slot to use",
@@ -33,9 +33,9 @@ const char *option_help[] = {
     "Actually delete objects"
 };
 
-CK_FUNCTION_LIST *funcs = NULL;
+static CK_FUNCTION_LIST *funcs = NULL;
 
-int main( int argc, char **argv )
+int clean( int argc, char **argv )
 {
     CK_BYTE           opt_pin[32] = "";
     CK_ULONG          opt_pin_len = -1;
@@ -45,6 +45,10 @@ int main( int argc, char **argv )
     char *opt_module = NULL, *opt_dir = NULL;
     int long_optind = 0, rw = 0, destroy = 0, i;
     char c;
+
+    if(argc <= 1) {
+        print_usage_and_die(app_name, options, option_help);
+    }
 
     while (1) {
         c = getopt_long(argc, argv, "hrd:p:s:m:", options, &long_optind);

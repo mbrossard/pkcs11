@@ -35,7 +35,13 @@ pkcs11_util_SOURCES = \
 	src/pkcs11_display.c \
 	src/pkcs11-util.c \
 	src/common.c \
-	src/clean.c
+	src/crypto.c \
+	src/keypair.c \
+	src/clean.c \
+	src/keygen.c
+
+pkcs11_util_LDFLAGS = @OPENSSL_LDFLAGS@
+pkcs11_util_LDADD = @OPENSSL_LIBS@
 
 pkcs11_list_SOURCES = \
 	src/base64.c \

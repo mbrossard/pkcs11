@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 int clean(int argc, char **argv);
+int keygen(int argc, char **argv);
 
 #ifdef __cplusplus
 };

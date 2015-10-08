@@ -15,9 +15,10 @@ void usage()
            "\n");
 }
 
-
 int main(int argc, char **argv)
 {
+    int r = 0;
+
     if(argc <= 0) {
         usage();
     } else if(!strcmp(argv[1], "help") ||
@@ -25,8 +26,11 @@ int main(int argc, char **argv)
               !strcmp(argv[1], "-h")) {
         usage();
     } else if(!strcmp(argv[1], "clean")) {
-        clean(argc - 1, argv + 1);
+        r = clean(argc - 1, argv + 1);
+    } else {
+        usage();
+        r = -1;
     }
 
-    exit(0);
+    exit(r);
 }

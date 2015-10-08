@@ -199,7 +199,7 @@ CK_RV pkcs11_initialize_nss(CK_FUNCTION_LIST_PTR funcs, const char *path)
     return rc;
 }
 
-void print_usage_and_die(char *name, const struct option *opts, const char **help)
+void print_usage_and_die(const char *name, const struct option *opts, const char **help)
 {
     int i = 0;
     printf("Usage: %s [OPTIONS]\nOptions:\n", name);

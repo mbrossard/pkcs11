@@ -4,10 +4,7 @@
 
 #include <string.h>
 #include <unistd.h>
-#include <getopt.h>
 #include <stdio.h>
-#include <pthread.h>
-#include <sys/time.h>
 
 #include "common.h"
 #include "pkcs11_display.h"

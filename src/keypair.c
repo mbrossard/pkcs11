@@ -15,15 +15,6 @@
 #include <openssl/ecdsa.h>
 #endif
 
-
-void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,
-			  CK_VOID_PTR pvoid, CK_ULONG ulong)
-{
-	attr->type = type;
-	attr->pValue =  pvoid;
-	attr->ulValueLen = ulong;
-}
-
 #ifdef HAVE_OPENSSL
 CK_RV setKeyId(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
                CK_OBJECT_HANDLE hPublicKey, CK_OBJECT_HANDLE hPrivateKey,

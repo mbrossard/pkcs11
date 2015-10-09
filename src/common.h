@@ -60,6 +60,8 @@ void print_usage_and_die(const char *name, const struct option *opts, const char
 
 CK_RV pkcs11_get_slots(CK_FUNCTION_LIST_PTR funcs, FILE *out,
                        CK_SLOT_ID_PTR *slots, CK_ULONG_PTR nslots);
+void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,
+                   CK_VOID_PTR pvoid, CK_ULONG ulong);
 
 #ifdef __cplusplus
 };

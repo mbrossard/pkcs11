@@ -272,3 +272,11 @@ CK_RV pkcs11_get_slots(CK_FUNCTION_LIST_PTR funcs, FILE *out,
 
     return rc;
 }
+
+void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,
+                   CK_VOID_PTR pvoid, CK_ULONG ulong)
+{
+	attr->type = type;
+	attr->pValue =  pvoid;
+	attr->ulValueLen = ulong;
+}

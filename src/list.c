@@ -196,9 +196,9 @@ int do_GetTokenMech(CK_FUNCTION_LIST *funcs,
     return rc;
 }
 
-char *app_name = "pkcs11_list";
+static char *app_name = "pkcs11-util list";
 
-const struct option options[] = {
+static const struct option options[] = {
     { "show-info",          0, 0,           'I' },
     { "list-slots",         0, 0,           'L' },
     { "list-mechanisms",    0, 0,           'M' },
@@ -213,7 +213,7 @@ const struct option options[] = {
     { 0, 0, 0, 0 }
 };
 
-const char *option_help[] = {
+static const char *option_help[] = {
     "Show global token information",
     "List slots available on the token",
     "List mechanisms supported by the token",
@@ -231,7 +231,7 @@ const char *option_help[] = {
 #define NEED_SESSION_RO 0x01
 #define NEED_SESSION_RW 0x02
 
-int main( int argc, char **argv )
+int list( int argc, char **argv )
 {
     CK_ULONG          nslots, islot;
     CK_SLOT_ID        *pslots = NULL;

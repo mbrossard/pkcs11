@@ -11,6 +11,7 @@ extern "C" {
 
 int clean(int argc, char **argv);
 int keygen(int argc, char **argv);
+int list(int argc, char **argv);
 
 #ifdef __cplusplus
 };

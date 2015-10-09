@@ -14,7 +14,8 @@ void usage()
            " * help (-h or --help): help message\n"
            " * clean: delete objects\n"
            " * keygen: create keys\n"
-           " * list: list objects\n"
+           " * list: list slots and objects\n"
+           " * ssh: list SSH keys\n"
            "\n");
 }
 
@@ -34,6 +35,8 @@ int main(int argc, char **argv)
         keygen(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "list")) {
         r = list(argc - 1, argv + 1);
+    } else if(!strcmp(argv[1], "ssh")) {
+        r = ssh(argc - 1, argv + 1);
     } else {
         usage();
         r = -1;

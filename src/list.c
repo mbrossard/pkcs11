@@ -222,10 +222,6 @@ static const char *option_help[] = {
     "Specify the directory for NSS database",
 };
 
-
-#define NEED_SESSION_RO 0x01
-#define NEED_SESSION_RW 0x02
-
 int list( int argc, char **argv )
 {
     CK_ULONG          nslots, islot;
@@ -243,7 +239,6 @@ int list( int argc, char **argv )
     int do_list_slots = 0;
     int do_list_mechs = 0;
     int do_list_objects = 0;
-    int need_session = 0;
     int action_count = 0;
 
     char c;
@@ -275,12 +270,10 @@ int list( int argc, char **argv )
                 action_count++;
                 break;
             case 'O':
-                need_session |= NEED_SESSION_RO;
                 do_list_objects = 1;
                 action_count++;
                 break;
             case 'p':
-                need_session |= NEED_SESSION_RW;
                 opt_pin_len = strlen(optarg);
                 opt_pin_len = (opt_pin_len < 20) ? opt_pin_len : 19;
                 memcpy( opt_pin, optarg, opt_pin_len );

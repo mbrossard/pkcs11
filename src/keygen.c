@@ -37,11 +37,6 @@ static const char *option_help[] = {
     "Label to set",
 };
 
-enum {
-    NEED_SESSION_RO = 0x01,
-    NEED_SESSION_RW = 0x02
-};
-
 int keygen( int argc, char **argv )
 {
     CK_ULONG          nslots;
@@ -55,7 +50,6 @@ int keygen( int argc, char **argv )
     char *opt_module = NULL, *opt_dir = NULL;
     char *gen_param = NULL;
     int long_optind = 0;
-    int need_session = 0;
     int genkey = 0;
 
     char c;
@@ -75,7 +69,6 @@ int keygen( int argc, char **argv )
                 opt_label = (CK_BYTE_PTR)optarg;
                 break;
             case 'p':
-                need_session |= NEED_SESSION_RW;
                 opt_pin_len = strlen(optarg);
                 opt_pin_len = (opt_pin_len < 20) ? opt_pin_len : 19;
                 memcpy( opt_pin, optarg, opt_pin_len );
@@ -87,7 +80,6 @@ int keygen( int argc, char **argv )
                 opt_module = optarg;
                 break;
             case 'k':
-                need_session |= NEED_SESSION_RW;
                 gen_param = optarg;
                 genkey = 1;
                 break;

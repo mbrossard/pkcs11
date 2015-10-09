@@ -29,7 +29,7 @@ AM_CFLAGS = @OPENSSL_INCLUDES@ \
 	-ffunction-sections \
 	-fdata-sections
 
-bin_PROGRAMS = pkcs11-util pkcs11_list pkcs11_speed
+bin_PROGRAMS = pkcs11-util pkcs11_speed
 
 pkcs11_util_SOURCES = \
 	src/pkcs11_display.c \
@@ -38,21 +38,11 @@ pkcs11_util_SOURCES = \
 	src/crypto.c \
 	src/keypair.c \
 	src/clean.c \
-	src/keygen.c
+	src/keygen.c \
+	src/list.c
 
 pkcs11_util_LDFLAGS = @OPENSSL_LDFLAGS@
 pkcs11_util_LDADD = @OPENSSL_LIBS@
-
-pkcs11_list_SOURCES = \
-	src/base64.c \
-	src/common.c \
-	src/crypto.c \
-	src/keypair.c \
-	src/pkcs11_display.c \
-	src/pkcs11_list.c
-
-pkcs11_list_LDFLAGS = @OPENSSL_LDFLAGS@
-pkcs11_list_LDADD = @OPENSSL_LIBS@
 
 pkcs11_speed_SOURCES = \
 	src/pkcs11_display.c \

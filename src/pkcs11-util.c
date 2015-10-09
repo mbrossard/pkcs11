@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 {
     int r = 0;
 
-    if(argc <= 0) {
+    if(argc <= 1) {
         usage();
     } else if(!strcmp(argv[1], "help") ||
               !strcmp(argv[1], "--help") ||

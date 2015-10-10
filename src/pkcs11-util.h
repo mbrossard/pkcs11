@@ -9,10 +9,16 @@
 extern "C" {
 #endif
 
+#include "config.h"
+
 int clean(int argc, char **argv);
 int keygen(int argc, char **argv);
 int list(int argc, char **argv);
 int ssh(int argc, char **argv);
+
+#ifdef HAVE_PTHREAD
+int speed(int argc, char **argv);
+#endif
 
 #ifdef __cplusplus
 };

@@ -15,6 +15,9 @@ void usage()
            " * clean: delete objects\n"
            " * keygen: create keys\n"
            " * list: list slots and objects\n"
+#ifdef HAVE_PTHREAD
+           " * speed: performance testing\n"
+#endif
            " * ssh: list SSH keys\n"
            "\n");
 }
@@ -35,6 +38,10 @@ int main(int argc, char **argv)
         keygen(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "list")) {
         r = list(argc - 1, argv + 1);
+#ifdef HAVE_PTHREAD
+    } else if(!strcmp(argv[1], "speed")) {
+        r = speed(argc - 1, argv + 1);
+#endif
     } else if(!strcmp(argv[1], "ssh")) {
         r = ssh(argc - 1, argv + 1);
     } else {

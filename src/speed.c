@@ -2,19 +2,23 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
+#include "pkcs11-util.h"
+
+#ifdef HAVE_PTHREAD
+#include "common.h"
+#include "pkcs11_display.h"
+
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <stdio.h>
+
 #include <pthread.h>
 #include <sys/time.h>
 
-#include "common.h"
-#include "pkcs11_display.h"
+static char *app_name = "pkcs11-util speed";
 
-char *app_name = "pkcs11_speed";
-
-const struct option options[] = {
+static const struct option options[] = {
     { "help",               0, 0,           'h' },
     { "pin",                1, 0,           'p' },
     { "slot",               1, 0,           's' },
@@ -28,7 +32,7 @@ const struct option options[] = {
     { 0, 0, 0, 0 }
 };
 
-const char *option_help[] = {
+static const char *option_help[] = {
     "Print this help and exit",
     "Supply PIN on the command line",
     "Specify number of the slot to use",
@@ -41,15 +45,15 @@ const char *option_help[] = {
     "Test ECDSA performance",
 };
 
-pthread_mutex_t join_mut = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-int thread_ready = 0;
+static pthread_mutex_t join_mut = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+static int thread_ready = 0;
 
-CK_FUNCTION_LIST *funcs = NULL;
-int operations = 1;
-CK_OBJECT_HANDLE key;
-CK_BBOOL failure;
-CK_ULONG sig_mech = CKM_RSA_PKCS;
+static CK_FUNCTION_LIST *funcs = NULL;
+static int operations = 1;
+static CK_OBJECT_HANDLE key;
+static CK_BBOOL failure;
+static CK_ULONG sig_mech = CKM_RSA_PKCS;
 
 typedef struct {
     CK_SESSION_HANDLE session;
@@ -89,8 +93,7 @@ void *do_sign(void *arg)
     pthread_exit(NULL);
 }
 
-
-int main( int argc, char **argv )
+int speed( int argc, char **argv )
 {
     CK_BYTE           opt_pin[32] = "";
     char             *opt_label = NULL;
@@ -299,3 +302,5 @@ int main( int argc, char **argv )
     rc = funcs->C_Finalize( NULL );
     return rc;
 }
+
+#endif

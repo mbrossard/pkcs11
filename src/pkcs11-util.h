@@ -20,6 +20,10 @@ int ssh(int argc, char **argv);
 int speed(int argc, char **argv);
 #endif
 
+#ifdef HAVE_OPENSSL
+int wrap(int argc, char **argv);
+#endif
+
 #ifdef __cplusplus
 };
 #endif

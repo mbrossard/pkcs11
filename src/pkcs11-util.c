@@ -19,6 +19,9 @@ void usage()
            " * speed: performance testing\n"
 #endif
            " * ssh: list SSH keys\n"
+#ifdef HAVE_OPENSSL
+           " * wrap: wrap keys\n"
+#endif
            "\n");
 }
 
@@ -44,6 +47,10 @@ int main(int argc, char **argv)
 #endif
     } else if(!strcmp(argv[1], "ssh")) {
         r = ssh(argc - 1, argv + 1);
+#ifdef HAVE_OPENSSL
+    } else if(!strcmp(argv[1], "wrap")) {
+        r = wrap(argc - 1, argv + 1);
+#endif
     } else {
         usage();
         r = -1;

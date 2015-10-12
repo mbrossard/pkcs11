@@ -42,7 +42,8 @@ pkcs11_util_SOURCES = \
 	src/keygen.c \
 	src/list.c \
 	src/speed.c \
-	src/ssh.c
+	src/ssh.c \
+	src/wrap.c
 
 pkcs11_util_LDFLAGS = @OPENSSL_LDFLAGS@
 pkcs11_util_LDADD = @OPENSSL_LIBS@

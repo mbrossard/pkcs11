@@ -1,6 +1,10 @@
 language: c
 sudo: false
 
+branches:
+  only:
+    - master
+
 matrix:
   include:
   - os: linux
@@ -10,14 +14,7 @@ matrix:
         packages: [ "libnss3-dev", "libtool" ]
         sources: &sources
           - ubuntu-toolchain-r-test
-          - llvm-toolchain-precise-3.7
           - llvm-toolchain-precise
-  - os: linux
-    compiler: clang-3.7
-    addons:
-      apt:
-        packages: ["clang-3.7", "libnss3-dev", "libtool" ]
-        sources: *sources
   - os: linux
     compiler: clang-3.8
     addons:
@@ -31,10 +28,10 @@ matrix:
         packages: ["gcc-4.8", "libnss3-dev", "libtool" ]
         sources: *sources
   - os: linux
-    compiler: gcc-5.0
+    compiler: gcc-5
     addons:
       apt:
-        packages: ["gcc-5.0", "libnss3-dev", "libtool" ]
+        packages: ["gcc-5", "libnss3-dev", "libtool" ]
         sources: *sources
   - os: osx
     compiler: clang
@@ -46,16 +43,16 @@ matrix:
     compiler: clang
     osx_image: xcode7
   - os: osx
-    compiler: clang-3.7
-  - os: osx
     compiler: gcc
   - os: osx
+    env: INSTALL=gcc48
     compiler: gcc-4.8
   - os: osx
-    compiler: gcc-5.0
+    env: INSTALL=gcc5
+    compiler: gcc-5
 
 before_install:
-  - if [ $TRAVIS_OS_NAME == osx ] ; then brew install nss openssl automake autoconf libtool gcc48 gcc5 ; fi
+  - if [ $TRAVIS_OS_NAME == osx ] ; then brew install nss openssl automake autoconf libtool $INSTALL ; fi
 
 script:
   - autoreconf -i

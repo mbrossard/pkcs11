@@ -11,7 +11,6 @@ os: Windows Server 2012 R2
 
 platform:
   - x86
-  - x64
 
 configuration:
   - Release
@@ -58,7 +57,7 @@ build_script:
     - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; mount C:/MinGW /mingw"'
     - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; autoreconf -i"'
     - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; CFLAGS=\"-D_GNU_SOURCE\" ./configure --with-openssl=C:/OpenSSL-%OPENSSL_PLATFORM%"'
-    - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; make"'
+    - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; make V=1"'
 
 cache:
   - C:\OpenSSL-Win32

@@ -24,7 +24,6 @@
 #define DLL_EXPORTED
 #endif
 
-#include <pthread.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -75,7 +74,6 @@
 
 #include <pkcs11.h>
 
-
 #ifndef WIN32
 #ifdef __APPLE__
 #include <Carbon/Carbon.h>
@@ -94,7 +92,7 @@
 #ifdef __APPLE__
 #define DEFAULT_PKCSLIB "/usr/local/Cellar/nss/3.20/lib/libsoftokn3.dylib"
 #else
-#define DEFAULT_PKCSLIB "/usr/lib/pkcs11/libsoftokn3.so"
+#define DEFAULT_PKCSLIB "/usr/lib/libsoftokn3.so"
 #endif
 #else
 #define DEFAULT_PKCSLIB "libsoftokn3.dll"

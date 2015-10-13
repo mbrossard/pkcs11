@@ -5,7 +5,7 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
-#if !(defined _WIN32 || defined __CYGWIN__)
+#if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
    /* Unix case */
 #define CK_DEFINE_FUNCTION(returnType, name) \
    returnType name

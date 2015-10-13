@@ -5,7 +5,7 @@
 #include <string.h>
 #include <memory.h>
 
-#if !(defined _WIN32 || defined __CYGWIN__)
+#if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
 #ifdef __APPLE__
 #include <Carbon/Carbon.h>
 #endif
@@ -27,7 +27,7 @@
 #include "common.h"
 #include "pkcs11_display.h"
 
-#if !(defined _WIN32 || defined __CYGWIN__)
+#if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
 #define DEFAULT_PKCSLIB "/usr/lib/pkcs11/opensc-pkcs11.so"
 #else
 #define DEFAULT_PKCSLIB "opensc-pkcs11.dll"
@@ -50,7 +50,7 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list( const char *param )
             e = z;
         }
     }
-#if (defined _WIN32 || defined __CYGWIN__)
+#if (defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
     d = LoadLibrary(e);
     
     if ( d == NULL ) {
@@ -72,7 +72,7 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list( const char *param )
         printf("Symbol lookup failed\n");
         return NULL;
     }
-#if !(defined _WIN32 || defined __CYGWIN__)
+#if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
     rc = pfoo(&funcs);
 #else
     funcs = (CK_FUNCTION_LIST_PTR) malloc(sizeof(CK_FUNCTION_LIST));
@@ -95,7 +95,7 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list( const char *param )
 }
 
 int search_file(char *buffer, int size, char *key)
-#if !(defined _WIN32 || defined __CYGWIN__)
+#if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
 {
     DIR *dir = opendir(buffer);
     struct dirent *ent;
@@ -176,7 +176,7 @@ CK_RV pkcs11_initialize_nss(CK_FUNCTION_LIST_PTR funcs, const char *path)
             snprintf(buffer, 256, nss_init_string, z);
         } else {
             int found = 0;
-#if !(defined _WIN32 || defined __CYGWIN__)
+#if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
             char search[256];
             DIR *dir;
             snprintf(search, 256, "%s/.mozilla", getenv("HOME"));

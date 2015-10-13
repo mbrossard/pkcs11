@@ -23,7 +23,6 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 LT_INIT
 
 AC_PROG_CC
-AC_PROG_CC_C99
 AM_PROG_CC_C_O
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
@@ -68,6 +67,7 @@ AC_C_BIGENDIAN
 AC_CHECK_HEADERS([getopt.h])
 AC_CHECK_FUNCS([getopt_long])
 AC_CHECK_LIB(dl, dlsym)
+# AC_CHECK_FUNCS([strndup],, AC_DEFINE([_GNU_SOURCE], [], [Linux requires _GNU_SOURCE for strndup]))
 
 AX_CHECK_OPENSSL
 if test x"$OPENSSL_LIBS" != x""; then

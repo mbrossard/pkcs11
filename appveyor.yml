@@ -5,6 +5,8 @@ branches:
   only:
     - master
 
+skip_tags: true
+
 os: Windows Server 2012 R2
 
 platform:
@@ -23,7 +25,8 @@ build:
     verbosity: detailed
 
 init:
-    - 'echo Building libevent %version% for Windows'
+    - git config --global core.autocrlf input
+    - 'echo Building version %version% for Windows'
     - 'echo System architecture: %PLATFORM%'
     - 'echo Repo build branch is: %APPVEYOR_REPO_BRANCH%'
     - 'echo Build folder is: %APPVEYOR_BUILD_FOLDER%'

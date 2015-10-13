@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#ifndef WIN32
+#if !(defined _WIN32 || defined __CYGWIN__)
 /* Unix case */
 #define CK_DEFINE_FUNCTION(returnType, name)    \
     returnType name
@@ -74,7 +74,7 @@
 
 #include <pkcs11.h>
 
-#ifndef WIN32
+#if !(defined _WIN32 || defined __CYGWIN__)
 #ifdef __APPLE__
 #include <Carbon/Carbon.h>
 #endif
@@ -88,7 +88,7 @@
 
 #include "iniparser.h"
 
-#ifndef WIN32
+#if !(defined _WIN32 || defined __CYGWIN__)
 #ifdef __APPLE__
 #define DEFAULT_PKCSLIB "/usr/local/Cellar/nss/3.20/lib/libsoftokn3.dylib"
 #else
@@ -139,14 +139,14 @@ static CK_RV init_module(void)
 		return CKR_HOST_MEMORY;
 	}
 
-#ifdef WIN32
-    if (((d = LoadLibrary(z)) == NULL) || 
-        ((pf = (CK_RV (*)())GetProcAddress(d, "C_GetFunctionList")) == NULL)) {
+#if !(defined _WIN32 || defined __CYGWIN__)
+    if (((d = dlopen(z, RTLD_LAZY)) == NULL) ||
+        ((*(void **) (&pf) = dlsym(d, "C_GetFunctionList")) == NULL)) {
         return CKR_HOST_MEMORY;
     }
 #else
-    if (((d = dlopen(z, RTLD_LAZY)) == NULL) ||
-        ((pf = (CK_RV (*)())dlsym(d,"C_GetFunctionList")) == NULL)) {
+    if (((d = LoadLibrary(z)) == NULL) || 
+        ((pf = (CK_RV (*)())GetProcAddress(d, "C_GetFunctionList")) == NULL)) {
         return CKR_HOST_MEMORY;
     }
 #endif

@@ -60,3 +60,7 @@ pkcs11_token_la_LDFLAGS = \
 	-avoid-version -module
 
 pkcs11_token_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_VISIBILITY)
+
+test:
+	./pkcs11-util
+

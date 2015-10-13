@@ -1,7 +1,12 @@
 language: c
+
 compiler:
   - gcc
   - clang
+
+os:
+  - linux
+  - osx
 
 install:
   - sudo apt-get install -y -qq libssl-dev build-essential automake autoconf

@@ -13,6 +13,7 @@ AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE(foreign 1.11 -Wall -Wno-portability silent-rules tar-pax no-dist-gzip dist-xz subdir-objects)
+AC_USE_SYSTEM_EXTENSIONS
 
 VERSION_INFO="LIB_VERSION_CURRENT:LIB_VERSION_REVISION:LIB_VERSION_AGE"
 AC_SUBST(VERSION_INFO)

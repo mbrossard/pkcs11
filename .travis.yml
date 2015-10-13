@@ -5,37 +5,37 @@ matrix:
   include:
   - os: linux
     compiler: clang
-      addons:
-        apt:
-          packages: [ "libnss3-dev", "libtool" ]
-          sources: &sources
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
-            - llvm-toolchain-precise
+    addons:
+      apt:
+        packages: [ "libnss3-dev", "libtool" ]
+        sources: &sources
+          - ubuntu-toolchain-r-test
+          - llvm-toolchain-precise-3.7
+          - llvm-toolchain-precise
   - os: linux
     compiler: clang-3.7
-      addons:
-        apt:
-          packages: ["clang-3.7", "libnss3-dev", "libtool" ]
-          sources: *sources
+    addons:
+      apt:
+        packages: ["clang-3.7", "libnss3-dev", "libtool" ]
+        sources: *sources
   - os: linux
     compiler: clang-3.8
-      addons:
-        apt:
-          packages: ["clang-3.8", "libnss3-dev", "libtool" ]
-          sources: *sources
+    addons:
+      apt:
+        packages: ["clang-3.8", "libnss3-dev", "libtool" ]
+        sources: *sources
   - os: linux
     compiler: gcc-4.8
-      addons:
-        apt:
-          packages: ["gcc-4.8", "libnss3-dev", "libtool" ]
-          sources: *sources
+    addons:
+      apt:
+        packages: ["gcc-4.8", "libnss3-dev", "libtool" ]
+        sources: *sources
   - os: linux
     compiler: gcc-5.0
-      addons:
-        apt:
-          packages: ["gcc-5.0", "libnss3-dev", "libtool" ]
-          sources: *sources
+    addons:
+      apt:
+        packages: ["gcc-5.0", "libnss3-dev", "libtool" ]
+        sources: *sources
   - os: osx
     compiler: clang
     osx_image: xcode6.1

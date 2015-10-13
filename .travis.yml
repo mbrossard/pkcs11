@@ -5,6 +5,8 @@ branches:
   only:
     - master
 
+cache: apt
+
 matrix:
   include:
   - os: linux

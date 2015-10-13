@@ -43,8 +43,6 @@ matrix:
     compiler: clang
     osx_image: xcode7
   - os: osx
-    compiler: gcc
-  - os: osx
     env: INSTALL=gcc48
     compiler: gcc-4.8
   - os: osx
@@ -52,6 +50,7 @@ matrix:
     compiler: gcc-5
 
 before_install:
+  - if [ $TRAVIS_OS_NAME == osx -a $INSTALL == gcc5 ] ; then brew update ; fi
   - if [ $TRAVIS_OS_NAME == osx ] ; then brew install nss openssl automake autoconf libtool $INSTALL ; fi
 
 script:

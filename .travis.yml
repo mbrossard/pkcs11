@@ -1,26 +1,61 @@
 language: c
-
-compiler:
-  - gcc-4.8
-  - gcc-5.0
-  - clang
-  - clang-3.7
-
-os:
-  - linux
-  - osx
+sudo: false
 
 matrix:
-  exclude:
-    - os: osx
-      compiler: clang-3.7
+  include:
+  - os: linux
+    compiler: clang
+      addons:
+        apt:
+          packages: [ "libnss3-dev", "libtool" ]
+          sources: &sources
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.7
+            - llvm-toolchain-precise
+  - os: linux
+    compiler: clang-3.7
+      addons:
+        apt:
+          packages: ["clang-3.7", "libnss3-dev", "libtool" ]
+          sources: *sources
+  - os: linux
+    compiler: clang-3.8
+      addons:
+        apt:
+          packages: ["clang-3.8", "libnss3-dev", "libtool" ]
+          sources: *sources
+  - os: linux
+    compiler: gcc-4.8
+      addons:
+        apt:
+          packages: ["gcc-4.8", "libnss3-dev", "libtool" ]
+          sources: *sources
+  - os: linux
+    compiler: gcc-5.0
+      addons:
+        apt:
+          packages: ["gcc-5.0", "libnss3-dev", "libtool" ]
+          sources: *sources
+  - os: osx
+    compiler: clang
+    osx_image: xcode6.1
+  - os: osx
+    compiler: clang
+    osx_image: xcode6.4
+  - os: osx
+    compiler: clang
+    osx_image: xcode7
+  - os: osx
+    compiler: clang-3.7
+  - os: osx
+    compiler: gcc
+  - os: osx
+    compiler: gcc-4.8
+  - os: osx
+    compiler: gcc-5.0
 
 before_install:
-  - if [ $TRAVIS_OS_NAME == linux ] ; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test ; fi
-  - if [ $TRAVIS_OS_NAME == linux ] ; then sudo add-apt-repository -y llvm-toolchain-precise-3.7 ; fi
-  - if [ $TRAVIS_OS_NAME == linux ] ; then sudo apt-get update -qq ; fi
-  - if [ $TRAVIS_OS_NAME == linux ] ; then sudo apt-get install -y libssl-dev libnss3 libnss3-dev build-essential automake autoconf gcc-4.8 gcc-5 clang-3.7 ; fi
-  - if [ $TRAVIS_OS_NAME == osx ] ; then brew install nss openssl automake autoconf gcc48 gcc5 ; fi
+  - if [ $TRAVIS_OS_NAME == osx ] ; then brew install nss openssl automake autoconf libtool gcc48 gcc5 ; fi
 
 script:
   - autoreconf -i

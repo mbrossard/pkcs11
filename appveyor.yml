@@ -11,10 +11,6 @@ configuration:
 build:
     verbosity: detailed
 
-environment:
-    - global:
-        CYG_ROOT: C:/MinGW/msys/1.0
-
 init:
     - 'echo Building libevent %version% for Windows'
     - 'echo System architecture: %PLATFORM%'
@@ -23,6 +19,7 @@ init:
 
 install:
     - set PATH=C:\cygwin\bin;%PATH%;C:\MinGW\msys\1.0\bin;C:\MinGW\bin
+    - set CYG_ROOT=C:/MinGW/msys/1.0
     - set OPENSSL_VERSION=1_0_2d
     - ps: >-
         If ($env:Platform -Match "x86") {

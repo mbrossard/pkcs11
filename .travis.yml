@@ -4,21 +4,28 @@ compiler:
   - gcc-4.8
   - gcc-4.9
   - gcc-5.0
-  - clang-3.6
-  - clang-3.7
+  - clang
   - clang-3.8
 
 os:
   - linux
   - osx
 
+matrix:
+	exclude:
+    - os: osx
+	- compiler: clang-3.8
+
 before_install:
   - if [ $TRAVIS_OS_NAME == linux ] ; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test ; fi
-  - if [ $TRAVIS_OS_NAME == linux ] ; then sudo add-apt-repository -y llvm-toolchain-precise-3.6 ; fi
-  - if [ $TRAVIS_OS_NAME == linux ] ; then sudo add-apt-repository -y llvm-toolchain-precise-3.7 ; fi
   - if [ $TRAVIS_OS_NAME == linux ] ; then sudo add-apt-repository -y llvm-toolchain-precise-3.8 ; fi
   - if [ $TRAVIS_OS_NAME == linux ] ; then sudo apt-get update -qq ; fi
-  - if [ $TRAVIS_OS_NAME == linux ] ; then sudo apt-get install -y libssl-dev libnss3 libnss3-dev build-essential automake autoconf gcc-4.8 gcc-4.9 gcc-5 clang-3.6 clang-3.7 clang-3.8 ; fi
-  - if [ $TRAVIS_OS_NAME == osx ] ; then brew install nss openssl automake autoconf gcc-4.8 gcc-4.9 gcc-5 clang-3.6 clang-3.7 clang-3.8 ; fi
+  - if [ $TRAVIS_OS_NAME == linux ] ; then sudo apt-get install -y libssl-dev libnss3 libnss3-dev build-essential automake autoconf gcc-4.8 gcc-4.9 gcc-5 clang-3.8 ; fi
+  - if [ $TRAVIS_OS_NAME == osx ] ; then brew install nss openssl automake autoconf gcc48 gcc49 gcc5 ; fi
 
-before_script: autoreconf -i
+script:
+  - autoreconf -i
+  - if [ $TRAVIS_OS_NAME == osx ] ; then ./configure --with-openssl=/usr/local/Cellar/openssl/* ; fi
+  - if [ $TRAVIS_OS_NAME == linux ] ; then ./configure ; fi
+  - make V=1
+  - make test

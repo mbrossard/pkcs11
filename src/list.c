@@ -228,7 +228,6 @@ int list( int argc, char **argv )
     CK_SLOT_ID        *pslots = NULL;
     CK_FUNCTION_LIST  *funcs = NULL;
     CK_BYTE           opt_pin[20] = "";
-    CK_BYTE_PTR       opt_label = NULL;
     CK_INFO           info;
     CK_ULONG          opt_pin_len = 0;
     CK_RV             rc;
@@ -257,9 +256,6 @@ int list( int argc, char **argv )
             case 'I':
                 do_show_info = 1;
                 action_count++;
-                break;
-            case 'l':
-                opt_label = (CK_BYTE_PTR)optarg;
                 break;
             case 'L':
                 do_list_slots = 1;

@@ -66,7 +66,7 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list( const char *param )
             return NULL;
         }
     }
-    pfoo = (CK_RV (*)())dlsym(d,"C_GetFunctionList");
+    *(void **) (&pfoo) = dlsym(d, "C_GetFunctionList");
 #endif
     if (pfoo == NULL ) {
         printf("Symbol lookup failed\n");

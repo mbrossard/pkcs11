@@ -66,6 +66,7 @@ AC_C_BIGENDIAN
 
 AC_CHECK_HEADERS([getopt.h])
 AC_CHECK_FUNCS([getopt_long])
+AC_CHECK_LIB(dl, dlsym)
 
 AX_CHECK_OPENSSL
 if test x"$OPENSSL_LIBS" != x""; then

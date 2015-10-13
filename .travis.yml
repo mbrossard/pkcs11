@@ -1,3 +1,9 @@
 language: c
-compiler: gcc
+compiler:
+  - gcc
+  - clang
+
+install:
+  - sudo apt-get install -y -qq libssl-dev build-essential automake autoconf
+
 before_script: autoreconf -i

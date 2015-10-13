@@ -1,1 +1,3 @@
 language: c
+compiler: gcc
+before_script: autoreconf -i

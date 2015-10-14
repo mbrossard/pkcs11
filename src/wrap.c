@@ -10,7 +10,6 @@
 #include "pkcs11_display.h"
 
 #include <string.h>
-#include <unistd.h>
 #include <getopt.h>
 #include <stdio.h>
 #include <openssl/evp.h>

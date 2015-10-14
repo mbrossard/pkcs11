@@ -11,7 +11,6 @@
 #endif
 
 #include <sys/types.h>
-#include <unistd.h>
 #include <dlfcn.h>
 
 #define __USE_BSD 1

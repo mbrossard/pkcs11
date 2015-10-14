@@ -3,7 +3,6 @@
  */
 
 #include <string.h>
-#include <unistd.h>
 #include <stdio.h>
 
 #include "common.h"

@@ -3,7 +3,6 @@
  */
 
 #include <string.h>
-#include <unistd.h>
 #include <getopt.h>
 
 #ifdef HAVE_OPENSSL

@@ -12,9 +12,14 @@ os: Windows Server 2012 R2
 platform:
   - x86
 
+# Add x64 platform later
+#  - x64
+
 configuration:
   - Release
-  - Debug
+
+# Add debug configuration later
+#  - Debug
 
 environment:
   global:
@@ -34,14 +39,16 @@ install:
     - set PATH=C:\cygwin\bin;%PATH%;C:\MinGW\msys\1.0\bin;C:\MinGW\bin
     - set CYG_ROOT=C:/MinGW/msys/1.0
     - set OPENSSL_VERSION=1_0_2d
-    - ps: >-
-        If ($env:Platform -Match "x86") {
-            $env:OPENSSL_PLATFORM="Win32"
-        } Else {
-            $env:OPENSSL_PLATFORM="Win64"
-        }
-        Start-FileDownload https://slproweb.com/download/Win32OpenSSL-${env:OPENSSL_VERSION}.exe -FileName C:\WinOpenSSL.exe
-    - C:\WinOpenSSL.exe /SILENT /VERYSILENT /SP- /SUPPRESSMSGBOXES /NORESTART
+
+# Re-add OpenSSL support later
+#     - ps: >-
+#         If ($env:Platform -Match "x86") {
+#             $env:OPENSSL_PLATFORM="Win32"
+#         } Else {
+#             $env:OPENSSL_PLATFORM="Win64"
+#         }
+#         Start-FileDownload https://slproweb.com/download/Win32OpenSSL-${env:OPENSSL_VERSION}.exe -FileName C:\WinOpenSSL.exe
+#     - C:\WinOpenSSL.exe /SILENT /VERYSILENT /SP- /SUPPRESSMSGBOXES /NORESTART
 
 build_script:
     - cmd: if %PLATFORM%==x86 SET OPENSSL_PLATFORM=Win32
@@ -56,8 +63,12 @@ build_script:
     - cmd: 'echo Autogen running...'
     - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; mount C:/MinGW /mingw"'
     - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; autoreconf -i"'
-    - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; CFLAGS=\"-D_GNU_SOURCE\" ./configure --with-openssl=C:/OpenSSL-%OPENSSL_PLATFORM%"'
+    - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; CFLAGS=\"-D_GNU_SOURCE\" ./configure"'
+
     - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; make V=1"'
+
+# Re-add OpenSSL later
+#     - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; CFLAGS=\"-D_GNU_SOURCE\" ./configure --with-openssl=C:/OpenSSL-%OPENSSL_PLATFORM%"'
 
 cache:
   - C:\OpenSSL-Win32

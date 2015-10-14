@@ -21,7 +21,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
 #include <unistd.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

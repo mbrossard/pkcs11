@@ -91,14 +91,18 @@
 
 #include "iniparser.h"
 
+#ifdef DEFAULT_PKCS11_MODULE
+#define DEFAULT_PKCSLIB DEFAULT_PKCS11_MODULE
+#else
 #if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
 #ifdef __APPLE__
-#define DEFAULT_PKCSLIB "/usr/local/Cellar/nss/3.20/lib/libsoftokn3.dylib"
+#define DEFAULT_PKCSLIB "libsoftokn3.dylib"
 #else
-#define DEFAULT_PKCSLIB "/usr/lib/libsoftokn3.so"
+#define DEFAULT_PKCSLIB "libsoftokn3.so"
 #endif
 #else
 #define DEFAULT_PKCSLIB "libsoftokn3.dll"
+#endif
 #endif
 
 static char* data_path = NULL;

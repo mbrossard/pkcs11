@@ -43,22 +43,6 @@ else
 fi
 AM_CONDITIONAL(HAVE_LD_VERSION_SCRIPT, test "$have_ld_version_script" = "yes")
 
-SOFTKN_PATH=
-AC_PATH_PROG([PKG_CONFIG], [pkg-config])
-if test x"$PKG_CONFIG" != x""; then
-    NSS_LIBDIR=`$PKG_CONFIG nss --variable=libdir 2>/dev/null`
-    if test x"NSS_LIBDIR" != x""; then
-        if test `uname` == "Darwin" ; then
-           NSS_LIBNAME="libsoftn3.dylib" ;
-        else
-           NSS_LIBNAME="libsoftn3.so" ;
-        fi
-        SOFTKN_PATH="$NSS_LIBDIR/$NSS_LIBNAME"
-    fi
-fi
-AC_SUBST(SOFTKN_PATH)
-AC_DEFINE_UNQUOTED([SOFTKN_PATH], [$SOFTKN_PATH], [Path to NSS soft-token dynamic library])
-
 AX_APPEND_LINK_FLAGS([ -Wl,--as-needed -Wl,--gc-sections ],[LDFLAGS])
 AX_APPEND_COMPILE_FLAGS([ -Wall -pedantic --std=c11 ])
 
@@ -68,6 +52,32 @@ AC_CHECK_HEADERS([getopt.h])
 AC_CHECK_FUNCS([getopt_long])
 AC_CHECK_LIB(dl, dlsym)
 # AC_CHECK_FUNCS([strndup],, AC_DEFINE([_GNU_SOURCE], [], [Linux requires _GNU_SOURCE for strndup]))
+
+AC_ARG_WITH(
+        [pkcs11-module],
+        [AS_HELP_STRING([--with-pkcs11-module], [Default PKCS#11 module])],
+        [pkcs11_module="${withval}"]
+)
+
+if test x"$pkcs11_module" == x""; then
+   AC_PATH_PROG([PKG_CONFIG], [pkg-config])
+   if test x"$PKG_CONFIG" != x""; then
+       NSS_LIBDIR=`$PKG_CONFIG nss --variable=libdir 2>/dev/null`
+       if test x"NSS_LIBDIR" != x""; then
+           if test `uname` == "Darwin" ; then
+              NSS_LIBNAME="libsoftn3.dylib" ;
+           else
+              NSS_LIBNAME="libsoftn3.so" ;
+           fi
+           pkcs11_module="$NSS_LIBDIR/$NSS_LIBNAME"
+       fi
+   fi
+fi
+
+if test x"$pkcs11_module" != x""; then
+   AC_DEFINE_UNQUOTED([DEFAULT_PKCS11_MODULE], "${pkcs11_module}", [Default PKCS#11 module])
+fi
+AC_SUBST(DEFAULT_PKCS11_MODULE)
 
 AX_CHECK_OPENSSL
 if test x"$OPENSSL_LIBS" != x""; then
@@ -98,4 +108,6 @@ AC_MSG_RESULT([
         compiler:               ${CC}
         cflags:                 ${CFLAGS} ${OPENSSL_INCLUDES}
         ldflags:                ${LDFLAGS} ${OPENSSL_LDFLAGS} ${OPENSSL_LIBS}
+
+        pkcs11_module:          ${pkcs11_module}
 ])

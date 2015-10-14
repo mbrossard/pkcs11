@@ -32,15 +32,16 @@ AM_CFLAGS = @OPENSSL_INCLUDES@ \
 bin_PROGRAMS = pkcs11-util
 
 pkcs11_util_SOURCES = \
-	src/pkcs11_display.c \
-	src/pkcs11-util.c \
 	src/base64.c \
+	src/clean.c \
 	src/common.c \
 	src/crypto.c \
+	src/init.c \
 	src/keypair.c \
-	src/clean.c \
 	src/keygen.c \
 	src/list.c \
+	src/pkcs11_display.c \
+	src/pkcs11-util.c \
 	src/speed.c \
 	src/ssh.c \
 	src/wrap.c

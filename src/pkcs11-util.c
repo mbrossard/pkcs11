@@ -13,6 +13,7 @@ void usage()
     printf("Usage: pkcs11-util <command>\nOptions:\n"
            " * help (-h or --help): help message\n"
            " * clean: delete objects\n"
+           " * init: initialize token\n"
            " * keygen: create keys\n"
            " * list: list slots and objects\n"
 #ifdef HAVE_PTHREAD
@@ -37,6 +38,8 @@ int main(int argc, char **argv)
         usage();
     } else if(!strcmp(argv[1], "clean")) {
         r = clean(argc - 1, argv + 1);
+    } else if(!strcmp(argv[1], "init")) {
+        r = init_token(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "keygen")) {
         keygen(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "list")) {

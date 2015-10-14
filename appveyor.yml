@@ -70,7 +70,7 @@ build_script:
 # Re-add OpenSSL later
 #     - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; CFLAGS=\"-D_GNU_SOURCE\" ./configure --with-openssl=C:/OpenSSL-%OPENSSL_PLATFORM%"'
 
-cache:
-  - C:\OpenSSL-Win32
-  - C:\OpenSSL-Win64
+# cache:
+#   - C:\OpenSSL-Win32
+#   - C:\OpenSSL-Win64
 

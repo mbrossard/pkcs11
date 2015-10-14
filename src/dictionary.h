@@ -23,6 +23,8 @@
 #include <string.h>
 #if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
 #include <unistd.h>
+#else
+#include <sys/types.h>
 #endif
 
 #ifdef __cplusplus

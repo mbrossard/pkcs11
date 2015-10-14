@@ -25,6 +25,9 @@
 #include <unistd.h>
 #else
 #include <sys/types.h>
+/* Work-around for MingW32 #2014 */
+#define off_t _off_t
+#define off64_t _off64_t
 #endif
 
 #ifdef __cplusplus

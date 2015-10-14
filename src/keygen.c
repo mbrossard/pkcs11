@@ -7,6 +7,7 @@
 #include <string.h>
 #include <getopt.h>
 
+#include "config.h"
 #include "common.h"
 #include "crypto.h"
 #include "keypair.h"

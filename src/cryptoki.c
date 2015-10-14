@@ -62,6 +62,9 @@
 #define CK_CALLBACK_FUNCTION(returnType, name)  \
     returnType (* name)
 
+/* Work-around for MingW32 #2014 */
+#define off_t _off_t
+#define off64_t _off64_t
 #endif
 
 #define CK_PTR *

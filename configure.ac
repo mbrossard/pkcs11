@@ -65,9 +65,9 @@ if test x"$pkcs11_module" == x""; then
        NSS_LIBDIR=`$PKG_CONFIG nss --variable=libdir 2>/dev/null`
        if test x"NSS_LIBDIR" != x""; then
            if test `uname` == "Darwin" ; then
-              NSS_LIBNAME="libsoftn3.dylib" ;
+              NSS_LIBNAME="libsoftokn3.dylib" ;
            else
-              NSS_LIBNAME="libsoftn3.so" ;
+              NSS_LIBNAME="libsoftokn3.so" ;
            fi
            pkcs11_module="$NSS_LIBDIR/$NSS_LIBNAME"
        fi

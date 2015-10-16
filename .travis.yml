@@ -52,7 +52,7 @@ matrix:
     compiler: gcc-5
 
 before_install:
-  - if [ $TRAVIS_OS_NAME == osx ] ; then brew update ; fi
+  - if [ $TRAVIS_OS_NAME == osx -a $INSTALL == gcc5 ] ; then brew update ; fi
   - if [ $TRAVIS_OS_NAME == osx ] ; then brew install nss openssl $INSTALL || true ; fi
 
 script:

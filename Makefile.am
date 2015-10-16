@@ -62,6 +62,13 @@ pkcs11_token_la_LDFLAGS = \
 
 pkcs11_token_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_VISIBILITY)
 
-test:
-	./pkcs11-util
+PIN=Vl0RJlAKiUMf
 
+test:
+	@rm -f cert8.db key3.db
+	./pkcs11-util init   -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2
+	./pkcs11-util keygen -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2 -k 2048
+	./pkcs11-util keygen -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2 -k prime256v1
+	./pkcs11-util list   -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2 -O
+	./pkcs11-util ssh    -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2
+	./pkcs11-util clean  -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2 -r

@@ -68,9 +68,13 @@ if test x"$pkcs11_module" == x""; then
               NSS_LIBNAME="libsoftokn3.dylib" ;
            else
               NSS_LIBNAME="libsoftokn3.so" ;
+              if test ! -f "$NSS_LIBDIR/$NSS_LIBNAME" -a -f "$NSS_LIBDIR/nss/$NSS_LIBNAME" ; then
+                  NSS_LIBNAME="nss/$NSS_LIBNAME" ;
+              fi
            fi
            pkcs11_module="$NSS_LIBDIR/$NSS_LIBNAME"
-       else
+       fi
+       if test ! -f "$pkcs11_module" ; then
            if test `uname` == "Darwin" ; then
               pkcs11_module=`ls -1 /usr/lib/Cellar/nss/*/lib/libsoftokn3.dylib | sort | tail -1` ;
            else

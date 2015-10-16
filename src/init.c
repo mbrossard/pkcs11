@@ -30,7 +30,7 @@ static const char *option_help[] = {
     "Specify the directory for NSS database",
 };
 
-CK_RV pkcs11_initialize_db(CK_FUNCTION_LIST_PTR funcs, const char *path)
+static CK_RV pkcs11_initialize_db(CK_FUNCTION_LIST_PTR funcs, const char *path)
 {
     CK_RV rc = CKR_HOST_MEMORY;
     static const char *nss_init_string = "configdir='sql:%s' certPrefix='' keyPrefix='' secmod='secmod.db'";
@@ -45,6 +45,8 @@ CK_RV pkcs11_initialize_db(CK_FUNCTION_LIST_PTR funcs, const char *path)
         CK_CHAR_PTR LibraryParameters;
         CK_VOID_PTR pReserved;
     } ia;
+
+    nss_init_string = "configdir='%s' certPrefix='' keyPrefix='' secmod='secmod.db'";
     
     iap = (CK_C_INITIALIZE_ARGS *)&ia;
     ia.flags = CKF_OS_LOCKING_OK;
@@ -59,8 +61,9 @@ CK_RV pkcs11_initialize_db(CK_FUNCTION_LIST_PTR funcs, const char *path)
 /* init is a reserved symbol */
 int init_token( int argc, char **argv )
 {
-    CK_FUNCTION_LIST *funcs = NULL;
-    /* CK_UTF8CHAR       label[32]; */
+    CK_ULONG          nslots, islot;
+    CK_SLOT_ID        *pslots = NULL;
+    CK_FUNCTION_LIST  *funcs = NULL;
     CK_BYTE           opt_pin[32] = "";
     CK_ULONG          opt_pin_len = 0;
     CK_RV             rc;
@@ -108,53 +111,68 @@ int init_token( int argc, char **argv )
         return -1;
     }
 
-    rc = pkcs11_initialize_db(funcs, opt_dir);
+    if(opt_dir) {
+        rc = pkcs11_initialize_db(funcs, opt_dir);
+    } else {
+        rc = pkcs11_initialize(funcs);
+    }
+
     if (rc != CKR_OK) {
         show_error(stdout, "C_Initialize", rc );
         return rc;
     }
 
-    if(*opt_pin != '\0') {
-        /* memset(label, 0, sizeof(label)); */
-        rc = funcs->C_InitToken(opt_slot, opt_pin, opt_pin_len,
-                                (CK_UTF8CHAR_PTR) opt_label);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_InitToken", rc );
-            return rc;
-        }
+    rc = pkcs11_get_slots(funcs, stdout, &pslots, &nslots);
+    if (rc != CKR_OK) {
+        return rc;
+    }
 
-        rc = funcs->C_OpenSession(opt_slot, CKF_SERIAL_SESSION | CKF_RW_SESSION,
-                                  NULL_PTR, NULL_PTR, &h_session);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_OpenSession", rc );
-            return rc;
+    for(islot = 0; islot < nslots; islot++) {
+        if(pslots[islot] == opt_slot) {
+            break;
         }
+    }
+    if(islot == nslots) {
+        rc = CKR_SLOT_ID_INVALID;
+        show_error(stdout, "C_ListSlots", rc);
+        return rc;
+    }
 
-        // rc = funcs->C_Login(h_session, CKU_SO, opt_pin, opt_pin_len );
-        rc = funcs->C_Login(h_session, CKU_SO, NULL, 0 );
-        // rc = funcs->C_Login(h_session, CKU_SO, "", 0 );
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_Login", rc );
-            return rc;
-        }
+    rc = funcs->C_InitToken(opt_slot, NULL, 0, (CK_UTF8CHAR_PTR) opt_label);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_InitToken", rc );
+        return rc;
+    }
 
-        rc = funcs->C_InitPIN(h_session, opt_pin, opt_pin_len);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_InitPin", rc );
-            return rc;
-        }
+    rc = funcs->C_OpenSession(opt_slot, CKF_SERIAL_SESSION | CKF_RW_SESSION,
+                              NULL_PTR, NULL_PTR, &h_session);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_OpenSession", rc );
+        return rc;
+    }
 
-        rc = funcs->C_Logout(h_session);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_Logout", rc );
-            return rc;
-        }
+    rc = funcs->C_Login(h_session, CKU_SO, NULL, 0 );
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_Login", rc );
+        return rc;
+    }
 
-        rc = funcs->C_CloseSession(h_session);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_CloseSession", rc );
-            return rc;
-        }
+    rc = funcs->C_InitPIN(h_session, opt_pin, opt_pin_len);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_InitPin", rc );
+        return rc;
+    }
+
+    rc = funcs->C_Logout(h_session);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_Logout", rc );
+        return rc;
+    }
+
+    rc = funcs->C_CloseSession(h_session);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_CloseSession", rc );
+        return rc;
     }
 
     rc = funcs->C_Finalize(NULL);
@@ -163,6 +181,5 @@ int init_token( int argc, char **argv )
         return rc;
     }
 
-    rc = funcs->C_Finalize( NULL );
     return rc;
 }

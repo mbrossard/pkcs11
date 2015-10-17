@@ -262,7 +262,7 @@ CK_RV DLL_EXPORTED C_Initialize(CK_VOID_PTR pInitArgs)
 	}
         
     if (rv == CKR_OK) {
-        static const char *nss_init_string = "configdir='sql:%s' certPrefix='' keyPrefix='' secmod='secmod.db'";
+        static const char *nss_init_string = "configdir='%s' certPrefix='' keyPrefix='' secmod='secmod.db'";
         char buffer[256];
         CK_C_INITIALIZE_ARGS *iap = NULL;
         struct {

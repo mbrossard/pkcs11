@@ -30,7 +30,7 @@ static const struct option options[] = {
 
 static const char *option_help[] = {
     "Print this help and exit",
-    "Supply PIN on the command line (if used in scripts: careful!)",
+    "Supply PIN on the command line",
     "Specify number of the slot to use",
     "Specify the module to load",
     "Specify the directory for NSS database",

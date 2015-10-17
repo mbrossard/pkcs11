@@ -215,7 +215,7 @@ static const char *option_help[] = {
     "List mechanisms supported by the token",
     "List objects contained in the token",
     "Print this help and exit",
-    "Supply PIN on the command line (if used in scripts: careful!)",
+    "Supply PIN on the command line",
     "Specify number of the slot to use",
     "Specify the module to load",
     "Specify the directory for NSS database",

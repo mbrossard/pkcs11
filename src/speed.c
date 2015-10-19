@@ -296,7 +296,6 @@ int speed( int argc, char **argv )
         return rc;
     }
 
-    rc = funcs->C_Finalize( NULL );
     return rc;
 }
 

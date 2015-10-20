@@ -42,6 +42,7 @@ pkcs11_util_SOURCES = \
 	src/list.c \
 	src/pkcs11_display.c \
 	src/pkcs11-util.c \
+	src/request.c \
 	src/speed.c \
 	src/ssh.c \
 	src/wrap.c

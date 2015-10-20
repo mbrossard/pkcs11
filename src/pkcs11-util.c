@@ -16,6 +16,9 @@ void usage()
            " * init: initialize token\n"
            " * keygen: create keys\n"
            " * list: list slots and objects\n"
+#ifdef HAVE_OPENSSL
+           " * request: create a certificate request\n"
+#endif
 #ifdef HAVE_PTHREAD
            " * speed: performance testing\n"
 #endif
@@ -44,6 +47,10 @@ int main(int argc, char **argv)
         keygen(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "list")) {
         r = list(argc - 1, argv + 1);
+#ifdef HAVE_OPENSSL
+    } else if(!strcmp(argv[1], "request")) {
+        r = request(argc - 1, argv + 1);
+#endif
 #ifdef HAVE_PTHREAD
     } else if(!strcmp(argv[1], "speed")) {
         r = speed(argc - 1, argv + 1);

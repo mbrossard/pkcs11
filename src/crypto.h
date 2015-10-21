@@ -5,11 +5,22 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
+#include "config.h"
+#include "common.h"
+
+#ifdef HAVE_OPENSSL
+#include <openssl/evp.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void init_crypto();
+
+#ifdef HAVE_OPENSSL
+EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK_OBJECT_HANDLE key);
+#endif
 
 #ifdef __cplusplus
 };

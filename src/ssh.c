@@ -5,6 +5,8 @@
 #include <string.h>
 #include <getopt.h>
 
+#include "config.h"
+
 #ifdef HAVE_OPENSSL
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
@@ -14,7 +16,6 @@
 #endif
 
 #include "crypto.h"
-#include "common.h"
 #include "pkcs11_display.h"
 
 #include "base64.h"

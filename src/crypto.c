@@ -1,5 +1,6 @@
 #include "config.h"
 #include "crypto.h"
+#include "pkcs11_display.h"
 
 #ifdef HAVE_OPENSSL
 #include <string.h>
@@ -11,10 +12,138 @@
 #define ENABLE_PKCS11_ECDSA 1
 #endif
 
+#ifdef ENABLE_PKCS11_ECDSA
+static int pkcs11_ecdsa_key_idx = -1;
+#endif /* ENABLE_PKCS11_ECDSA */
+static int pkcs11_rsa_key_idx   = -1;
+
 void init_crypto()
 {
     OPENSSL_add_all_algorithms_noconf();
 }
+
+struct pkcs11_key_data {
+    CK_FUNCTION_LIST *funcs;
+    CK_SESSION_HANDLE session;
+    CK_OBJECT_HANDLE key;
+    CK_BYTE type;
+};
+
+static int pkcs11_rsa_private_encrypt(int flen, const unsigned char *from,
+                                      unsigned char *to, RSA *rsa, int padding)
+{
+    struct pkcs11_key_data *pkd = NULL;
+	CK_MECHANISM mech = {
+		CKM_RSA_PKCS, NULL_PTR, 0
+	};
+	CK_ULONG tlen = 0;
+	CK_RV rv;
+	int rval = -1;
+
+    tlen = RSA_size(rsa);
+    if(((pkd = RSA_get_ex_data(rsa, pkcs11_rsa_key_idx)) != NULL) &&
+       ((rv = pkd->funcs->C_SignInit(pkd->session, &mech, pkd->key)) != CKR_OK) &&
+       /* TODO: handle CKR_BUFFER_TOO_SMALL */
+       ((rv = pkd->funcs->C_Sign(pkd->session, (CK_BYTE *)from, flen, to, &tlen)) == CKR_OK)) {
+        rval = tlen;
+    } else {
+        return -1;
+    }
+
+	return (rval);
+}
+
+static RSA_METHOD *get_pkcs11_rsa_method(void) {
+	static RSA_METHOD *pkcs11_rsa_method = NULL;
+	if(pkcs11_rsa_key_idx == -1) {
+		pkcs11_rsa_key_idx = RSA_get_ex_new_index(0, NULL, NULL, NULL, 0);
+	}
+	if(pkcs11_rsa_method == NULL) {
+		const RSA_METHOD *def = RSA_get_default_method();
+		pkcs11_rsa_method = calloc(1, sizeof(*pkcs11_rsa_method));
+		memcpy(pkcs11_rsa_method, def, sizeof(*pkcs11_rsa_method));
+		pkcs11_rsa_method->name = "pkcs11";
+		pkcs11_rsa_method->rsa_priv_enc = pkcs11_rsa_private_encrypt;
+	}
+	return pkcs11_rsa_method;
+}
+
+#ifdef ENABLE_PKCS11_ECDSA
+
+static ECDSA_SIG *pkcs11_ecdsa_sign(const unsigned char *dgst, int dgst_len,
+                                    const BIGNUM *inv, const BIGNUM *rp,
+                                    EC_KEY *ecdsa) {
+    struct pkcs11_key_data *pkd = NULL;
+	CK_MECHANISM mech = {
+		CKM_ECDSA, NULL_PTR, 0
+	};
+	CK_ULONG tlen = 0;
+	CK_RV rv;
+    
+    if(((pkd = ECDSA_get_ex_data(ecdsa, pkcs11_ecdsa_key_idx)) != NULL) &&
+       ((rv = pkd->funcs->C_SignInit(pkd->session, &mech, pkd->key)) != CKR_OK)) {
+		CK_BYTE_PTR buf = NULL;
+        ECDSA_SIG *rval;
+        int nlen;
+        
+        /* Make a call to C_Sign to find out the size of the signature */
+        rv = pkd->funcs->C_Sign(pkd->session, (CK_BYTE *)dgst, dgst_len, NULL, &tlen);
+        if (rv != CKR_OK) {
+            return NULL;
+        }
+        
+        if ((buf = malloc(tlen)) == NULL) {
+            return NULL;
+        }
+        
+        rv = pkd->funcs->C_Sign(pkd->session, (CK_BYTE *)dgst, dgst_len, buf, &tlen);
+        if (rv != CKR_OK) {
+            free(buf);
+            return NULL;
+        }
+        
+        if ((rval = ECDSA_SIG_new()) != NULL) {
+            /* 
+             * ECDSA signature is 2 large integers of same size returned
+             * concatenated by PKCS#11, we separate them to create an
+             * ECDSA_SIG for OpenSSL.
+             */
+            nlen = tlen / 2;
+            BN_bin2bn(&buf[0], nlen, rval->r);
+            BN_bin2bn(&buf[nlen], nlen, rval->s);
+        }
+        free(buf);
+        return rval;
+    } else {
+        return NULL;
+    }
+}
+
+
+static ECDSA_METHOD *get_pkcs11_ecdsa_method(void) {
+	static ECDSA_METHOD *pkcs11_ecdsa_method = NULL;
+	if(pkcs11_ecdsa_key_idx == -1) {
+		pkcs11_ecdsa_key_idx = ECDSA_get_ex_new_index(0, NULL, NULL, NULL, 0);
+	}
+	if(pkcs11_ecdsa_method == NULL) {
+		const ECDSA_METHOD *def = ECDSA_get_default_method();
+#ifdef ECDSA_F_ECDSA_METHOD_NEW
+		pkcs11_ecdsa_method = ECDSA_METHOD_new((ECDSA_METHOD *)def);
+		ECDSA_METHOD_set_name(pkcs11_ecdsa_method, "pkcs11");
+		ECDSA_METHOD_set_sign(pkcs11_ecdsa_method, pkcs11_ecdsa_sign);
+#else
+		pkcs11_ecdsa_method = calloc(1, sizeof(*pkcs11_ecdsa_method));
+		memcpy(pkcs11_ecdsa_method, def, sizeof(*pkcs11_ecdsa_method));
+		pkcs11_ecdsa_method->name = "pkcs11";
+		pkcs11_ecdsa_method->ecdsa_do_sign = pkcs11_ecdsa_sign;
+#endif
+	}
+	return pkcs11_ecdsa_method;
+}
+
+#endif
+
+    /* CK_ATTRIBUTE *keyid_attrib */
 
 EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK_OBJECT_HANDLE key)
 {
@@ -23,13 +152,19 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
         { CKA_CLASS,    &class, sizeof(class) },
         { CKA_KEY_TYPE, &kt,    sizeof(kt)    }
     };
+    struct pkcs11_key_data *pkd = NULL;
     EVP_PKEY *k = NULL;
     CK_RV rv;
-
+    
+    pkd = malloc(sizeof(struct pkcs11_key_data));
     rv = funcs->C_GetAttributeValue(session, key, key_type, 2);
-    if(rv != CKR_OK || class != CKO_PRIVATE_KEY) {
+    if(pkd == NULL || rv != CKR_OK || class != CKO_PRIVATE_KEY) {
         return k;
     }
+
+    pkd->funcs = funcs;
+    pkd->session = session;
+    pkd->key = key;
 
     if(kt == CKK_RSA) {
         CK_ATTRIBUTE rsa_attributes[] = {
@@ -47,7 +182,11 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
                                 rsa_attributes[1].ulValueLen, NULL)) != NULL) &&
            ((rsa->e = BN_bin2bn(rsa_attributes[2].pValue,
                                 rsa_attributes[2].ulValueLen, NULL)) != NULL)) {
-            // build k from rsa
+            if((k = EVP_PKEY_new()) != NULL) {
+                RSA_set_method(rsa, get_pkcs11_rsa_method());
+                RSA_set_ex_data(rsa, pkcs11_rsa_key_idx, pkd);
+                EVP_PKEY_set1_RSA(k, rsa);
+            }
         }
 
         free(rsa_attributes[0].pValue);
@@ -111,7 +250,11 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
             }
 
             if(ecdsa) {
-                // build k from ecdsa
+                if((k = EVP_PKEY_new()) != NULL) {
+                    ECDSA_set_method(ecdsa, get_pkcs11_ecdsa_method());
+                    ECDSA_set_ex_data(ecdsa, pkcs11_ecdsa_key_idx, pkd);
+                    EVP_PKEY_set1_EC_KEY(k, ecdsa);
+                }
             }
         }
 
@@ -123,6 +266,22 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
 
     return k;
 }
+
+void unload_pkcs11_key(EVP_PKEY *k)
+{
+    if(k) {
+        struct pkcs11_key_data *pkd = NULL;
+        int t = EVP_PKEY_id(k);
+        if(t == EVP_PKEY_RSA) {
+            pkd = RSA_get_ex_data(EVP_PKEY_get1_RSA(k), pkcs11_rsa_key_idx);
+        } else if(t == EVP_PKEY_EC) {
+            pkd = ECDSA_get_ex_data(EVP_PKEY_get1_EC_KEY(k), pkcs11_ecdsa_key_idx);
+        }
+        free(pkd);
+        EVP_PKEY_free(k);
+    }
+}
+
 
 #else
 

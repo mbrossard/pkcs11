@@ -274,15 +274,15 @@ void unload_pkcs11_key(EVP_PKEY *k)
         int t = EVP_PKEY_id(k);
         if(t == EVP_PKEY_RSA) {
             pkd = RSA_get_ex_data(EVP_PKEY_get1_RSA(k), pkcs11_rsa_key_idx);
+#ifdef ENABLE_PKCS11_ECDSA
         } else if(t == EVP_PKEY_EC) {
             pkd = ECDSA_get_ex_data(EVP_PKEY_get1_EC_KEY(k), pkcs11_ecdsa_key_idx);
+#endif
         }
         free(pkd);
         EVP_PKEY_free(k);
     }
 }
-
-
 #else
 
 void init_crypto()

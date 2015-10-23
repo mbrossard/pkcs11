@@ -34,7 +34,7 @@ static int pkcs11_rsa_private_encrypt(int flen, const unsigned char *from,
 
     tlen = RSA_size(rsa);
     if(((pkd = RSA_get_ex_data(rsa, pkcs11_rsa_key_idx)) != NULL) &&
-       ((rv = pkd->funcs->C_SignInit(pkd->session, &mech, pkd->key)) != CKR_OK) &&
+       ((rv = pkd->funcs->C_SignInit(pkd->session, &mech, pkd->key)) == CKR_OK) &&
        /* TODO: handle CKR_BUFFER_TOO_SMALL */
        ((rv = pkd->funcs->C_Sign(pkd->session, (CK_BYTE *)from, flen, to, &tlen)) == CKR_OK)) {
         rval = tlen;
@@ -80,7 +80,7 @@ static ECDSA_SIG *pkcs11_ecdsa_sign(const unsigned char *dgst, int dgst_len,
 	CK_RV rv;
     
     if(((pkd = ECDSA_get_ex_data(ecdsa, pkcs11_ecdsa_key_idx)) != NULL) &&
-       ((rv = pkd->funcs->C_SignInit(pkd->session, &mech, pkd->key)) != CKR_OK)) {
+       ((rv = pkd->funcs->C_SignInit(pkd->session, &mech, pkd->key)) == CKR_OK)) {
 		CK_BYTE_PTR buf = NULL;
         ECDSA_SIG *rval;
         int nlen;
@@ -210,14 +210,14 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
             ((rv = funcs->C_FindObjectsInit(session, ecdsa_public, 3)) == CKR_OK) &&
             ((rv = funcs->C_FindObjects(session, &pub, 1, &found)) == CKR_OK) && (found != 0) &&
             ((rv = funcs->C_FindObjectsFinal(session)) == CKR_OK) &&
-            ((rv = funcs->C_GetAttributeValue(session, key, ecdsa_attributes, 2)) == CKR_OK) &&
+            ((rv = funcs->C_GetAttributeValue(session, pub, ecdsa_attributes, 2)) == CKR_OK) &&
             ((ecdsa_attributes[0].pValue = malloc(ecdsa_attributes[0].ulValueLen)) != NULL) &&
             ((ecdsa_attributes[1].pValue = malloc(ecdsa_attributes[1].ulValueLen)) != NULL) &&
-            ((rv = funcs->C_GetAttributeValue(session, key, ecdsa_attributes, 2)) == CKR_OK)) {
-            const unsigned char *ptr1 = ecdsa_attributes[1].pValue;
-            const unsigned char *ptr2 = ecdsa_attributes[2].pValue;
-            CK_ULONG len1 = ecdsa_attributes[1].ulValueLen;
-            CK_ULONG len2 = ecdsa_attributes[2].ulValueLen;
+            ((rv = funcs->C_GetAttributeValue(session, pub, ecdsa_attributes, 2)) == CKR_OK)) {
+            const unsigned char *ptr1 = ecdsa_attributes[0].pValue;
+            const unsigned char *ptr2 = ecdsa_attributes[1].pValue;
+            CK_ULONG len1 = ecdsa_attributes[0].ulValueLen;
+            CK_ULONG len2 = ecdsa_attributes[1].ulValueLen;
             ASN1_OCTET_STRING *point = NULL;
             EC_KEY *ecdsa = NULL;
 

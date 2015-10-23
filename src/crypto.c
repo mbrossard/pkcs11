@@ -6,16 +6,6 @@
 #include <string.h>
 #include <openssl/rsa.h>
 #include <openssl/ecdsa.h>
-#if ((defined(LIBRESSL_VERSION_NUMBER) && \
-	(LIBRESSL_VERSION_NUMBER >= 0x20010002L))) || \
-	(defined(ECDSA_F_ECDSA_METHOD_NEW))
-#define ENABLE_PKCS11_ECDSA 1
-#endif
-
-#ifdef ENABLE_PKCS11_ECDSA
-static int pkcs11_ecdsa_key_idx = -1;
-#endif /* ENABLE_PKCS11_ECDSA */
-static int pkcs11_rsa_key_idx   = -1;
 
 void init_crypto()
 {
@@ -28,6 +18,8 @@ struct pkcs11_key_data {
     CK_OBJECT_HANDLE key;
     CK_BYTE type;
 };
+
+static int pkcs11_rsa_key_idx   = -1;
 
 static int pkcs11_rsa_private_encrypt(int flen, const unsigned char *from,
                                       unsigned char *to, RSA *rsa, int padding)
@@ -68,7 +60,14 @@ static RSA_METHOD *get_pkcs11_rsa_method(void) {
 	return pkcs11_rsa_method;
 }
 
+#if ((defined(LIBRESSL_VERSION_NUMBER) && \
+	(LIBRESSL_VERSION_NUMBER >= 0x20010002L))) || \
+	(defined(ECDSA_F_ECDSA_METHOD_NEW))
+#define ENABLE_PKCS11_ECDSA 1
+#endif
+
 #ifdef ENABLE_PKCS11_ECDSA
+static int pkcs11_ecdsa_key_idx = -1;
 
 static ECDSA_SIG *pkcs11_ecdsa_sign(const unsigned char *dgst, int dgst_len,
                                     const BIGNUM *inv, const BIGNUM *rp,
@@ -142,8 +141,6 @@ static ECDSA_METHOD *get_pkcs11_ecdsa_method(void) {
 }
 
 #endif
-
-    /* CK_ATTRIBUTE *keyid_attrib */
 
 EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK_OBJECT_HANDLE key)
 {

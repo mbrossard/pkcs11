@@ -171,6 +171,7 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
         RSA *rsa = RSA_new();
 
         if(((rv = funcs->C_GetAttributeValue(session, key, rsa_attributes, 2)) == CKR_OK) &&
+           (rsa_attributes[0].ulValueLen > 0) && (rsa_attributes[1].ulValueLen > 0) &&
            ((rsa_attributes[0].pValue = malloc(rsa_attributes[0].ulValueLen)) != NULL) &&
            ((rsa_attributes[1].pValue = malloc(rsa_attributes[1].ulValueLen)) != NULL) &&
            ((rv = funcs->C_GetAttributeValue(session, key, rsa_attributes, 2)) == CKR_OK) && 

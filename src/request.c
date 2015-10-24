@@ -140,6 +140,12 @@ int request( int argc, char **argv )
         return rc;
     }
 
+    rc = funcs->C_FindObjectsFinal(h_session);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_FindObjectsFinal", rc );
+        return rc;
+    }
+
     if(count == 0) {
         printf("No object found\n");
         exit(-1);
@@ -147,11 +153,6 @@ int request( int argc, char **argv )
 
     print_object_info(funcs, stdout, 0, h_session, key);
 
-    rc = funcs->C_FindObjectsFinal(h_session);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjectsFinal", rc );
-        return rc;
-    }
 
     if(*opt_pin != '\0') {
         rc = funcs->C_Logout(h_session);

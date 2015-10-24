@@ -64,12 +64,16 @@ pkcs11_token_la_LDFLAGS = \
 pkcs11_token_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_VISIBILITY)
 
 PIN=Vl0RJlAKiUMf
+MODULE_PIN_SLOT = -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2
 
 test:
 	@rm -f cert8.db key3.db
-	./pkcs11-util init   -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2
-	./pkcs11-util keygen -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2 -k 2048
-	./pkcs11-util keygen -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2 -k prime256v1
-	./pkcs11-util list   -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2 -O
-	./pkcs11-util ssh    -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2
-	./pkcs11-util clean  -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2 -r
+	./pkcs11-util init    $(MODULE_PIN_SLOT)
+	./pkcs11-util list    $(MODULE_PIN_SLOT) -M
+	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l rsa2048 -k 2048
+	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l ec256   -k prime256v1
+	./pkcs11-util request $(MODULE_PIN_SLOT) -l rsa2048 | openssl req -verify
+	./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256   | openssl req -verify
+	./pkcs11-util list    $(MODULE_PIN_SLOT) -O
+	./pkcs11-util ssh     $(MODULE_PIN_SLOT)
+	./pkcs11-util clean   $(MODULE_PIN_SLOT) -r

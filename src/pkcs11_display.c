@@ -972,7 +972,7 @@ void print_session_info(FILE *f, CK_SESSION_INFO *info)
 }
 
 int print_object_info(CK_FUNCTION_LIST *funcs, FILE *f, CK_ULONG j,
-                      CK_SESSION_HANDLE h_session, CK_OBJECT_HANDLE  obj)
+                      CK_SESSION_HANDLE h_session, CK_OBJECT_HANDLE obj)
 {
     CK_ULONG k, l;
     CK_ATTRIBUTE attribute;

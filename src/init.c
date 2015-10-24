@@ -69,7 +69,7 @@ int init_token( int argc, char **argv )
     CK_ULONG          opt_slot = -1;
     CK_SESSION_HANDLE h_session;
     char *opt_module = NULL, *opt_dir = NULL, *opt_label = NULL;
-    int long_optind = 0, kid = 0;
+    int long_optind = 0;
     char c;
 
     while (1) {
@@ -94,9 +94,6 @@ int init_token( int argc, char **argv )
                 break;
             case 'm':
                 opt_module = optarg;
-                break;
-            case 'k':
-                kid = atoi(optarg);
                 break;
             case 'h':
             default:

@@ -7,6 +7,7 @@
 #ifdef HAVE_OPENSSL
 
 #include "common.h"
+#include "crypto.h"
 #include "pkcs11_display.h"
 
 #include <string.h>
@@ -153,6 +154,22 @@ int request( int argc, char **argv )
 
     print_object_info(funcs, stdout, 0, h_session, key);
 
+    EVP_PKEY *k = load_pkcs11_key(funcs, h_session, key);
+
+    if(k == NULL) {
+        printf("Error loading key\n");
+        return -1;
+    }
+
+    X509_REQ *req = X509_REQ_new();
+    X509_REQ_set_version(req, 0);
+
+    X509_REQ_set_pubkey(req, k);
+
+    X509_REQ_sign(req, k, EVP_sha256());
+
+    X509_REQ_print_fp(stdout, req);
+    PEM_write_X509_REQ(stdout, req);
 
     if(*opt_pin != '\0') {
         rc = funcs->C_Logout(h_session);

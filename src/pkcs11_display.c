@@ -980,9 +980,9 @@ int print_object_info(CK_FUNCTION_LIST *funcs, FILE *f, CK_ULONG j,
 
     rc = funcs->C_GetObjectSize( h_session, obj, &k );
     if (rc != CKR_OK) {
-        fprintf(f, "----------------\nObject %ld\n", j);
+        fprintf(f, "----------------\nObject %ld (0x%lx)\n", j, obj);
     } else {
-        fprintf(f, "----------------\nObject %ld has size %ld\n", j, k);
+        fprintf(f, "----------------\nObject %ld (0x%lx) has size %ld\n", j, obj, k);
     }
 
     for(k = 0, l = 0; k < ck_attribute_num; k++) {

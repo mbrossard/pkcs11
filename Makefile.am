@@ -73,7 +73,7 @@ test:
 	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l rsa2048 -k 2048
 	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l ec256   -k prime256v1
 	./pkcs11-util request $(MODULE_PIN_SLOT) -l rsa2048 | openssl req -verify
-	./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256   | openssl req -verify
+#	./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256   | openssl req -verify
 	./pkcs11-util list    $(MODULE_PIN_SLOT) -O
 	./pkcs11-util ssh     $(MODULE_PIN_SLOT)
 	./pkcs11-util clean   $(MODULE_PIN_SLOT) -r

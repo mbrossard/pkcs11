@@ -175,11 +175,12 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
            ((rsa_attributes[0].pValue = malloc(rsa_attributes[0].ulValueLen)) != NULL) &&
            ((rsa_attributes[1].pValue = malloc(rsa_attributes[1].ulValueLen)) != NULL) &&
            ((rv = funcs->C_GetAttributeValue(session, key, rsa_attributes, 2)) == CKR_OK) && 
-           (rsa != NULL) &&
-           ((rsa->n = BN_bin2bn(rsa_attributes[1].pValue,
-                                rsa_attributes[1].ulValueLen, NULL)) != NULL) &&
-           ((rsa->e = BN_bin2bn(rsa_attributes[2].pValue,
-                                rsa_attributes[2].ulValueLen, NULL)) != NULL)) {
+           (rsa != NULL)) {
+            rsa->n = BN_bin2bn(rsa_attributes[0].pValue,
+                               rsa_attributes[0].ulValueLen, NULL);
+            rsa->e = BN_bin2bn(rsa_attributes[1].pValue,
+                               rsa_attributes[1].ulValueLen, NULL);
+
             if((k = EVP_PKEY_new()) != NULL) {
                 RSA_set_method(rsa, get_pkcs11_rsa_method());
                 RSA_set_ex_data(rsa, pkcs11_rsa_key_idx, pkd);

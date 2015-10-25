@@ -59,7 +59,7 @@ pkcs11_token_la_SOURCES = \
 
 pkcs11_token_la_LDFLAGS = \
 	-version-info @VERSION_INFO@ \
-	-avoid-version -module
+	-avoid-version -module -no-undefined
 
 pkcs11_token_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_VISIBILITY)
 

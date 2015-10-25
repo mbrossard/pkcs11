@@ -52,6 +52,7 @@ int request( int argc, char **argv )
     CK_OBJECT_HANDLE  key;
     char *opt_module = NULL;
     int long_optind = 0;
+    int opt_quiet = 0;
     char c;
     CK_OBJECT_CLASS class = CKO_PRIVATE_KEY;
     CK_ATTRIBUTE search[2] =
@@ -65,7 +66,7 @@ int request( int argc, char **argv )
     printf("This feature is a work in progress.\n");
 
     while (1) {
-        c = getopt_long(argc, argv, "hd:ep:s:g:l:m:t:o:",
+        c = getopt_long(argc, argv, "hd:ep:s:g:l:m:t:o:q",
                         options, &long_optind);
         if (c == -1)
             break;
@@ -86,6 +87,9 @@ int request( int argc, char **argv )
                 break;
             case 'l':
                 opt_label = optarg;
+                break;
+            case 'q':
+                opt_quiet = 1;
                 break;
             case 'h':
             default:
@@ -152,7 +156,9 @@ int request( int argc, char **argv )
         exit(-1);
     }
 
-    print_object_info(funcs, stdout, 0, h_session, key);
+    if(!opt_quiet) {
+        print_object_info(funcs, stdout, 0, h_session, key);
+    }
 
     EVP_PKEY *k = load_pkcs11_key(funcs, h_session, key);
 
@@ -163,12 +169,12 @@ int request( int argc, char **argv )
 
     X509_REQ *req = X509_REQ_new();
     X509_REQ_set_version(req, 0);
-
     X509_REQ_set_pubkey(req, k);
-
     X509_REQ_sign(req, k, EVP_sha256());
 
-    X509_REQ_print_fp(stdout, req);
+    if(!opt_quiet) {
+        X509_REQ_print_fp(stdout, req);
+    }
     PEM_write_X509_REQ(stdout, req);
 
     if(*opt_pin != '\0') {

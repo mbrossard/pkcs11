@@ -121,4 +121,12 @@ AC_DEFUN([AX_CHECK_OPENSSL], [
     AC_SUBST([OPENSSL_INCLUDES])
     AC_SUBST([OPENSSL_LIBS])
     AC_SUBST([OPENSSL_LDFLAGS])
+    if test -x "$ssldirs/bin/openssl" ; then
+        OPENSSL_BIN="$ssldirs/bin/openssl"
+    fi
+    # Fall-back on default one
+    if test -z "$OPENSSL_BIN" ; then
+       OPENSSL_BIN=`which openssl`
+    fi
+    AC_SUBST([OPENSSL_BIN])
 ])

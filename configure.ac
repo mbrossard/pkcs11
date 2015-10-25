@@ -84,8 +84,9 @@ if test x"$pkcs11_module" == x""; then
    fi
 fi
 
-if test x"$pkcs11_module" != x""; then
-   AC_DEFINE_UNQUOTED([DEFAULT_PKCS11_MODULE], "${pkcs11_module}", [Default PKCS#11 module])
+if test x"$pkcs11_module" != x"" -a -f "$pkcs11_module"; then
+   pkcs11_path=`echo $pkcs11_module | sed 's|\\\\|\\\\\\\\|g'`
+   AC_DEFINE_UNQUOTED([DEFAULT_PKCS11_MODULE], "${pkcs11_path}", [Default PKCS#11 module])
    DEFAULT_PKCS11_MODULE="${pkcs11_module}"
 fi
 AC_SUBST([DEFAULT_PKCS11_MODULE])

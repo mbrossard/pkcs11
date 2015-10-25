@@ -95,8 +95,28 @@ AC_SUBST([DEFAULT_PKCS11_MODULE])
 AX_CHECK_OPENSSL
 if test x"$OPENSSL_LIBS" != x""; then
    AC_DEFINE_UNQUOTED([HAVE_OPENSSL], [1], [Compiled with OpenSSL])
+   AC_MSG_CHECKING([whether OpenSSL version support ECDSA custom methods])
+   CFLAGS="$CFLAGS $OPENSSL_INCLUDES"
+   AC_RUN_IFELSE(AC_LANG_SOURCE([[AC_LANG_DEFINES_PROVIDED
+#include <openssl/rsa.h>
+#include <openssl/ecdsa.h>
+#if ((defined(LIBRESSL_VERSION_NUMBER) && \
+	(LIBRESSL_VERSION_NUMBER >= 0x20010002L))) || \
+	(defined(ECDSA_F_ECDSA_METHOD_NEW))
+int main() { return 0; } 
+#else
+int main() { return -1; } 
+#endif
+   ]]),[
+     HAVE_OPENSSL_ECC=1
+     AC_MSG_RESULT([yes])
+   ], [
+     HAVE_OPENSSL_ECC=0
+     AC_MSG_RESULT([no])
+  ])
 fi
 AC_SUBST([HAVE_OPENSSL])
+AC_SUBST([HAVE_OPENSSL_ECC])
 
 AX_PTHREAD
 AC_SUBST([HAVE_PTHREAD])
@@ -119,8 +139,9 @@ AC_MSG_RESULT([
         includedir:             ${includedir}
 
         compiler:               ${CC}
-        cflags:                 ${CFLAGS} ${OPENSSL_INCLUDES}
+        cflags:                 ${CFLAGS}
         ldflags:                ${LDFLAGS} ${OPENSSL_LDFLAGS} ${OPENSSL_LIBS}
 
         pkcs11_module:          ${pkcs11_module}
+        openssl binary:         ${OPENSSL_BIN}
 ])

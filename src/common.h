@@ -60,6 +60,11 @@ void print_usage_and_die(const char *name, const struct option *opts, const char
 
 CK_RV pkcs11_get_slots(CK_FUNCTION_LIST_PTR funcs, FILE *out,
                        CK_SLOT_ID_PTR *slots, CK_ULONG_PTR nslots);
+CK_RV pkcs11_find_object(CK_FUNCTION_LIST_PTR funcs, FILE *out,
+                         CK_SESSION_HANDLE h_session,
+                         CK_ATTRIBUTE_PTR search, CK_ULONG length,
+                         CK_OBJECT_HANDLE_PTR objects,
+                         CK_ULONG count, CK_ULONG_PTR found);
 void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,
                    CK_VOID_PTR pvoid, CK_ULONG ulong);
 

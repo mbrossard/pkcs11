@@ -191,15 +191,9 @@ int speed( int argc, char **argv )
         }
     }
 
-    rc = funcs->C_FindObjectsInit(h_session, search, count);
+    rc = pkcs11_find_object(funcs, stdout, h_session, search, count,
+                            &key, 1, &count);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjectsInit", rc );
-        return rc;
-    }
-
-    rc = funcs->C_FindObjects(h_session, &key, 1, &count);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjects", rc );
         return rc;
     }
 
@@ -209,12 +203,6 @@ int speed( int argc, char **argv )
     }
 
     print_object_info(funcs, stdout, 0, h_session, key);
-
-    rc = funcs->C_FindObjectsFinal(h_session);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjectsFinal", rc );
-        return rc;
-    }
 
     failure = CK_FALSE;
 

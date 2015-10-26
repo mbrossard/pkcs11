@@ -272,6 +272,46 @@ CK_RV pkcs11_get_slots(CK_FUNCTION_LIST_PTR funcs, FILE *out,
     return rc;
 }
 
+CK_RV pkcs11_find_object(CK_FUNCTION_LIST_PTR funcs, FILE *out,
+                         CK_SESSION_HANDLE h_session,
+                         CK_ATTRIBUTE_PTR search, CK_ULONG length,
+                         CK_OBJECT_HANDLE_PTR objects,
+                         CK_ULONG count, CK_ULONG_PTR found)
+{
+    CK_ULONG f;
+    CK_RV rc;
+
+    rc = funcs->C_FindObjectsInit(h_session, search, length);
+    if (rc != CKR_OK) {
+        if(out) {
+            show_error(out, "C_FindObjectsInit", rc);
+        }
+        return rc;
+    }
+
+    rc = funcs->C_FindObjects(h_session, objects, count, &f);
+    if (rc != CKR_OK) {
+        if(out) {
+            show_error(out, "C_FindObjects", rc);
+        }
+        return rc;
+    }
+
+    rc = funcs->C_FindObjectsFinal(h_session);
+    if (rc != CKR_OK) {
+        if(out) {
+            show_error(out, "C_FindObjectsFinal", rc);
+        }
+        return rc;
+    }
+
+    if(found) {
+        *found = f;
+    }
+
+    return rc;
+}
+
 void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,
                    CK_VOID_PTR pvoid, CK_ULONG ulong)
 {

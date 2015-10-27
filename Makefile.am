@@ -33,6 +33,7 @@ bin_PROGRAMS = pkcs11-util
 
 pkcs11_util_SOURCES = \
 	src/base64.c \
+	src/certify.c \
 	src/clean.c \
 	src/common.c \
 	src/crypto.c \

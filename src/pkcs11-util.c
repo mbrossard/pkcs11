@@ -39,6 +39,10 @@ int main(int argc, char **argv)
               !strcmp(argv[1], "--help") ||
               !strcmp(argv[1], "-h")) {
         usage();
+#ifdef HAVE_OPENSSL
+    } else if(!strcmp(argv[1], "certify")) {
+        r = certify(argc - 1, argv + 1);
+#endif
     } else if(!strcmp(argv[1], "clean")) {
         r = clean(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "init")) {

@@ -133,8 +133,8 @@ int request( int argc, char **argv )
         }
     }
 
-    rc = pkcs11_find_object(funcs, stdout, h_session, search, count,
-                            &key, 1, &count);
+    rc = pkcs11_find_object(funcs, stdout, h_session, search,
+                            count, &key, 1, &count);
     if (rc != CKR_OK) {
         return rc;
     }

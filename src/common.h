@@ -65,6 +65,9 @@ CK_RV pkcs11_find_object(CK_FUNCTION_LIST_PTR funcs, FILE *out,
                          CK_ATTRIBUTE_PTR search, CK_ULONG length,
                          CK_OBJECT_HANDLE_PTR objects,
                          CK_ULONG count, CK_ULONG_PTR found);
+CK_RV pkcs11_login_session(CK_FUNCTION_LIST_PTR funcs, FILE *out,  CK_SLOT_ID slot,
+                           CK_SESSION_HANDLE_PTR session, CK_BBOOL readwrite,
+                           CK_USER_TYPE user, CK_UTF8CHAR_PTR pin, CK_ULONG pinLen);
 void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,
                    CK_VOID_PTR pvoid, CK_ULONG ulong);
 

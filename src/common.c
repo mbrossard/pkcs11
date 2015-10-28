@@ -312,6 +312,65 @@ CK_RV pkcs11_find_object(CK_FUNCTION_LIST_PTR funcs, FILE *out,
     return rc;
 }
 
+CK_RV pkcs11_login_session(CK_FUNCTION_LIST_PTR funcs, FILE *out,  CK_SLOT_ID slot,
+                           CK_SESSION_HANDLE_PTR session, CK_BBOOL readwrite,
+                           CK_USER_TYPE user, CK_UTF8CHAR_PTR pin, CK_ULONG pinLen)
+{
+    CK_SESSION_HANDLE h_session;
+    CK_FLAGS flags = CKF_SERIAL_SESSION | (readwrite ? CKF_RW_SESSION : 0);
+    CK_RV rc;
+
+    rc = funcs->C_OpenSession(slot, flags, NULL, NULL, &h_session);
+    if (rc != CKR_OK) {
+        if(out) {
+            show_error(stdout, "C_OpenSession", rc);
+        }
+        return rc;
+    }
+
+    if(pin) {
+        rc = funcs->C_Login(h_session, user, pin, pinLen);
+        if (rc != CKR_OK) {
+            if(out) {
+                show_error(out, "C_Login", rc );
+            }
+            goto end;
+        }
+    } else if(readwrite || pinLen > 0) {
+        CK_TOKEN_INFO  info;
+
+        rc = funcs->C_GetTokenInfo(slot, &info);
+        if (rc != CKR_OK) {
+            if(out) {
+                show_error(out, "C_GetTokenInfo", rc);
+            }
+            goto end;
+        }
+        
+        if(info.flags & CKF_PROTECTED_AUTHENTICATION_PATH) {
+            rc = funcs->C_Login(h_session, user, NULL, 0);
+            if (rc != CKR_OK) {
+                if(out) {
+                    show_error(out, "C_Login", rc );
+                }
+                goto end;
+            }
+        }
+    }
+
+ end:
+    if (rc != CKR_OK) {
+        /* We want to keep the original error code */
+        CK_RV r = funcs->C_CloseSession(h_session);
+        if ((r != CKR_OK) && out) {
+            show_error(out, "C_CloseSession", r );
+        }
+    } else if(session) {
+        *session = h_session;
+    }
+    return rc;
+}
+
 void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,
                    CK_VOID_PTR pvoid, CK_ULONG ulong)
 {

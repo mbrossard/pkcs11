@@ -93,7 +93,7 @@ void *do_sign(void *arg)
 
 int speed( int argc, char **argv )
 {
-    CK_BYTE           opt_pin[32] = "";
+    CK_UTF8CHAR_PTR   opt_pin = NULL;
     char             *opt_label = NULL;
     CK_ULONG          opt_pin_len = 0;
     CK_RV             rc;
@@ -107,12 +107,7 @@ int speed( int argc, char **argv )
     char c;
     CK_OBJECT_CLASS class = CKO_PRIVATE_KEY;
     CK_KEY_TYPE kt = CKK_RSA;
-    CK_ATTRIBUTE search[3] =
-    {
-        { CKA_CLASS,    &class, sizeof(class)},
-        { CKA_KEY_TYPE, &kt,    sizeof(kt)   },
-        { CKA_LABEL,    NULL,   0            }
-    };
+    CK_ATTRIBUTE search[3];
     CK_ULONG count = 2;
     char *nss_dir = NULL;
 
@@ -125,10 +120,10 @@ int speed( int argc, char **argv )
             case 'd':
                 nss_dir = optarg;
             case 'p':
-                opt_pin_len = strlen(optarg);
-                opt_pin_len = (opt_pin_len < sizeof(opt_pin)) ?
-                    opt_pin_len : sizeof(opt_pin) - 1;
-                memcpy( opt_pin, optarg, opt_pin_len );
+                opt_pin = (CK_UTF8CHAR_PTR) strdup(optarg);
+                if(opt_pin) {
+                    opt_pin_len = strlen(optarg);
+                }
                 break;
             case 's':
                 opt_slot = (CK_SLOT_ID) atoi(optarg);
@@ -171,24 +166,17 @@ int speed( int argc, char **argv )
         return rc;
     }
 
-    if(opt_label) {
-        search[1].pValue = opt_label;
-        search[1].ulValueLen = strlen(opt_label);
-        count = 2;
-    }
-
-    rc = funcs->C_OpenSession(opt_slot, CKF_SERIAL_SESSION, NULL_PTR, NULL_PTR, &h_session);
+    rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
+                              CK_FALSE, CKU_USER, opt_pin, opt_pin_len);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_OpenSession", rc );
         return rc;
     }
 
-    if(*opt_pin != '\0') {
-        rc = funcs->C_Login(h_session, CKU_USER, opt_pin, opt_pin_len );
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_Login", rc );
-            return rc;
-        }
+    fillAttribute(&(search[0]), CKA_CLASS, &class, sizeof(class));
+    fillAttribute(&(search[1]), CKA_KEY_TYPE, &kt, sizeof(kt));
+    if(opt_label) {
+        fillAttribute(&(search[2]), CKA_LABEL, opt_label, strlen(opt_label));
+        count = 2;
     }
 
     rc = pkcs11_find_object(funcs, stdout, h_session, search,

@@ -48,10 +48,10 @@ int do_list_ssh_keys(CK_FUNCTION_LIST *funcs,
     CK_FLAGS          flags;
     CK_ULONG          i, j;
     CK_SESSION_HANDLE h_session;
-    CK_OBJECT_HANDLE  obj[256];
+    CK_OBJECT_HANDLE  obj[1024];
     CK_OBJECT_CLASS   class = CKO_PRIVATE_KEY;
-    CK_ATTRIBUTE      search;
-
+    CK_ATTRIBUTE      search[2];
+    CK_ULONG          kt;
 
     printf("Slot ID: %lx\n", SLOT_ID);
 
@@ -80,30 +80,17 @@ int do_list_ssh_keys(CK_FUNCTION_LIST *funcs,
         }
     }
 
-    fillAttribute(&search, CKA_CLASS, &class, sizeof(class)); 
-    rc = funcs->C_FindObjectsInit( h_session, &search, 1 );
+    fillAttribute(&(search[0]), CKA_CLASS, &class, sizeof(class));
+    fillAttribute(&(search[1]), CKA_KEY_TYPE, &kt, sizeof(kt));
+    kt = CKK_RSA;
+
+    rc = pkcs11_find_object(funcs, stdout, h_session, search, 1, obj,
+                            sizeof(obj)/sizeof(CK_OBJECT_HANDLE), &i);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjectsInit", rc );
-        rc = FALSE;
-        goto done;
+        return rc;
     }
 
-    j = 0;
-    rc = funcs->C_FindObjects( h_session, obj, sizeof(obj)/sizeof(CK_OBJECT_HANDLE), &i );
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjects", rc );
-        rc = FALSE;
-        goto done;
-    }
-
-    rc = funcs->C_FindObjectsFinal( h_session );
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjectsFinal", rc );
-        rc = FALSE;
-        goto done;
-    }
-
-    printf("Found: %ld keys\n", i);
+    printf("Found: %ld RSA keys\n", i);
 
     if(i) {
         CK_ATTRIBUTE      aid[3];
@@ -170,9 +157,6 @@ int do_list_ssh_keys(CK_FUNCTION_LIST *funcs,
                     rc = FALSE;
                     goto done;
                 }
-
-                /* printf("Certificate retrieved %ld\n", crt_get.ulValueLen); */
-                /* print_generic(stdout, 0, crt, crt_get.ulValueLen, NULL); */
 
 #ifdef HAVE_OPENSSL
                 X509 *x509;

@@ -45,7 +45,7 @@ static const char *option_help[] = {
 int certify( int argc, char **argv )
 {
     CK_FUNCTION_LIST *funcs = NULL;
-    CK_BYTE           opt_pin[32] = "";
+    CK_UTF8CHAR_PTR   opt_pin = NULL;
     char             *opt_label = NULL;
     CK_ULONG          opt_pin_len = 0;
     CK_RV             rc;
@@ -57,11 +57,7 @@ int certify( int argc, char **argv )
     int opt_quiet = 0;
     char c;
     CK_OBJECT_CLASS class = CKO_PRIVATE_KEY;
-    CK_ATTRIBUTE search[2] =
-    {
-        { CKA_CLASS,    &class, sizeof(class)},
-        { CKA_LABEL,    NULL,   0            }
-    };
+    CK_ATTRIBUTE search[2];
     CK_ULONG count = 1;
     char *nss_dir = NULL;
 
@@ -76,10 +72,10 @@ int certify( int argc, char **argv )
             case 'd':
                 nss_dir = optarg;
             case 'p':
-                opt_pin_len = strlen(optarg);
-                opt_pin_len = (opt_pin_len < sizeof(opt_pin)) ?
-                    opt_pin_len : sizeof(opt_pin) - 1;
-                memcpy( opt_pin, optarg, opt_pin_len );
+                opt_pin = (CK_UTF8CHAR_PTR) strdup(optarg);
+                if(opt_pin) {
+                    opt_pin_len = strlen(optarg);
+                }
                 break;
             case 's':
                 opt_slot = (CK_SLOT_ID) atoi(optarg);
@@ -115,24 +111,16 @@ int certify( int argc, char **argv )
         return rc;
     }
 
-    rc = funcs->C_OpenSession(opt_slot, CKF_SERIAL_SESSION, NULL_PTR, NULL_PTR, &h_session);
+    rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
+                              CK_FALSE, CKU_USER, opt_pin, opt_pin_len);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_OpenSession", rc );
         return rc;
     }
 
+    fillAttribute(&(search[0]), CKA_CLASS, &class, sizeof(class));
     if(opt_label) {
-        search[1].pValue = opt_label;
-        search[1].ulValueLen = strlen(opt_label);
+        fillAttribute(&(search[1]), CKA_LABEL, opt_label, strlen(opt_label));
         count = 2;
-    }
-
-    if(*opt_pin != '\0') {
-        rc = funcs->C_Login(h_session, CKU_USER, opt_pin, opt_pin_len );
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_Login", rc );
-            return rc;
-        }
     }
 
     rc = pkcs11_find_object(funcs, stdout, h_session, search,

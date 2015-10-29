@@ -150,30 +150,13 @@ int keygen( int argc, char **argv )
         char             *tmp;
         long              keysize;
         CK_SESSION_HANDLE h_session;
-        CK_FLAGS          flags = CKF_SERIAL_SESSION | CKF_RW_SESSION;
-        rc = funcs->C_OpenSession( opt_slot, flags, NULL, NULL, &h_session );
-        if(opt_pin_len) {
-            rc = funcs->C_Login( h_session, CKU_USER, opt_pin, opt_pin_len );
-            if (rc != CKR_OK) {
-                show_error(stdout, "C_Login", rc );
-            }
-        } else {
-            CK_TOKEN_INFO  info;
-            
-            rc = funcs->C_GetTokenInfo( opt_slot, &info );
-            if (rc != CKR_OK) {
-                show_error(stdout, "C_GetTokenInfo", rc );
-                return FALSE;
-            }
-            
-            if(info.flags & CKF_PROTECTED_AUTHENTICATION_PATH) {
-                rc = funcs->C_Login( h_session, CKU_USER, NULL, 0 );
-                if (rc != CKR_OK) {
-                    show_error(stdout, "C_Login", rc );
-                    return rc;
-                }
-            }
+
+        rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
+                                  CK_TRUE, CKU_USER, opt_pin, opt_pin_len);
+        if (rc != CKR_OK) {
+            return rc;
         }
+
         fprintf(stdout, "Generating key with param '%s'\n", gen_param);
         keysize = strtol(gen_param, &tmp, 10);
         if(gen_param != tmp) {

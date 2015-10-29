@@ -85,19 +85,10 @@ int wrap( int argc, char **argv )
         return rc;
     }
 
-    rc = funcs->C_OpenSession(opt_slot, CKF_SERIAL_SESSION | CKF_RW_SESSION,
-                              NULL_PTR, NULL_PTR, &h_session);
+    rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
+                              CK_TRUE, CKU_USER, opt_pin, opt_pin_len);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_OpenSession", rc );
         return rc;
-    }
-
-    if(*opt_pin != '\0') {
-        rc = funcs->C_Login(h_session, CKU_USER, opt_pin, opt_pin_len );
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_Login", rc );
-            return rc;
-        }
     }
 
     CK_BBOOL true = CK_TRUE;

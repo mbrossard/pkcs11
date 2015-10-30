@@ -21,17 +21,16 @@ CK_RV setKeyId(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
                CK_ATTRIBUTE_PTR attrs, CK_BYTE_PTR label)
 {
 	CK_RV rv = CKR_HOST_MEMORY;
-    CK_BYTE buf[SHA_DIGEST_LENGTH];
     CK_ATTRIBUTE kid[2];
     int i = 0;
 
 #ifdef HAVE_OPENSSL
+    CK_BYTE buf[SHA_DIGEST_LENGTH];
     SHA1((unsigned char*)attrs[0].pValue, attrs[0].ulValueLen, buf);
     fillAttribute(&(kid[i++]), CKA_ID, buf, sizeof(buf));
 #else
     /* If we don't have OpenSSL we use a part of the public key */
-    int l = attrs[0].ulValueLen < SHA_DIGEST_LENGTH ?
-        attrs[0].ulValueLen : SHA_DIGEST_LENGTH;
+    int l = attrs[0].ulValueLen < 20 ? attrs[0].ulValueLen : 20;
     int j = attrs[0].ulValueLen - l;
     fillAttribute(&(kid[i++]), CKA_ID, attrs[0].pValue + j, l);
 #endif

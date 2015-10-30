@@ -16,48 +16,38 @@
 #include <openssl/ecdsa.h>
 #endif
 
-#ifdef HAVE_OPENSSL
 CK_RV setKeyId(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
                CK_OBJECT_HANDLE hPublicKey, CK_OBJECT_HANDLE hPrivateKey,
                CK_ATTRIBUTE_PTR attrs, CK_BYTE_PTR label)
 {
 	CK_RV rv = CKR_HOST_MEMORY;
-    CK_BYTE *tmp = NULL;
+    CK_BYTE buf[SHA_DIGEST_LENGTH];
     CK_ATTRIBUTE kid[2];
-    int i = 1;
+    int i = 0;
 
-    if ((tmp = (CK_BYTE *)malloc(SHA_DIGEST_LENGTH)) != NULL) {
-        SHA1((unsigned char*)attrs[0].pValue, attrs[0].ulValueLen, tmp);
-        kid[0].type = CKA_ID;
-        kid[0].pValue = tmp;
-        kid[0].ulValueLen = SHA_DIGEST_LENGTH;
+#ifdef HAVE_OPENSSL
+    SHA1((unsigned char*)attrs[0].pValue, attrs[0].ulValueLen, buf);
+    fillAttribute(&(kid[i++]), CKA_ID, buf, sizeof(buf));
+#else
+    /* If we don't have OpenSSL we use a part of the public key */
+    int l = attrs[0].ulValueLen < SHA_DIGEST_LENGTH ?
+        attrs[0].ulValueLen : SHA_DIGEST_LENGTH;
+    int j = attrs[0].ulValueLen - l;
+    fillAttribute(&(kid[i++]), CKA_ID, attrs[0].pValue + j, l);
+#endif
 
-        if(label) {
-            kid[1].type = CKA_LABEL;
-            kid[1].pValue = label;
-            kid[1].ulValueLen = strlen((char *)label);
-            i += 1;
-        }
-
-        rv = p11->C_SetAttributeValue(session, hPublicKey , kid, i);
-
-        if(rv != CKR_OK) {
-            free(tmp);
-            show_error(stdout, "C_SetAttributeValue", rv );
-            goto done;
-        }
-        rv = p11->C_SetAttributeValue(session, hPrivateKey, kid, i);
-        free(tmp);
-        if(rv != CKR_OK) {
-            show_error(stdout, "C_SetAttributeValue", rv );
-            goto done;
-        }
+    if(label) {
+        fillAttribute(&(kid[i++]), CKA_LABEL, label, strlen((char *)label));
     }
 
- done:
+    if(((rv = p11->C_SetAttributeValue(session, hPublicKey , kid, i)) != CKR_OK) ||
+        ((rv = p11->C_SetAttributeValue(session, hPrivateKey, kid, i)) != CKR_OK)) {
+        show_error(stdout, "C_SetAttributeValue", rv );
+        return rv;
+    }
+
 	return rv;
 }
-#endif
 
 CK_RV generateRsaKeyPair(CK_FUNCTION_LIST_PTR p11,
                          CK_SESSION_HANDLE session,
@@ -463,9 +453,7 @@ CK_RV generateGostKeyPair(CK_FUNCTION_LIST_PTR p11,
         goto done;
     }
 
-#ifdef HAVE_OPENSSL
     rv = setKeyId(p11, session, hPublicKey, hPrivateKey, attrs, label);
-#endif
 
  done:
 	return rv;

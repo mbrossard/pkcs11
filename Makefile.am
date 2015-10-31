@@ -75,6 +75,12 @@ test:
 	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l ec256   -k prime256v1
 	./pkcs11-util request $(MODULE_PIN_SLOT) -l rsa2048 | @OPENSSL_BIN@ req -verify
 	./pkcs11-util certify $(MODULE_PIN_SLOT) -l rsa2048 | @OPENSSL_BIN@ verify
+	if [ "@HAVE_OPENSSL_ECC@" = 1 ] ; then \
+	  if ! @OPENSSL_BIN@ pkeyutl &>/dev/null ; then \
+	    ./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256   | @OPENSSL_BIN@ req -verify ; \
+	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256   | @OPENSSL_BIN@ verify ; \
+		fi ; \
+	fi
 	./pkcs11-util list    $(MODULE_PIN_SLOT) -O
 	./pkcs11-util ssh     $(MODULE_PIN_SLOT)
 	./pkcs11-util clean   $(MODULE_PIN_SLOT) -r

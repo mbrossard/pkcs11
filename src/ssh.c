@@ -45,7 +45,6 @@ int do_list_ssh_keys(CK_FUNCTION_LIST *funcs,
                      CK_ULONG          user_pin_len)
 {
     CK_RV             rc;
-    CK_FLAGS          flags;
     CK_ULONG          i, j;
     CK_SESSION_HANDLE h_session;
     CK_OBJECT_HANDLE  obj[1024];
@@ -55,29 +54,10 @@ int do_list_ssh_keys(CK_FUNCTION_LIST *funcs,
 
     printf("Slot ID: %lx\n", SLOT_ID);
 
-    if(user_pin) {
-        flags = CKF_SERIAL_SESSION;
-        rc = funcs->C_OpenSession( SLOT_ID, flags, NULL, NULL, &h_session );
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_OpenSession", rc );
-            rc = FALSE;
-            goto done;
-        }
-
-        rc = funcs->C_Login( h_session, CKU_USER, user_pin, user_pin_len );
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_Login", rc );
-            rc = FALSE;
-            goto done;
-        }
-    } else {
-        flags = CKF_SERIAL_SESSION;
-        rc = funcs->C_OpenSession( SLOT_ID, flags, NULL, NULL, &h_session );
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_OpenSession", rc );
-            rc = FALSE;
-            goto done;
-        }
+    rc = pkcs11_login_session(funcs, stdout, SLOT_ID, &h_session,
+                              CK_FALSE, CKU_USER, user_pin, user_pin_len);
+    if (rc != CKR_OK) {
+        goto done;
     }
 
     fillAttribute(&(search[0]), CKA_CLASS, &class, sizeof(class));

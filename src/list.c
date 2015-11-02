@@ -17,36 +17,14 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
                           CK_ULONG          user_pin_len)
 {
     CK_RV             rc;
-    CK_FLAGS          flags;
     CK_ULONG          i, j, k, l;
     CK_SESSION_HANDLE h_session;
     CK_OBJECT_HANDLE  obj;
 
-    if(user_pin && user_pin_len) {
-        /* create a USER/SO R/W session */
-        flags = CKF_SERIAL_SESSION | CKF_RW_SESSION;
-        rc = funcs->C_OpenSession( SLOT_ID, flags, NULL, NULL, &h_session );
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_OpenSession", rc );
-            rc = FALSE;
-            goto done;
-        }
-
-        rc = funcs->C_Login( h_session, CKU_USER, user_pin, user_pin_len );
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_Login", rc );
-            rc = FALSE;
-            goto done;
-        }
-    } else {
-        /* create a Public R/W session */
-        flags = CKF_SERIAL_SESSION;
-        rc = funcs->C_OpenSession( SLOT_ID, flags, NULL, NULL, &h_session );
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_OpenSession", rc );
-            rc = FALSE;
-            goto done;
-        }
+    rc = pkcs11_login_session(funcs, stdout, SLOT_ID, &h_session,
+                              CK_FALSE, CKU_USER, user_pin, user_pin_len);
+    if (rc != CKR_OK) {
+        goto done;
     }
 
     rc = funcs->C_FindObjectsInit( h_session, NULL, 0 );

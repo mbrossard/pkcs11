@@ -72,7 +72,7 @@ int init_token( int argc, char **argv )
     char c;
 
     while (1) {
-        c = getopt_long(argc, argv, "hrd:p:s:l:m:", options, &long_optind);
+        c = getopt_long(argc, argv, "hd:p:s:l:m:", options, &long_optind);
         if (c == -1)
             break;
         switch (c) {

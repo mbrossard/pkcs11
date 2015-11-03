@@ -62,7 +62,7 @@ int request( int argc, char **argv )
     printf("This feature is a work in progress.\n");
 
     while (1) {
-        c = getopt_long(argc, argv, "hd:ep:s:g:l:m:t:o:q",
+        c = getopt_long(argc, argv, "hd:p:s:l:m:q",
                         options, &long_optind);
         if (c == -1)
             break;

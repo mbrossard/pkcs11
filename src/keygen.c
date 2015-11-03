@@ -56,7 +56,7 @@ int keygen( int argc, char **argv )
     init_crypto();
 
     while (1) {
-        c = getopt_long(argc, argv, "ILMOd:hl:p:s:k:m:",
+        c = getopt_long(argc, argv, "d:hl:p:s:k:m:",
                         options, &long_optind);
         if (c == -1)
             break;

@@ -153,7 +153,7 @@ int request( int argc, char **argv )
     }
     PEM_write_X509_REQ(stdout, req);
 
-    if(*opt_pin != '\0') {
+    if(opt_pin) {
         rc = funcs->C_Logout(h_session);
         if (rc != CKR_OK) {
             show_error(stdout, "C_Logout", rc);

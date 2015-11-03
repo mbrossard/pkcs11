@@ -303,8 +303,8 @@ int list(int argc, char **argv)
         pslots = &opt_slot;
         nslots = 1;
     } else {
-        if(opt_pin_len) {
-            printf("No slot specified, the '--pin' parameter will be ignored\n");
+        if(opt_pin == NULL) {
+            fprintf(stdout, "No slot specified, the '--pin' parameter will be ignored\n");
         }
     }
 

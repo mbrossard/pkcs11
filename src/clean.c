@@ -241,7 +241,7 @@ int clean( int argc, char **argv )
         printf("\nDeleted %d objects\n", destroy);
     }
 
-    if(*opt_pin != '\0') {
+    if(opt_pin) {
         rc = funcs->C_Logout(h_session);
         if (rc != CKR_OK) {
             show_error(stdout, "C_Logout", rc);

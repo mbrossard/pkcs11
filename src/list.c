@@ -37,7 +37,7 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
     j = 0;
 
     do {
-        rc = funcs->C_FindObjects( h_session, &obj, 1, &i);
+        rc = funcs->C_FindObjects(h_session, &obj, 1, &i);
         if (rc != CKR_OK) {
             show_error(stdout, "C_FindObjects", rc);
             rc = FALSE;

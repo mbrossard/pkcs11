@@ -420,7 +420,7 @@ CK_RV generateGostKeyPair(CK_FUNCTION_LIST_PTR p11,
     if((rv = p11->C_GenerateKeyPair
         (session, &mechanism, pubTemplate, 6,
          privTemplate, 8, &hPublicKey, &hPrivateKey)) != CKR_OK ) {
-        show_error(stdout, "C_GenerateKeyPair", rv );
+        show_error(stdout, "C_GenerateKeyPair", rv);
         goto done;
     }
 
@@ -429,26 +429,26 @@ CK_RV generateGostKeyPair(CK_FUNCTION_LIST_PTR p11,
     if((hPublicKey  == CK_INVALID_HANDLE) ||
        (hPrivateKey == CK_INVALID_HANDLE)) {
         rv = CKR_HOST_MEMORY; /* Maybe there's something clearer */
-        show_error(stdout, "C_GenerateKeyPair", rv );
+        show_error(stdout, "C_GenerateKeyPair", rv);
         goto done;
     }
 
     fillAttribute(&attrs[0], CKA_VALUE, NULL, 0);
     if ((rv = p11->C_GetAttributeValue
          (session, hPublicKey, attrs, 1)) != CKR_OK) {
-        show_error(stdout, "C_GetAttributeValue", rv );
+        show_error(stdout, "C_GetAttributeValue", rv);
         goto done;
     }
 
     if (((attrs[0].pValue = malloc(attrs[0].ulValueLen)) == NULL)) {
         rv = CKR_HOST_MEMORY;
-        show_error(stdout, "C_GetAttributeValue", rv );
+        show_error(stdout, "C_GetAttributeValue", rv);
         goto done;
     }
 
     if ((rv = p11->C_GetAttributeValue
          (session, hPublicKey, attrs, 1)) != CKR_OK) {
-        show_error(stdout, "C_GetAttributeValue", rv );
+        show_error(stdout, "C_GetAttributeValue", rv);
         goto done;
     }
 

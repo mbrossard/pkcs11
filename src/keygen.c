@@ -179,6 +179,7 @@ int keygen( int argc, char **argv )
         }
     } else {
         printf("The key generation function requires the '--slot' parameter\n");
+    }
 
     rc = funcs->C_Finalize(NULL);
     if (rc != CKR_OK) {

@@ -107,38 +107,11 @@ int clean( int argc, char **argv )
         }
     }
 
-    rc = funcs->C_OpenSession(opt_slot, CKF_SERIAL_SESSION | CKF_RW_SESSION,
-                              NULL_PTR, NULL_PTR, &h_session);
+
+    rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
+                              CK_TRUE, CKU_USER, opt_pin, opt_pin_len);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_OpenSession", rc );
         return rc;
-    }
-
-    if(opt_pin_len != -1) {
-        rc = funcs->C_Login(h_session, CKU_USER, opt_pin, opt_pin_len );
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_Login", rc );
-            return rc;
-        }
-    } else {
-        CK_TOKEN_INFO  info;
-        
-        rc = funcs->C_GetTokenInfo( opt_slot, &info );
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_GetTokenInfo", rc );
-            return rc;
-        }
-
-        if(info.flags & CKF_PROTECTED_AUTHENTICATION_PATH) {
-            rc = funcs->C_Login( h_session, CKU_USER, NULL, 0 );
-            if (rc != CKR_OK) {
-                show_error(stdout, "C_Login", rc );
-                return rc;
-            }
-        } else {
-            printf("No PIN provided and no protected authentication path.\n");
-            return -1;
-        }
     }
 
     CK_OBJECT_CLASS pkey = CKO_PRIVATE_KEY;

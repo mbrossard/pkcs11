@@ -2,10 +2,12 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
-#include <string.h>
-#include <getopt.h>
-
 #include "config.h"
+#include "crypto.h"
+#include "pkcs11_display.h"
+#include "base64.h"
+
+#include <string.h>
 
 #ifdef HAVE_OPENSSL
 #include <openssl/x509.h>
@@ -15,10 +17,7 @@
 #include <openssl/bn.h>
 #endif
 
-#include "crypto.h"
-#include "pkcs11_display.h"
 
-#include "base64.h"
 
 unsigned int ssh_dump(CK_BYTE *output, CK_BYTE *input, unsigned int size)
 {

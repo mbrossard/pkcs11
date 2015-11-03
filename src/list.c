@@ -2,14 +2,12 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
-#include <string.h>
-#include <getopt.h>
-
 #include "config.h"
-
 #include "crypto.h"
 #include "common.h"
 #include "pkcs11_display.h"
+
+#include <string.h>
 
 int do_list_token_objects(CK_FUNCTION_LIST *funcs,
                           CK_SLOT_ID        SLOT_ID,

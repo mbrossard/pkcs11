@@ -33,8 +33,8 @@ static CK_FUNCTION_LIST *funcs = NULL;
 
 int clean( int argc, char **argv )
 {
-    CK_BYTE           opt_pin[32] = "";
-    CK_ULONG          opt_pin_len = -1;
+    CK_UTF8CHAR_PTR   opt_pin = NULL;
+    CK_ULONG          opt_pin_len = 0;
     CK_RV             rc;
     CK_ULONG          nslots, opt_slot = -1;
     CK_SESSION_HANDLE h_session;
@@ -55,10 +55,10 @@ int clean( int argc, char **argv )
                 opt_dir = optarg;
                 break;
             case 'p':
-                opt_pin_len = strlen(optarg);
-                opt_pin_len = (opt_pin_len < sizeof(opt_pin)) ?
-                    opt_pin_len : sizeof(opt_pin) - 1;
-                memcpy( opt_pin, optarg, opt_pin_len );
+                opt_pin = (CK_UTF8CHAR_PTR) strdup(optarg);
+                if(opt_pin) {
+                    opt_pin_len = strlen(optarg);
+                }
                 break;
             case 's':
                 opt_slot = (CK_SLOT_ID) atoi(optarg);

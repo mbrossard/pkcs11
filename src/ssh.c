@@ -217,7 +217,7 @@ int ssh(int argc, char **argv)
     CK_ULONG          nslots, islot;
     CK_SLOT_ID        *pslots = NULL;
     CK_FUNCTION_LIST  *funcs = NULL;
-    CK_BYTE           opt_pin[20] = "";
+    CK_UTF8CHAR_PTR   opt_pin = NULL;
     CK_ULONG          opt_pin_len = 0;
     CK_RV             rc;
     CK_ULONG          opt_slot = -1;
@@ -241,9 +241,10 @@ int ssh(int argc, char **argv)
                 opt_module = optarg;
                 break;
             case 'p':
-                opt_pin_len = strlen(optarg);
-                opt_pin_len = (opt_pin_len < 20) ? opt_pin_len : 19;
-                memcpy( opt_pin, optarg, opt_pin_len );
+                opt_pin = (CK_UTF8CHAR_PTR) strdup(optarg);
+                if(opt_pin) {
+                    opt_pin_len = strlen(optarg);
+                }
                 break;
             case 's':
                 opt_slot = (CK_SLOT_ID) atoi(optarg);

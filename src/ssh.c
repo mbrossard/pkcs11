@@ -288,6 +288,10 @@ int ssh(int argc, char **argv)
         do_list_ssh_keys(funcs, pslots[islot], opt_pin, opt_pin_len);
     }
 
-    rc = funcs->C_Finalize( NULL );
+    rc = funcs->C_Finalize(NULL);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_Finalize", rc);
+    }
+
     return rc;
 }

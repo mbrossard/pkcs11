@@ -173,7 +173,7 @@ int init_token( int argc, char **argv )
 
     rc = funcs->C_Finalize(NULL);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_Finalize", rc );
+        show_error(stdout, "C_Finalize", rc);
         return rc;
     }
 

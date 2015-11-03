@@ -5,10 +5,9 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "common.h"
+
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {

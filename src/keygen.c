@@ -2,16 +2,14 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <getopt.h>
-
 #include "config.h"
 #include "common.h"
 #include "crypto.h"
 #include "keypair.h"
 #include "pkcs11_display.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 static const char *app_name = "pkcs11-util keygen";
 

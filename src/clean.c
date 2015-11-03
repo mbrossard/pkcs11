@@ -2,11 +2,11 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
-#include <string.h>
-#include <stdio.h>
-
+#include "config.h"
 #include "common.h"
 #include "pkcs11_display.h"
+
+#include <string.h>
 
 static char *app_name = "pkcs11-util clean";
 

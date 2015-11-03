@@ -32,6 +32,7 @@
 #define DEFAULT_PKCSLIB "opensc-pkcs11.dll"
 #endif
 
+CK_FUNCTION_LIST  *pkcs11_get_function_list(const char *param)
 {
     CK_FUNCTION_LIST  *funcs;
     CK_RV              rc;

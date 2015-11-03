@@ -41,7 +41,7 @@ CK_RV setKeyId(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
 
     if(((rv = p11->C_SetAttributeValue(session, hPublicKey , kid, i)) != CKR_OK) ||
         ((rv = p11->C_SetAttributeValue(session, hPrivateKey, kid, i)) != CKR_OK)) {
-        show_error(stdout, "C_SetAttributeValue", rv );
+        show_error(stdout, "C_SetAttributeValue", rv);
         return rv;
     }
 
@@ -89,14 +89,14 @@ CK_RV generateRsaKeyPair(CK_FUNCTION_LIST_PTR p11,
     if((rv = p11->C_GenerateKeyPair
         (session, &mechanism, publicKeyTemplate, 8,
          privateKeyTemplate, 8, &hPublicKey, &hPrivateKey)) != CKR_OK ) {
-        show_error(stdout, "C_GenerateKeyPair", rv );
+        show_error(stdout, "C_GenerateKeyPair", rv);
         goto done;
     }
 
     if((hPublicKey  == CK_INVALID_HANDLE) ||
        (hPrivateKey == CK_INVALID_HANDLE)) {
         rv = CKR_HOST_MEMORY; /* */
-        show_error(stdout, "C_GenerateKeyPair", rv );
+        show_error(stdout, "C_GenerateKeyPair", rv);
         goto done;
     }
 
@@ -105,20 +105,20 @@ CK_RV generateRsaKeyPair(CK_FUNCTION_LIST_PTR p11,
 
     if ((rv = p11->C_GetAttributeValue
          (session, hPublicKey, attrs, 2)) != CKR_OK) {
-        show_error(stdout, "C_GetAttributeValue", rv );
+        show_error(stdout, "C_GetAttributeValue", rv);
         goto done;
     }
 
     if (((attrs[0].pValue = malloc(attrs[0].ulValueLen)) == NULL) ||
         ((attrs[1].pValue = malloc(attrs[1].ulValueLen)) == NULL)) {
         rv = CKR_HOST_MEMORY;
-        show_error(stdout, "C_GetAttributeValue", rv );
+        show_error(stdout, "C_GetAttributeValue", rv);
         goto done;
     }
 
     if ((rv = p11->C_GetAttributeValue
          (session, hPublicKey, attrs, 2)) != CKR_OK) {
-        show_error(stdout, "C_GetAttributeValue", rv );
+        show_error(stdout, "C_GetAttributeValue", rv);
         goto done;
     }
 #ifdef HAVE_OPENSSL
@@ -214,13 +214,13 @@ CK_RV ecdsaNeedsEcParams(CK_FUNCTION_LIST *funcs,
 
     rc = funcs->C_GetMechanismInfo(slot_id, CKM_EC_KEY_PAIR_GEN, &minfo);
     if(rc != CKR_OK) {
-        show_error(stdout, "C_GetMechanismInfo", rc );
+        show_error(stdout, "C_GetMechanismInfo", rc);
         goto done;
     }
 
     if(!(minfo.flags & CKF_EC_F_P)) {
         rc = CKR_DOMAIN_PARAMS_INVALID;
-        show_error(stdout, "C_GetMechanismInfo", rc );
+        show_error(stdout, "C_GetMechanismInfo", rc);
         goto done;
     }
 
@@ -286,33 +286,33 @@ CK_RV generateEcdsaKeyPair(CK_FUNCTION_LIST_PTR p11,
     if((rv = p11->C_GenerateKeyPair
         (session, &mechanism, pubTemplate, 2,
          privTemplate, 4, &hPublicKey, &hPrivateKey)) != CKR_OK ) {
-        show_error(stdout, "C_GenerateKeyPair", rv );
+        show_error(stdout, "C_GenerateKeyPair", rv);
         goto done;
     }
 
     if((hPublicKey  == CK_INVALID_HANDLE) ||
        (hPrivateKey == CK_INVALID_HANDLE)) {
         rv = CKR_HOST_MEMORY; /* Maybe there's something clearer */
-        show_error(stdout, "C_GenerateKeyPair", rv );
+        show_error(stdout, "C_GenerateKeyPair", rv);
         goto done;
     }
 
     fillAttribute(&attrs[0], CKA_EC_POINT, NULL, 0);
     if ((rv = p11->C_GetAttributeValue
          (session, hPublicKey, attrs, 1)) != CKR_OK) {
-        show_error(stdout, "C_GetAttributeValue", rv );
+        show_error(stdout, "C_GetAttributeValue", rv);
         goto done;
     }
 
     if (((attrs[0].pValue = malloc(attrs[0].ulValueLen)) == NULL)) {
         rv = CKR_HOST_MEMORY;
-        show_error(stdout, "C_GetAttributeValue", rv );
+        show_error(stdout, "C_GetAttributeValue", rv);
         goto done;
     }
 
     if ((rv = p11->C_GetAttributeValue
          (session, hPublicKey, attrs, 1)) != CKR_OK) {
-        show_error(stdout, "C_GetAttributeValue", rv );
+        show_error(stdout, "C_GetAttributeValue", rv);
         goto done;
     }
 

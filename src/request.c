@@ -93,7 +93,7 @@ int request( int argc, char **argv )
         }
     }
 
-    funcs = pkcs11_get_function_list( opt_module );
+    funcs = pkcs11_get_function_list(opt_module);
     if (!funcs) {
         printf("Could not get function list.\n");
         return -1;
@@ -105,10 +105,9 @@ int request( int argc, char **argv )
         rc = pkcs11_initialize(funcs);
     }
     if (rc != CKR_OK) {
-        show_error(stdout, "C_Initialize", rc );
+        show_error(stdout, "C_Initialize", rc);
         return rc;
     }
-
 
     rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
                               CK_FALSE, CKU_USER, opt_pin, opt_pin_len);
@@ -157,14 +156,14 @@ int request( int argc, char **argv )
     if(*opt_pin != '\0') {
         rc = funcs->C_Logout(h_session);
         if (rc != CKR_OK) {
-            show_error(stdout, "C_Logout", rc );
+            show_error(stdout, "C_Logout", rc);
             return rc;
         }
     }
 
     rc = funcs->C_CloseSession(h_session);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_CloseSession", rc );
+        show_error(stdout, "C_CloseSession", rc);
         return rc;
     }
 

@@ -27,9 +27,9 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
         goto done;
     }
 
-    rc = funcs->C_FindObjectsInit( h_session, NULL, 0 );
+    rc = funcs->C_FindObjectsInit(h_session, NULL, 0);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjectsInit", rc );
+        show_error(stdout, "C_FindObjectsInit", rc);
         rc = FALSE;
         goto done;
     }
@@ -37,16 +37,16 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
     j = 0;
 
     do {
-        rc = funcs->C_FindObjects( h_session, &obj, 1, &i );
+        rc = funcs->C_FindObjects( h_session, &obj, 1, &i);
         if (rc != CKR_OK) {
-            show_error(stdout, "C_FindObjects", rc );
+            show_error(stdout, "C_FindObjects", rc);
             rc = FALSE;
             goto done;
         }
         if(i) {
             CK_ATTRIBUTE attribute;
 
-            rc = funcs->C_GetObjectSize( h_session, obj, &k );
+            rc = funcs->C_GetObjectSize(h_session, obj, &k);
             if (rc != CKR_OK) {
                 printf("----------------\nObject %ld\n", j);
             } else {
@@ -60,7 +60,7 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
                 attribute.pValue = NULL;
                 attribute.ulValueLen = 0;
 
-                rc = funcs->C_GetAttributeValue( h_session, obj, &attribute, 1);
+                rc = funcs->C_GetAttributeValue(h_session, obj, &attribute, 1);
                 if ((rc == CKR_OK) && ((CK_LONG)attribute.ulValueLen != -1)) {
                     attribute.pValue = (CK_VOID_PTR) malloc(attribute.ulValueLen);
 
@@ -78,7 +78,7 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
                            ck_attribute_specs[k].name);
                 } else if((rc != CKR_ATTRIBUTE_TYPE_INVALID) &&
                           (rc != CKR_TEMPLATE_INCONSISTENT)) {
-                    show_error(stdout, "C_GetAttributeValue", rc );
+                    show_error(stdout, "C_GetAttributeValue", rc);
                     rc = FALSE;
                     goto done;
                 }
@@ -86,9 +86,9 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
         }
     } while (i);
 
-    rc = funcs->C_FindObjectsFinal( h_session );
+    rc = funcs->C_FindObjectsFinal(h_session);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjectsFinal", rc );
+        show_error(stdout, "C_FindObjectsFinal", rc);
         rc = FALSE;
         goto done;
     }
@@ -98,7 +98,7 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
 
  done:
     if(user_pin) {
-        funcs->C_CloseAllSessions( SLOT_ID );
+        funcs->C_CloseAllSessions(SLOT_ID);
     }
     return rc;
 }
@@ -109,9 +109,9 @@ int do_GetSlotInfo(CK_FUNCTION_LIST *funcs,
     CK_SLOT_INFO  info;
     CK_RV         rc;
 
-    rc = funcs->C_GetSlotInfo( slot_id, &info );
+    rc = funcs->C_GetSlotInfo(slot_id, &info);
     if (rc != CKR_OK) {
-        show_error(stdout, "   C_GetTokenInfo", rc );
+        show_error(stdout, "   C_GetTokenInfo", rc);
         return FALSE;
     }
 
@@ -128,9 +128,9 @@ int do_GetTokenInfo(CK_FUNCTION_LIST *funcs,
     CK_TOKEN_INFO  info;
     CK_RV          rc;
 
-    rc = funcs->C_GetTokenInfo( slot_id, &info );
+    rc = funcs->C_GetTokenInfo(slot_id, &info);
     if (rc != CKR_OK) {
-        show_error(stdout, "   C_GetTokenInfo", rc );
+        show_error(stdout, "   C_GetTokenInfo", rc);
         return FALSE;
     }
 
@@ -159,7 +159,7 @@ int do_GetTokenMech(CK_FUNCTION_LIST *funcs,
 
     rc = funcs->C_GetMechanismList(slot_id, pMechanismList, &ulMechCount);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_GetMechanismList", rc );
+        show_error(stdout, "C_GetMechanismList", rc);
         return rc;
     }
 
@@ -199,7 +199,7 @@ static const char *option_help[] = {
     "Specify the directory for NSS database",
 };
 
-int list( int argc, char **argv )
+int list(int argc, char **argv)
 {
     CK_ULONG          nslots, islot;
     CK_SLOT_ID        *pslots = NULL;
@@ -264,7 +264,7 @@ int list( int argc, char **argv )
         }
     }
 
-    funcs = pkcs11_get_function_list( opt_module );
+    funcs = pkcs11_get_function_list(opt_module);
     if (!funcs) {
         printf("Could not get function list.\n");
         if(!opt_module) {
@@ -279,14 +279,14 @@ int list( int argc, char **argv )
 
     rc = pkcs11_initialize_nss(funcs, opt_dir);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_Initialize", rc );
+        show_error(stdout, "C_Initialize", rc);
         return rc;
     }
 
     if(do_show_info) {
         rc = funcs->C_GetInfo(&info);
         if (rc != CKR_OK) {
-            show_error(stdout, "C_GetInfo", rc );
+            show_error(stdout, "C_GetInfo", rc);
             return rc;
         } else {
             print_ck_info(stdout,&info);

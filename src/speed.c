@@ -75,7 +75,7 @@ void *do_sign(void *arg)
         rc = funcs->C_SignInit(w->session, &mech, key);
         if (rc != CKR_OK) {
             failure = CK_TRUE;
-            show_error(stdout, "C_SignInit", rc );
+            show_error(stdout, "C_SignInit", rc);
             pthread_exit(NULL);
         }
 
@@ -84,7 +84,7 @@ void *do_sign(void *arg)
         rc = funcs->C_Sign(w->session, (CK_UTF8CHAR *)"Hello, World!", 13, (CK_BYTE_PTR)sig, &len);
         if (rc != CKR_OK) {
             failure = CK_TRUE;
-            show_error(stdout, "C_Sign", rc );
+            show_error(stdout, "C_Sign", rc);
             pthread_exit(NULL);
         }
     }
@@ -150,7 +150,7 @@ int speed( int argc, char **argv )
         }
     }
 
-    funcs = pkcs11_get_function_list( opt_module );
+    funcs = pkcs11_get_function_list(opt_module);
     if (!funcs) {
         printf("Could not get function list.\n");
         return -1;
@@ -162,7 +162,7 @@ int speed( int argc, char **argv )
         rc = pkcs11_initialize(funcs);
     }
     if (rc != CKR_OK) {
-        show_error(stdout, "C_Initialize", rc );
+        show_error(stdout, "C_Initialize", rc);
         return rc;
     }
 
@@ -204,7 +204,7 @@ int speed( int argc, char **argv )
     for (i = 0; i < threads; i++) {
         rc = funcs->C_OpenSession(opt_slot, CKF_SERIAL_SESSION, NULL_PTR, NULL_PTR, &(work[i].session));
         if (rc != CKR_OK) {
-            show_error(stdout, "C_OpenSession", rc );
+            show_error(stdout, "C_OpenSession", rc);
             return rc;
         }
     }
@@ -248,7 +248,7 @@ int speed( int argc, char **argv )
     for (i = 0; i < threads; i++) {
         rc = funcs->C_CloseSession(work[i].session);
         if (rc != CKR_OK) {
-            show_error(stdout, "C_CloseSession", rc );
+            show_error(stdout, "C_CloseSession", rc);
             return rc;
         }
     }
@@ -256,14 +256,14 @@ int speed( int argc, char **argv )
     if(*opt_pin != '\0') {
         rc = funcs->C_Logout(h_session);
         if (rc != CKR_OK) {
-            show_error(stdout, "C_Logout", rc );
+            show_error(stdout, "C_Logout", rc);
             return rc;
         }
     }
 
     rc = funcs->C_CloseSession(h_session);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_CloseSession", rc );
+        show_error(stdout, "C_CloseSession", rc);
         return rc;
     }
 

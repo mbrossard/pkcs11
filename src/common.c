@@ -32,7 +32,6 @@
 #define DEFAULT_PKCSLIB "opensc-pkcs11.dll"
 #endif
 
-CK_FUNCTION_LIST  *pkcs11_get_function_list( const char *param )
 {
     CK_FUNCTION_LIST  *funcs;
     CK_RV              rc;
@@ -41,19 +40,19 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list( const char *param )
     const char        *e;
     char              *z = DEFAULT_PKCSLIB;
 
-    if( param ) {
+    if(param) {
         e = param;
     } else {
         e = getenv("PKCS11_LIBRARY");
-        if ( e == NULL) {
+        if (e == NULL) {
             e = z;
         }
     }
 #if (defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
     d = LoadLibrary(e);
     
-    if ( d == NULL ) {
-        printf("LoadLibrary Failed\n");
+    if (d == NULL ) {
+        fprintf(stdout, "LoadLibrary Failed\n");
         return NULL;
     }
     pfoo = (CK_RV (*)())GetProcAddress(d, "C_GetFunctionList");
@@ -144,7 +143,7 @@ CK_RV pkcs11_initialize_nss(CK_FUNCTION_LIST_PTR funcs, const char *path)
     CK_RV rc = CKR_HOST_MEMORY;
 
     if(funcs) {
-        rc = funcs->C_Initialize( NULL );
+        rc = funcs->C_Initialize(NULL);
     }
 
     if(funcs && (rc == CKR_ARGUMENTS_BAD)) {
@@ -192,7 +191,7 @@ CK_RV pkcs11_initialize_nss(CK_FUNCTION_LIST_PTR funcs, const char *path)
             }
 #endif
         }
-        rc = funcs->C_Initialize( (CK_VOID_PTR)iap );
+        rc = funcs->C_Initialize((CK_VOID_PTR)iap);
     }
 
     return rc;
@@ -253,7 +252,7 @@ CK_RV pkcs11_get_slots(CK_FUNCTION_LIST_PTR funcs, FILE *out,
     rc = funcs->C_GetSlotList(0, NULL_PTR, &n);
     if (rc != CKR_OK) {
         if(out) {
-            show_error(out, "C_GetSlotList", rc );
+            show_error(out, "C_GetSlotList", rc);
         }
         return rc;
     }
@@ -261,7 +260,7 @@ CK_RV pkcs11_get_slots(CK_FUNCTION_LIST_PTR funcs, FILE *out,
     rc = funcs->C_GetSlotList(0, s, &n);
     if (rc != CKR_OK) {
         if(out) {
-            show_error(out, "C_GetSlotList", rc );
+            show_error(out, "C_GetSlotList", rc);
         }
         return rc;
     }
@@ -332,7 +331,7 @@ CK_RV pkcs11_login_session(CK_FUNCTION_LIST_PTR funcs, FILE *out,  CK_SLOT_ID sl
         rc = funcs->C_Login(h_session, user, pin, pinLen);
         if (rc != CKR_OK) {
             if(out) {
-                show_error(out, "C_Login", rc );
+                show_error(out, "C_Login", rc);
             }
             goto end;
         }
@@ -351,7 +350,7 @@ CK_RV pkcs11_login_session(CK_FUNCTION_LIST_PTR funcs, FILE *out,  CK_SLOT_ID sl
             rc = funcs->C_Login(h_session, user, NULL, 0);
             if (rc != CKR_OK) {
                 if(out) {
-                    show_error(out, "C_Login", rc );
+                    show_error(out, "C_Login", rc);
                 }
                 goto end;
             }
@@ -363,7 +362,7 @@ CK_RV pkcs11_login_session(CK_FUNCTION_LIST_PTR funcs, FILE *out,  CK_SLOT_ID sl
         /* We want to keep the original error code */
         CK_RV r = funcs->C_CloseSession(h_session);
         if ((r != CKR_OK) && out) {
-            show_error(out, "C_CloseSession", r );
+            show_error(out, "C_CloseSession", r);
         }
     } else if(session) {
         *session = h_session;

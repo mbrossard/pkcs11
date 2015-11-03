@@ -255,7 +255,7 @@ int ssh(int argc, char **argv)
         }
     }
 
-    funcs = pkcs11_get_function_list( opt_module );
+    funcs = pkcs11_get_function_list(opt_module);
     if (!funcs) {
         printf("Could not get function list.\n");
         if(!opt_module) {
@@ -270,7 +270,7 @@ int ssh(int argc, char **argv)
 
     rc = pkcs11_initialize_nss(funcs, opt_dir);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_Initialize", rc );
+        show_error(stdout, "C_Initialize", rc);
         return rc;
     }
 

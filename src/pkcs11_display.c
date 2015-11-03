@@ -790,13 +790,13 @@ void print_slot_info(FILE *f, CK_SLOT_INFO *info)
     };
 
     fprintf(f, "%20s: '%32.32s'\n", "Slot Description", info->slotDescription);
-    fprintf(f, "%20s  '%32.32s'\n", "", info->slotDescription+32 );
-    fprintf(f, "%20s: '%32.32s'\n", "Manufacturer", info->manufacturerID );
+    fprintf(f, "%20s  '%32.32s'\n", "", info->slotDescription+32);
+    fprintf(f, "%20s: '%32.32s'\n", "Manufacturer", info->manufacturerID);
     fprintf(f, "%20s:  %d.%d\n", "Hardware Version",
-            info->hardwareVersion.major, info->hardwareVersion.minor );
+            info->hardwareVersion.major, info->hardwareVersion.minor);
     fprintf(f, "%20s:  %d.%d\n", "Firmware Version",
-            info->firmwareVersion.major, info->firmwareVersion.minor );
-    fprintf(f, "%20s:  %0lx\n", "Flags", info->flags );
+            info->firmwareVersion.major, info->firmwareVersion.minor);
+    fprintf(f, "%20s:  %0lx\n", "Flags", info->flags);
     for(i = 0; i < 3; i++) {
         if(info->flags & ck_flags[i].type) {
             fprintf(f, "%23s%s\n", "", ck_flags[i].name);
@@ -968,7 +968,7 @@ void print_session_info(FILE *f, CK_SESSION_INFO *info)
             fprintf(f, "%32s%s\n", "", ck_flags[i].name);
         }
     }
-    fprintf(f, "%20s:  %0lx\n", "Device Error", info->ulDeviceError );
+    fprintf(f, "%20s:  %0lx\n", "Device Error", info->ulDeviceError);
 }
 
 int print_object_info(CK_FUNCTION_LIST *funcs, FILE *f, CK_ULONG j,
@@ -978,7 +978,7 @@ int print_object_info(CK_FUNCTION_LIST *funcs, FILE *f, CK_ULONG j,
     CK_ATTRIBUTE attribute;
     CK_RV rc;
 
-    rc = funcs->C_GetObjectSize( h_session, obj, &k );
+    rc = funcs->C_GetObjectSize(h_session, obj, &k);
     if (rc != CKR_OK) {
         fprintf(f, "----------------\nObject %ld (0x%lx)\n", j, obj);
     } else {
@@ -1008,7 +1008,7 @@ int print_object_info(CK_FUNCTION_LIST *funcs, FILE *f, CK_ULONG j,
                    ck_attribute_specs[k].name);
         } else if((rc != CKR_ATTRIBUTE_TYPE_INVALID) &&
                   (rc != CKR_TEMPLATE_INCONSISTENT)) {
-            show_error(stdout, "C_GetAttributeValue", rc );
+            show_error(stdout, "C_GetAttributeValue", rc);
             rc = FALSE;
             goto done;
         }

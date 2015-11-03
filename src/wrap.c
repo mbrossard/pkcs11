@@ -73,7 +73,7 @@ int wrap( int argc, char **argv )
         }
     }
 
-    funcs = pkcs11_get_function_list( opt_module );
+    funcs = pkcs11_get_function_list(opt_module);
     if (!funcs) {
         printf("Could not get function list (%s).\n", opt_module);
         return -1;
@@ -81,7 +81,7 @@ int wrap( int argc, char **argv )
 
     rc = pkcs11_initialize_nss(funcs, opt_dir);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_Initialize", rc );
+        show_error(stdout, "C_Initialize", rc);
         return rc;
     }
 
@@ -111,7 +111,7 @@ int wrap( int argc, char **argv )
 
     rc = funcs->C_CreateObject(h_session, import_aes, 8, &aes_key);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_CreateObject", rc );
+        show_error(stdout, "C_CreateObject", rc);
         return rc;
     }
 
@@ -125,19 +125,19 @@ int wrap( int argc, char **argv )
 
     rc = funcs->C_FindObjectsInit(h_session, search_all, 1);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjectsInit", rc );
+        show_error(stdout, "C_FindObjectsInit", rc);
         return rc;
     }
 
     rc = funcs->C_FindObjects(h_session, all_keys, key_count, &key_count);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjects", rc );
+        show_error(stdout, "C_FindObjects", rc);
         return rc;
     }
 
     rc = funcs->C_FindObjectsFinal(h_session);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjectsFinal", rc );
+        show_error(stdout, "C_FindObjectsFinal", rc);
         return rc;
     }
 
@@ -157,7 +157,7 @@ int wrap( int argc, char **argv )
         fprintf(stderr, "Handling key #%d with handle 0x%lx\n", i, all_keys[i]);
         rc = funcs->C_WrapKey(h_session, &mech, aes_key, all_keys[i], wrapped_key, &wl);
         if (rc != CKR_OK) {
-            show_error(stdout, "C_WrapKey", rc );
+            show_error(stdout, "C_WrapKey", rc);
             return rc;
         }
 
@@ -208,14 +208,14 @@ int wrap( int argc, char **argv )
     if(*opt_pin != '\0') {
         rc = funcs->C_Logout(h_session);
         if (rc != CKR_OK) {
-            show_error(stdout, "C_Logout", rc );
+            show_error(stdout, "C_Logout", rc);
             return rc;
         }
     }
 
     rc = funcs->C_CloseSession(h_session);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_CloseSession", rc );
+        show_error(stdout, "C_CloseSession", rc);
         return rc;
     }
 

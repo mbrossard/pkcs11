@@ -96,9 +96,6 @@ int keygen( int argc, char **argv )
     funcs = pkcs11_get_function_list(opt_module);
     if (!funcs) {
         printf("Could not get function list.\n");
-        if(!opt_module) {
-            print_usage_and_die(app_name, options, option_help);
-        }
         return -1;
     }
 

@@ -42,10 +42,6 @@ int clean( int argc, char **argv )
     int long_optind = 0, rw = 0, destroy = 0, i;
     char c;
 
-    if(argc <= 1) {
-        print_usage_and_die(app_name, options, option_help);
-    }
-
     while (1) {
         c = getopt_long(argc, argv, "hrd:p:s:m:", options, &long_optind);
         if (c == -1)

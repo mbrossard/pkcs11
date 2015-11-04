@@ -38,19 +38,19 @@ static const char *option_help[] = {
 
 int keygen( int argc, char **argv )
 {
-    CK_ULONG          nslots;
+    CK_ULONG          nslots, keysize;
     CK_SLOT_ID        *pslots = NULL;
     CK_FUNCTION_LIST  *funcs = NULL;
+    CK_SESSION_HANDLE h_session;
     CK_BYTE_PTR       opt_label = NULL;
     CK_UTF8CHAR_PTR   opt_pin = NULL;
     CK_ULONG          opt_pin_len = 0;
-    CK_RV             rc;
     CK_ULONG          opt_slot = -1;
+    CK_RV             rc;
     char *opt_module = NULL, *opt_dir = NULL;
-    char *gen_param = NULL;
+    char *gen_param = NULL, *tmp;
     int long_optind = 0;
     int genkey = 0;
-
     char c;
 
     init_crypto();
@@ -142,38 +142,47 @@ int keygen( int argc, char **argv )
         }
     }
     
-    if(opt_slot != -1) {
-        char             *tmp;
-        long              keysize;
-        CK_SESSION_HANDLE h_session;
-
-        rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
-                                  CK_TRUE, CKU_USER, opt_pin, opt_pin_len);
-        if (rc != CKR_OK) {
-            return rc;
-        }
-
-        fprintf(stdout, "Generating key with param '%s'\n", gen_param);
-        keysize = strtol(gen_param, &tmp, 10);
-        if(gen_param != tmp) {
-            fprintf(stdout, "Generating RSA key with size %ld\n", keysize);
-            rc = generateRsaKeyPair(funcs, h_session, keysize, opt_label);
-        } else if(strncmp(gen_param, "gost", 4) == 0) {
-            fprintf(stdout, "Generating GOST R34.10-2001 key (%s) in slot %ld\n",
-                    gen_param, opt_slot);
-            rc = generateGostKeyPair(funcs, h_session, gen_param, opt_label);
-        } else {
-            CK_BBOOL full;
-                rc = ecdsaNeedsEcParams(funcs, opt_slot, &full);
-                if(rc == CKR_OK) {
-                    fprintf(stdout, "Generating ECDSA key with curve '%s' "
-                            "in slot %ld with %s\n", gen_param, opt_slot,
-                            full ? "EC Parameters" : "Named Curve");
-                    rc = generateEcdsaKeyPair(funcs, h_session, gen_param, full, opt_label);
-                }
-        }
-    } else {
+    if(opt_slot == -1) {
         fprintf(stdout, "The key generation function requires the '--slot' parameter\n");
+        return 
+    }
+
+    rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
+                              CK_TRUE, CKU_USER, opt_pin, opt_pin_len);
+    if (rc != CKR_OK) {
+        return rc;
+    }
+
+    fprintf(stdout, "Generating key with param '%s'\n", gen_param);
+    keysize = strtol(gen_param, &tmp, 10);
+    if(gen_param != tmp) {
+        fprintf(stdout, "Generating RSA key with size %ld\n", keysize);
+        rc = generateRsaKeyPair(funcs, h_session, keysize, opt_label);
+    } else if(strncmp(gen_param, "gost", 4) == 0) {
+        fprintf(stdout, "Generating GOST R34.10-2001 key (%s) in slot %ld\n",
+                gen_param, opt_slot);
+        rc = generateGostKeyPair(funcs, h_session, gen_param, opt_label);
+    } else {
+        CK_BBOOL full;
+        rc = ecdsaNeedsEcParams(funcs, opt_slot, &full);
+        if(rc == CKR_OK) {
+            fprintf(stdout, "Generating ECDSA key with curve '%s' "
+                    "in slot %ld with %s\n", gen_param, opt_slot,
+                    full ? "EC Parameters" : "Named Curve");
+            rc = generateEcdsaKeyPair(funcs, h_session, gen_param, full, opt_label);
+        }
+    }
+    
+    rc = funcs->C_Logout(h_session);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_Logout", rc);
+        return rc;
+        }
+    
+    rc = funcs->C_CloseSession(h_session);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_CloseSession", rc);
+        return rc;
     }
 
     rc = funcs->C_Finalize(NULL);

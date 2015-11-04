@@ -99,7 +99,7 @@ int speed( int argc, char **argv )
     CK_RV             rc;
     CK_ULONG          opt_slot = -1;
     CK_SESSION_HANDLE h_session;
-    char *opt_module = NULL;
+    char *opt_module = NULL, *opt_dir = NULL;
     int long_optind = 0, threads = 1, i;
     workload_t     *work;
     struct timeval start, stop;
@@ -109,7 +109,6 @@ int speed( int argc, char **argv )
     CK_KEY_TYPE kt = CKK_RSA;
     CK_ATTRIBUTE search[3];
     CK_ULONG count = 2;
-    char *nss_dir = NULL;
 
     while (1) {
         c = getopt_long(argc, argv, "hd:ep:s:g:l:m:t:o:",
@@ -118,7 +117,7 @@ int speed( int argc, char **argv )
             break;
         switch (c) {
             case 'd':
-                nss_dir = optarg;
+                opt_dir = optarg;
             case 'p':
                 opt_pin = (CK_UTF8CHAR_PTR) strdup(optarg);
                 if(opt_pin) {
@@ -156,11 +155,7 @@ int speed( int argc, char **argv )
         return -1;
     }
 
-    if(nss_dir) {
-        rc = pkcs11_initialize_nss(funcs, nss_dir);
-    } else {
-        rc = pkcs11_initialize(funcs);
-    }
+    rc = pkcs11_initialize_nss(funcs, opt_dir);
     if (rc != CKR_OK) {
         show_error(stdout, "C_Initialize", rc);
         return rc;

@@ -52,14 +52,13 @@ int certify( int argc, char **argv )
     CK_ULONG          opt_slot = -1;
     CK_SESSION_HANDLE h_session;
     CK_OBJECT_HANDLE  key = -1;
-    char *opt_module = NULL;
+    char *opt_module = NULL, *opt_dir = NULL;
     int long_optind = 0;
     int opt_quiet = 0;
     char c;
     CK_OBJECT_CLASS class = CKO_PRIVATE_KEY;
     CK_ATTRIBUTE search[2];
     CK_ULONG count = 1;
-    char *nss_dir = NULL;
 
     printf("This feature is a work in progress.\n");
 
@@ -70,7 +69,7 @@ int certify( int argc, char **argv )
             break;
         switch (c) {
             case 'd':
-                nss_dir = optarg;
+                opt_dir = optarg;
             case 'p':
                 opt_pin = (CK_UTF8CHAR_PTR) strdup(optarg);
                 if(opt_pin) {
@@ -101,11 +100,7 @@ int certify( int argc, char **argv )
         return -1;
     }
 
-    if(nss_dir) {
-        rc = pkcs11_initialize_nss(funcs, nss_dir);
-    } else {
-        rc = pkcs11_initialize(funcs);
-    }
+    rc = pkcs11_initialize_nss(funcs, opt_dir);
     if (rc != CKR_OK) {
         show_error(stdout, "C_Initialize", rc);
         return rc;

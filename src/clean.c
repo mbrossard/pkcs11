@@ -77,6 +77,10 @@ int clean( int argc, char **argv )
         return -1;
     }
 
+    if(opt_dir) {
+        fprintf(stdout, "Using %s directory\n", opt_dir);
+    }
+
     rc = pkcs11_initialize_nss(funcs, opt_dir);
     if (rc != CKR_OK) {
         show_error(stdout, "C_Initialize", rc);

@@ -121,9 +121,8 @@ CK_RV generateRsaKeyPair(CK_FUNCTION_LIST_PTR p11,
         show_error(stdout, "C_GetAttributeValue", rv);
         goto done;
     }
-#ifdef HAVE_OPENSSL
+
     rv = setKeyId(p11, session, hPublicKey, hPrivateKey, attrs, label);
-#endif
 
  done:
 	return rv;
@@ -316,11 +315,7 @@ CK_RV generateEcdsaKeyPair(CK_FUNCTION_LIST_PTR p11,
         goto done;
     }
 
-    /* print_generic(stdout, 0, attrs[0].pValue, attrs[0].ulValueLen, NULL); */
-
-#ifdef HAVE_OPENSSL
     rv = setKeyId(p11, session, hPublicKey, hPrivateKey, attrs, label);
-#endif
 
  done:
 	return rv;

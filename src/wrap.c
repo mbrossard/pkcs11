@@ -75,7 +75,7 @@ int wrap( int argc, char **argv )
 
     funcs = pkcs11_get_function_list(opt_module);
     if (!funcs) {
-        printf("Could not get function list (%s).\n", opt_module);
+        fprintf(stdout, "Could not get function list (%s).\n", opt_module);
         return -1;
     }
 

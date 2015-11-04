@@ -46,9 +46,9 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
 
             rc = funcs->C_GetObjectSize(h_session, obj, &k);
             if (rc != CKR_OK) {
-                printf("----------------\nObject %ld\n", j);
+                fprintf(stdout, "----------------\nObject %ld\n", j);
             } else {
-                printf("----------------\nObject %ld has size %ld\n", j, k);
+                fprintf(stdout, "----------------\nObject %ld has size %ld\n", j, k);
             }
 
             j++;
@@ -64,7 +64,7 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
 
                     rc = funcs->C_GetAttributeValue(h_session, obj, &attribute, 1);
                     if (rc == CKR_OK) {
-                        printf("(%02ld) %s ", l++, ck_attribute_specs[k].name);
+                        fprintf(stdout, "(%02ld) %s ", l++, ck_attribute_specs[k].name);
 
                         ck_attribute_specs[k].display
                             (stdout, attribute.type, attribute.pValue,
@@ -72,7 +72,7 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
                     }
                     free(attribute.pValue);
                 } else if(rc == CKR_ATTRIBUTE_SENSITIVE) {
-                    printf("(%02ld) %s is sensitive\n", l++,
+                    fprintf(stdout, "(%02ld) %s is sensitive\n", l++,
                            ck_attribute_specs[k].name);
                 } else if((rc != CKR_ATTRIBUTE_TYPE_INVALID) &&
                           (rc != CKR_TEMPLATE_INCONSISTENT)) {
@@ -91,7 +91,7 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
         goto done;
     }
 
-    printf("Found: %ld objects\n", j);
+    fprintf(stdout, "Found: %ld objects\n", j);
     rc = TRUE;
 
  done:
@@ -113,9 +113,9 @@ int do_GetSlotInfo(CK_FUNCTION_LIST *funcs,
         return FALSE;
     }
 
-    printf("CK_SLOT_INFO for slot #%ld:  \n", slot_id);
+    fprintf(stdout, "CK_SLOT_INFO for slot #%ld:  \n", slot_id);
     print_slot_info(stdout, &info);
-    printf("\n\n");
+    fprintf(stdout, "\n\n");
 
     return TRUE;
 }
@@ -132,9 +132,9 @@ int do_GetTokenInfo(CK_FUNCTION_LIST *funcs,
         return FALSE;
     }
 
-    printf("CK_TOKEN_INFO for slot #%ld:  \n", slot_id);
+    fprintf(stdout, "CK_TOKEN_INFO for slot #%ld:  \n", slot_id);
     print_token_info(stdout, &info);
-    printf("\n\n");
+    fprintf(stdout, "\n\n");
 
     return TRUE;
 }
@@ -264,7 +264,7 @@ int list(int argc, char **argv)
 
     funcs = pkcs11_get_function_list(opt_module);
     if (!funcs) {
-        printf("Could not get function list.\n");
+        fprintf(stdout, "Could not get function list.\n");
         return -1;
     }
 

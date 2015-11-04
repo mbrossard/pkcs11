@@ -144,7 +144,7 @@ int keygen( int argc, char **argv )
     
     if(opt_slot == -1) {
         fprintf(stdout, "The key generation function requires the '--slot' parameter\n");
-        return 
+        return -1;
     }
 
     rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,

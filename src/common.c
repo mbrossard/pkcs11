@@ -68,7 +68,7 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list(const char *param)
     *(void **) (&pfoo) = dlsym(d, "C_GetFunctionList");
 #endif
     if (pfoo == NULL ) {
-        printf("Symbol lookup failed\n");
+        fprintf(stdout, "Symbol lookup failed\n");
         return NULL;
     }
 #if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
@@ -85,10 +85,10 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list(const char *param)
     }
 #endif
     if (rc != CKR_OK) {
-        printf("Call to C_GetFunctionList failed\n");
+        fprintf(stdout, "Call to C_GetFunctionList failed\n");
         funcs = NULL;
     }
-    printf("C_GetFunctionList returned %lx\n", (long unsigned int)funcs);
+    fprintf(stdout, "C_GetFunctionList returned %lx\n", (long unsigned int)funcs);
     
     return funcs;
 }
@@ -201,7 +201,7 @@ CK_RV pkcs11_initialize_nss(CK_FUNCTION_LIST_PTR funcs, const char *path)
 void print_usage_and_die(const char *name, const struct option *opts, const char **help)
 {
     int i = 0;
-    printf("Usage: %s [OPTIONS]\nOptions:\n", name);
+    fprintf(stdout, "Usage: %s [OPTIONS]\nOptions:\n", name);
 
     while (opts[i].name) {
         char buf[40], tmp[5];
@@ -230,10 +230,10 @@ void print_usage_and_die(const char *name, const struct option *opts, const char
         }
         sprintf(buf, "--%s%s%s", opts[i].name, tmp, arg_str);
         if (strlen(buf) > 29) {
-            printf("  %s\n", buf);
+            fprintf(stdout, "  %s\n", buf);
             buf[0] = '\0';
         }
-        printf("  %-29s %s\n", buf, help[i]);
+        fprintf(stdout, "  %-29s %s\n", buf, help[i]);
         i++;
     }
     exit(2);

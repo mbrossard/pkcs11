@@ -151,7 +151,7 @@ int speed( int argc, char **argv )
 
     funcs = pkcs11_get_function_list(opt_module);
     if (!funcs) {
-        printf("Could not get function list.\n");
+        fprintf(stdout, "Could not get function list.\n");
         return -1;
     }
 
@@ -181,7 +181,7 @@ int speed( int argc, char **argv )
     }
 
     if(count == 0) {
-        printf("No object found\n");
+        fprintf(stdout, "No object found\n");
         exit(-1);
     }
 
@@ -217,7 +217,7 @@ int speed( int argc, char **argv )
         pthread_mutex_unlock(&join_mut);
     } while (i != threads);
 
-    printf("\n\nStarting test (%d threads, %d operations)\n", threads, operations);
+    fprintf(stdout, "\n\nStarting test (%d threads, %d operations)\n", threads, operations);
 
     gettimeofday(&start, NULL);
     /* Unleash all threads */
@@ -234,10 +234,10 @@ int speed( int argc, char **argv )
         (double)(stop.tv_usec = start.tv_usec) * 0.000001;
     double speed = threads * operations / elapsed;
 
-    printf("Processed %d signatures in %.2fs = %.2f sig/s\n", threads * operations, elapsed, speed);
+    fprintf(stdout, "Processed %d signatures in %.2fs = %.2f sig/s\n", threads * operations, elapsed, speed);
 
     if(failure) {
-        printf("Failure recorded at some point, the result might not be trustworthy\n");
+        fprintf(stdout, "Failure recorded at some point, the result might not be trustworthy\n");
     }
 
     for (i = 0; i < threads; i++) {

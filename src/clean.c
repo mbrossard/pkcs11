@@ -73,7 +73,7 @@ int clean( int argc, char **argv )
 
     funcs = pkcs11_get_function_list(opt_module);
     if (!funcs) {
-        printf("Could not get function list.\n");
+        fprintf(stdout, "Could not get function list.\n");
         return -1;
     }
 
@@ -96,10 +96,10 @@ int clean( int argc, char **argv )
                 show_error(stdout, "C_GetSlotList", rc);
                 return rc;
             } else {
-                printf("Using slot %ld\n", opt_slot);
+                fprintf(stdout, "Using slot %ld\n", opt_slot);
             }
         } else {
-            printf("Found %ld slots, use --slot parameter to choose.\n", nslots);
+            fprintf(stdout, "Found %ld slots, use --slot parameter to choose.\n", nslots);
         }
     }
 
@@ -136,7 +136,7 @@ int clean( int argc, char **argv )
         return rc;
     }
 
-    printf("Found %lu private keys\n", key_count);
+    fprintf(stdout, "Found %lu private keys\n", key_count);
 
     for(i = 0; i < key_count; i++) {
         CK_BYTE id[32];
@@ -154,7 +154,7 @@ int clean( int argc, char **argv )
             return rc;
         }
 
-        printf("Handling key #%d with handle 0x%lx\n", i, all_keys[i]);
+        fprintf(stdout, "Handling key #%d with handle 0x%lx\n", i, all_keys[i]);
         dump_generic(stdout, "Key ID", id, search_crt[0].ulValueLen);
 
         rc = funcs->C_FindObjectsInit(h_session, search_crt, 2);
@@ -184,7 +184,7 @@ int clean( int argc, char **argv )
             CK_OBJECT_HANDLE h_pub;
             CK_ULONG pub_count = 1;
             
-            printf("Didn't find matching certificate. Now looking for public key.\n");
+            fprintf(stdout, "Didn't find matching certificate. Now looking for public key.\n");
 
             rc = funcs->C_FindObjectsInit(h_session, search_pub, 2);
             if (rc != CKR_OK) {
@@ -205,13 +205,13 @@ int clean( int argc, char **argv )
             }
 
             if(pub_count == 0) {
-                printf("Didn't find matching public key. Skipping\n");
+                fprintf(stdout, "Didn't find matching public key. Skipping\n");
             } else {
                 if(!rw) {
-                    printf("Read-only mode: Found candidate private key and public key with handles 0x%lx 0x%lx\n",
+                    fprintf(stdout, "Read-only mode: Found candidate private key and public key with handles 0x%lx 0x%lx\n",
                            all_keys[i], h_pub);
                 } else {
-                    printf("Deleting private key and public key with handles 0x%lx 0x%lx\n", all_keys[i], h_pub);
+                    fprintf(stdout, "Deleting private key and public key with handles 0x%lx 0x%lx\n", all_keys[i], h_pub);
                     
                     rc = funcs->C_DestroyObject(h_session, all_keys[i]);
                     if (rc != CKR_OK) {
@@ -228,13 +228,13 @@ int clean( int argc, char **argv )
                 }
             }
         } else {
-            printf("Found matching certificate\n");
+            fprintf(stdout, "Found matching certificate\n");
         }
 
     }
 
     if(destroy > 0) {
-        printf("\nDeleted %d objects\n", destroy);
+        fprintf(stdout, "\nDeleted %d objects\n", destroy);
     }
 
     if(opt_pin) {

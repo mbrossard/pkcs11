@@ -60,7 +60,7 @@ int certify( int argc, char **argv )
     CK_ATTRIBUTE search[2];
     CK_ULONG count = 1;
 
-    printf("This feature is a work in progress.\n");
+    fprintf(stdout, "This feature is a work in progress.\n");
 
     while (1) {
         c = getopt_long(argc, argv, "hd:p:s:l:m:q",

@@ -69,7 +69,7 @@ int do_list_ssh_keys(CK_FUNCTION_LIST *funcs,
         return rc;
     }
 
-    printf("Found: %ld RSA keys\n", i);
+    fprintf(stdout, "Found: %ld RSA keys\n", i);
 
     if(i) {
         CK_ATTRIBUTE      aid[3];
@@ -91,7 +91,7 @@ int do_list_ssh_keys(CK_FUNCTION_LIST *funcs,
             rc = funcs->C_GetAttributeValue( h_session, obj[j], aid, 3);
             if (rc != CKR_OK) {
                 continue;
-                show_error(stdout, "C_GetAttributeValue", rc );
+                show_error(stdout, "C_GetAttributeValue", rc);
                 rc = FALSE;
                 goto done;
             }
@@ -102,7 +102,7 @@ int do_list_ssh_keys(CK_FUNCTION_LIST *funcs,
             
             b64l = encode_base64(raw, rawl, b64, 0);
             b64[b64l] = '\0';
-            printf("ssh-rsa %s\n", b64);
+            fprintf(stdout, "ssh-rsa %s\n", b64);
 
             fillAttribute(&(crt_search[0]), CKA_ID, id, aid[0].ulValueLen);
             fillAttribute(&(crt_search[1]), CKA_CLASS, &crtc, sizeof(crtc));
@@ -256,12 +256,12 @@ int ssh(int argc, char **argv)
 
     funcs = pkcs11_get_function_list(opt_module);
     if (!funcs) {
-        printf("Could not get function list.\n");
+        fprintf(stdout, "Could not get function list.\n");
         return -1;
     }
 
     if(opt_dir) {
-        fprintf(stderr, "Using %s directory\n", opt_dir);
+        fprintf(stdout, "Using %s directory\n", opt_dir);
     }
 
     rc = pkcs11_initialize_nss(funcs, opt_dir);

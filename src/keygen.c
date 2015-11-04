@@ -95,12 +95,12 @@ int keygen( int argc, char **argv )
 
     funcs = pkcs11_get_function_list(opt_module);
     if (!funcs) {
-        printf("Could not get function list.\n");
+        fprintf(stdout, "Could not get function list.\n");
         return -1;
     }
 
     if(opt_dir) {
-        fprintf(stderr, "Using %s directory\n", opt_dir);
+        fprintf(stdout, "Using %s directory\n", opt_dir);
     }
 
     rc = pkcs11_initialize_nss(funcs, opt_dir);
@@ -120,7 +120,7 @@ int keygen( int argc, char **argv )
         nslots = 1;
     } else {
         if(opt_pin_len) {
-            printf("No slot specified, the '--pin' parameter will be ignored\n");
+            fprintf(stdout, "No slot specified, the '--pin' parameter will be ignored\n");
         }
     }
 
@@ -137,7 +137,7 @@ int keygen( int argc, char **argv )
                     show_error(stdout, "C_GetSlotList", rc);
                     return rc;
             } else {
-                printf("Using slot %ld\n", opt_slot);
+                fprintf(stdout, "Using slot %ld\n", opt_slot);
             }
         }
     }
@@ -173,7 +173,7 @@ int keygen( int argc, char **argv )
                 }
         }
     } else {
-        printf("The key generation function requires the '--slot' parameter\n");
+        fprintf(stdout, "The key generation function requires the '--slot' parameter\n");
     }
 
     rc = funcs->C_Finalize(NULL);

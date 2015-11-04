@@ -58,7 +58,7 @@ int request( int argc, char **argv )
     CK_ATTRIBUTE search[2];
     CK_ULONG count = 1;
 
-    printf("This feature is a work in progress.\n");
+    fprintf(stdout, "This feature is a work in progress.\n");
 
     while (1) {
         c = getopt_long(argc, argv, "hd:p:s:l:m:q",
@@ -94,7 +94,7 @@ int request( int argc, char **argv )
 
     funcs = pkcs11_get_function_list(opt_module);
     if (!funcs) {
-        printf("Could not get function list.\n");
+        fprintf(stdout, "Could not get function list.\n");
         return -1;
     }
 
@@ -123,7 +123,7 @@ int request( int argc, char **argv )
     }
 
     if(count == 0) {
-        printf("No object found\n");
+        fprintf(stdout, "No object found\n");
         exit(-1);
     }
 
@@ -134,7 +134,7 @@ int request( int argc, char **argv )
     EVP_PKEY *k = load_pkcs11_key(funcs, h_session, key);
 
     if(k == NULL) {
-        printf("Error loading key\n");
+        fprintf(stdout, "Error loading key\n");
         return -1;
     }
 

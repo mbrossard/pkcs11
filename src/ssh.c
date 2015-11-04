@@ -283,6 +283,8 @@ int ssh(int argc, char **argv)
     for (islot = 0; islot < nslots; islot++) {
         do_list_ssh_keys(funcs, pslots[islot], opt_pin, opt_pin_len);
     }
+    
+    free(opt_pin);
 
     rc = funcs->C_Finalize(NULL);
     if (rc != CKR_OK) {

@@ -317,6 +317,8 @@ int list(int argc, char **argv)
         }
     }
 
+    free(opt_pin);
+
     rc = funcs->C_Finalize(NULL);
     if (rc != CKR_OK) {
         show_error(stdout, "C_Finalize", rc);

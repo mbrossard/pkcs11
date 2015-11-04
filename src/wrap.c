@@ -216,6 +216,7 @@ int wrap( int argc, char **argv )
             return rc;
         }
     }
+    free(opt_pin);
 
     rc = funcs->C_CloseSession(h_session);
     if (rc != CKR_OK) {

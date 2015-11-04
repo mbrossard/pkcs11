@@ -157,6 +157,7 @@ int init_token( int argc, char **argv )
         show_error(stdout, "C_InitPin", rc);
         return rc;
     }
+    free(opt_pin);
 
     rc = funcs->C_Logout(h_session);
     if (rc != CKR_OK) {

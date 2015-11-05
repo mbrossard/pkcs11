@@ -15,9 +15,92 @@
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <openssl/bn.h>
+
+void dump_x509(unsigned char *crt, unsigned int len)
+{
+    X509 *x509;
+    unsigned char *p = crt;
+    x509 = d2i_X509(NULL, (const unsigned char **)&p, len);
+    if(x509) {
+        int flags =  XN_FLAG_RFC2253;
+        BIO *bio = BIO_new(BIO_s_file());
+        X509_EXTENSION *ext; 
+        BIO_set_fp(bio, stdout, BIO_NOCLOSE);
+        fprintf(stdout, "Subject: ");
+        X509_NAME_print_ex(bio, X509_get_subject_name(x509), 0, flags);
+        fprintf(stdout, "\nIssuer: ");
+        X509_NAME_print_ex(bio, X509_get_issuer_name(x509), 0, flags);
+        fprintf(stdout, "\nSerial Number: ");
+        BIGNUM *bn = ASN1_INTEGER_to_BN(X509_get_serialNumber(x509), NULL);
+        BN_print(bio, bn);
+        BN_free(bn);
+        fprintf(stdout, "\nValidity: ");
+        ASN1_TIME_print(bio, X509_get_notBefore(x509));
+        fprintf(stdout, " to ");
+        ASN1_TIME_print(bio, X509_get_notAfter(x509));
+
+        ext = X509_get_ext(x509, X509_get_ext_by_NID(x509, NID_key_usage, 0));
+        if(ext) {
+            fprintf(stdout, "\nKey Usage: ");
+            X509V3_EXT_print(bio, ext, 0, 0);
+        }
+        ext = X509_get_ext(x509, X509_get_ext_by_NID(x509, NID_ext_key_usage, 0));
+        if(ext) {
+            fprintf(stdout, "\nExtended Key Usage: ");
+            X509V3_EXT_print(bio, ext, 0, 0);
+        }
+        
+        fprintf(stdout, "\n");
+        BIO_free(bio);
+    }
+}
+
+void find_x509(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE h_session,
+               CK_BYTE_PTR id, CK_ULONG len)
+{
+    CK_OBJECT_HANDLE  crto;
+    CK_OBJECT_CLASS   crtc = CKO_CERTIFICATE;
+    CK_ATTRIBUTE      crt_search[2];
+    CK_ATTRIBUTE      crt_get;
+    CK_BYTE           crt[16384];
+    CK_RV             rc;
+    CK_ULONG          k = 0;
+
+    fillAttribute(&(crt_search[0]), CKA_ID, id, len);
+    fillAttribute(&(crt_search[1]), CKA_CLASS, &crtc, sizeof(crtc));
+
+    rc = funcs->C_FindObjectsInit(h_session, crt_search, 2);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_FindObjectsInit", rc);
+        goto done;
+    }
+        
+    rc = funcs->C_FindObjects(h_session, &crto, 1, &k);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_FindObjects", rc);
+        goto done;
+    }
+
+    rc = funcs->C_FindObjectsFinal(h_session);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_FindObjectsFinal", rc);
+        goto done;
+    }
+
+    if(k == 1) {
+        fillAttribute(&crt_get, CKA_VALUE, crt, sizeof(crt));
+        rc = funcs->C_GetAttributeValue( h_session, crto, &crt_get, 1);
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_GetAttributeValue", rc);
+            goto done;
+        }
+        dump_x509(crt, crt_get.ulValueLen);
+    }
+
+ done:
+    return;
+}
 #endif
-
-
 
 unsigned int ssh_dump(CK_BYTE *output, CK_BYTE *input, unsigned int size)
 {
@@ -38,32 +121,20 @@ unsigned int ssh_dump(CK_BYTE *output, CK_BYTE *input, unsigned int size)
     return size + 4 + k;
 }
 
-int do_list_ssh_keys(CK_FUNCTION_LIST *funcs,
-                     CK_SLOT_ID        SLOT_ID,
-                     CK_BYTE          *user_pin,
-                     CK_ULONG          user_pin_len)
+int do_list_rsa_ssh_keys(CK_FUNCTION_LIST *funcs,
+                         CK_SESSION_HANDLE h_session)
 {
     CK_RV             rc;
-    CK_ULONG          i, j;
-    CK_SESSION_HANDLE h_session;
+    CK_ULONG          i, j, kt = CKK_RSA;
     CK_OBJECT_HANDLE  obj[1024];
     CK_OBJECT_CLASS   class = CKO_PRIVATE_KEY;
     CK_ATTRIBUTE      search[2];
-    CK_ULONG          kt;
-
-    printf("Slot ID: %lx\n", SLOT_ID);
-
-    rc = pkcs11_login_session(funcs, stdout, SLOT_ID, &h_session,
-                              CK_FALSE, CKU_USER, user_pin, user_pin_len);
-    if (rc != CKR_OK) {
-        goto done;
-    }
 
     fillAttribute(&(search[0]), CKA_CLASS, &class, sizeof(class));
     fillAttribute(&(search[1]), CKA_KEY_TYPE, &kt, sizeof(kt));
     kt = CKK_RSA;
 
-    rc = pkcs11_find_object(funcs, stdout, h_session, search, 1, obj,
+    rc = pkcs11_find_object(funcs, stdout, h_session, search, 2, obj,
                             sizeof(obj)/sizeof(CK_OBJECT_HANDLE), &i);
     if (rc != CKR_OK) {
         return rc;
@@ -73,17 +144,11 @@ int do_list_ssh_keys(CK_FUNCTION_LIST *funcs,
 
     if(i) {
         CK_ATTRIBUTE      aid[3];
-        CK_BYTE           id[256], e[256], n[1024];
-        CK_BYTE           raw[2048], b64[2048], crt[16384];
+        CK_BYTE           id[256], e[256], n[4096];
+        CK_BYTE           raw[2048], b64[2048];
         unsigned int      rawl, b64l;
-        CK_OBJECT_HANDLE  crto[2];
-        CK_OBJECT_CLASS   crtc = CKO_CERTIFICATE;
-        CK_ATTRIBUTE      crt_search[2];
-        CK_ATTRIBUTE      crt_get;
         
         for(j = 0; j < i; j++) {
-            CK_ULONG k = 0;
-
             fillAttribute(&(aid[0]), CKA_ID, id, sizeof(id));
             fillAttribute(&(aid[1]), CKA_PUBLIC_EXPONENT, e, sizeof(e));
             fillAttribute(&(aid[2]), CKA_MODULUS, n, sizeof(n));
@@ -104,93 +169,117 @@ int do_list_ssh_keys(CK_FUNCTION_LIST *funcs,
             b64[b64l] = '\0';
             fprintf(stdout, "ssh-rsa %s\n", b64);
 
-            fillAttribute(&(crt_search[0]), CKA_ID, id, aid[0].ulValueLen);
-            fillAttribute(&(crt_search[1]), CKA_CLASS, &crtc, sizeof(crtc));
-
-            rc = funcs->C_FindObjectsInit( h_session, crt_search, 2 );
-            if (rc != CKR_OK) {
-                show_error(stdout, "C_FindObjectsInit", rc );
-                rc = FALSE;
-                goto done;
-            }
-            
-            rc = funcs->C_FindObjects( h_session, crto, 2, &k );
-            if (rc != CKR_OK) {
-                show_error(stdout, "C_FindObjects", rc );
-                rc = FALSE;
-                goto done;
-            }
-            
-            rc = funcs->C_FindObjectsFinal( h_session );
-            if (rc != CKR_OK) {
-                show_error(stdout, "C_FindObjectsFinal", rc );
-                rc = FALSE;
-                goto done;
-            }
-
-            if(k == 1) {
-                fillAttribute(&crt_get, CKA_VALUE, crt, sizeof(crt));
-                rc = funcs->C_GetAttributeValue( h_session, crto[0], &crt_get, 1);
-                if (rc != CKR_OK) {
-                    show_error(stdout, "C_GetAttributeValue", rc );
-                    rc = FALSE;
-                    goto done;
-                }
-
 #ifdef HAVE_OPENSSL
-                X509 *x509;
-                unsigned char *p = crt;
-                x509 = d2i_X509(NULL, (const unsigned char **)&p, crt_get.ulValueLen);
-                if(x509) {
-                    int flags =  XN_FLAG_RFC2253;
-                        BIO *bio = BIO_new(BIO_s_file());
-                        X509_EXTENSION *ext; 
-                        BIO_set_fp(bio, stdout, BIO_NOCLOSE);
-                        fprintf(stdout, "Subject: ");
-                        X509_NAME_print_ex(bio, X509_get_subject_name(x509), 0, flags);
-                        fprintf(stdout, "\nIssuer: ");
-                        X509_NAME_print_ex(bio, X509_get_issuer_name(x509), 0, flags);
-                        fprintf(stdout, "\nSerial Number: ");
-                        BIGNUM *bn = ASN1_INTEGER_to_BN(X509_get_serialNumber(x509), NULL);
-                        BN_print(bio, bn);
-                        BN_free(bn);
-                        fprintf(stdout, "\nValidity: ");
-                        ASN1_TIME_print(bio, X509_get_notBefore(x509));
-                        fprintf(stdout, " to ");
-                        ASN1_TIME_print(bio, X509_get_notAfter(x509));
-
-                        ext = X509_get_ext(x509, X509_get_ext_by_NID(x509, NID_key_usage, 0));
-                        if(ext) {
-                            fprintf(stdout, "\nKey Usage: ");
-                            X509V3_EXT_print(bio, ext, 0, 0);
-                        }
-                        ext = X509_get_ext(x509, X509_get_ext_by_NID(x509, NID_ext_key_usage, 0));
-                        if(ext) {
-                            fprintf(stdout, "\nExtended Key Usage: ");
-                            X509V3_EXT_print(bio, ext, 0, 0);
-                        }
-
-                        fprintf(stdout, "\n");
-                        BIO_free(bio);
-                }
+            find_x509(funcs, h_session, id, aid[0].ulValueLen);
 #endif
-
-                
-            } else if(k == 0) {
-                printf("Certificate not found\n");
-            } else {
-                printf("Found more than one certificate\n");
-            }
-
-            printf("---------------------------\n");
         }
     }
-    rc = TRUE;
 
  done:
-    if(user_pin) {
-        funcs->C_CloseAllSessions( SLOT_ID );
+    return rc;
+}
+
+static unsigned char prime256v1_oid[] = { 0x06, 0x08, 0x2a, 0x86, 0x48,
+                                          0xce, 0x3d, 0x03, 0x01, 0x07 };
+static unsigned char secp384r1_oid[] = { 0x06, 0x05, 0x2b, 0x81, 0x04, 0x00, 0x22 };
+static unsigned char secp521r1_oid[] = { 0x06, 0x05, 0x2b, 0x81, 0x04, 0x00, 0x23 };
+
+int do_list_ecdsa_ssh_keys(CK_FUNCTION_LIST *funcs,
+                           CK_SESSION_HANDLE h_session)
+{
+    CK_RV             rc;
+    CK_ULONG          i = 0, j, k, kt = CKK_EC;
+    CK_OBJECT_HANDLE  obj[1024];
+    CK_OBJECT_HANDLE  pubkey;
+    CK_OBJECT_CLASS   private = CKO_PRIVATE_KEY;
+    CK_OBJECT_CLASS   public = CKO_PUBLIC_KEY;
+    CK_ATTRIBUTE      search[2];
+    CK_ATTRIBUTE      aid[4];
+    CK_BYTE           id[256], ecparams[1024], ecpoint[1024], raw[2048], b64[2048];
+    unsigned int      rawl, b64l;
+ 
+    fillAttribute(&(search[0]), CKA_CLASS, &private, sizeof(private));
+    fillAttribute(&(search[1]), CKA_KEY_TYPE, &kt, sizeof(kt));
+
+    rc = pkcs11_find_object(funcs, stdout, h_session, search, 2, obj,
+                            sizeof(obj)/sizeof(CK_OBJECT_HANDLE), &i);
+    if (rc != CKR_OK) {
+        goto done;
     }
+    if(i == 0) {
+        goto done;
+    }
+
+    fprintf(stdout, "Found: %ld EC keys\n", i);
+    
+    for(j = 0; j < i; j++) {
+        CK_ATTRIBUTE point;
+        char *ktlabel = NULL;
+        char *curve = NULL;
+        unsigned int ecpsize = 0, offset = 0;
+        fillAttribute(&(aid[0]), CKA_ID, id, sizeof(id));
+        fillAttribute(&(aid[1]), CKA_EC_PARAMS, ecparams, sizeof(ecparams));
+
+        rc = funcs->C_GetAttributeValue(h_session, obj[j], aid, 2);
+        if (rc != CKR_OK) {
+            continue;
+        }
+
+        if(aid[1].ulValueLen == sizeof(prime256v1_oid) &&
+           memcmp(ecparams, prime256v1_oid, sizeof(prime256v1_oid)) == 0) {
+            ktlabel = "ecdsa-sha2-nistp256";
+            curve = "nistp256";
+            ecpsize = 65;
+        } else if(aid[1].ulValueLen == sizeof(secp384r1_oid) &&
+                  memcmp(ecparams, secp384r1_oid, sizeof(secp384r1_oid)) == 0) {
+            ktlabel = "ecdsa-sha2-nistp384";
+            curve = "nistp384";
+            ecpsize = 97;
+        } else if(aid[1].ulValueLen == sizeof(secp521r1_oid) &&
+                  memcmp(ecparams, secp521r1_oid, sizeof(secp521r1_oid)) == 0) {
+            ktlabel = "ecdsa-sha2-nistp521";
+            curve = "nistp521";
+            ecpsize = 133;
+        } else {
+            fprintf(stdout, "Unknown EC key parameters\n");
+        }
+
+        fillAttribute(&(aid[1]), CKA_KEY_TYPE, &kt, sizeof(kt));
+        fillAttribute(&(aid[2]), CKA_CLASS, &public, sizeof(public));
+        rc = pkcs11_find_object(funcs, stdout, h_session, aid, 3, &pubkey, 1, &k);
+        if (rc != CKR_OK) {
+            return rc;
+        }
+
+        if(k == 0) {
+            fprintf(stderr, "Missing public key\n");
+            continue;
+        }
+
+        fillAttribute(&point, CKA_EC_POINT, ecpoint, sizeof(ecpoint));
+        rc = funcs->C_GetAttributeValue(h_session, pubkey, &point, 1);
+        if (rc != CKR_OK) {
+            continue;
+        }
+
+        if(point.ulValueLen > ecpsize) {
+            offset = point.ulValueLen - ecpsize;
+        }
+
+        rawl = ssh_dump(raw, (CK_BYTE *)ktlabel, strlen(ktlabel));
+        rawl += ssh_dump(raw + rawl, (CK_BYTE *)curve, strlen(curve));
+        rawl += ssh_dump(raw + rawl, ecpoint + offset, point.ulValueLen - offset);
+
+        b64l = encode_base64(raw, rawl, b64, 0);
+        b64[b64l] = '\0';
+        fprintf(stdout, "%s %s\n", ktlabel, b64);
+        
+#ifdef HAVE_OPENSSL
+        find_x509(funcs, h_session, id, aid[0].ulValueLen);
+#endif
+    }
+
+ done:
     return rc;
 }
 
@@ -281,7 +370,31 @@ int ssh(int argc, char **argv)
     }
 
     for (islot = 0; islot < nslots; islot++) {
-        do_list_ssh_keys(funcs, pslots[islot], opt_pin, opt_pin_len);
+        CK_SESSION_HANDLE h_session;
+        fprintf(stdout, "Slot ID: %lx\n", pslots[islot]);
+
+        rc = pkcs11_login_session(funcs, stdout, pslots[islot], &h_session,
+                                  CK_FALSE, CKU_USER, opt_pin, opt_pin_len);
+        if (rc != CKR_OK) {
+            continue;
+        }
+
+        do_list_rsa_ssh_keys(funcs, h_session);
+        do_list_ecdsa_ssh_keys(funcs, h_session);
+
+        if(opt_pin) {
+            rc = funcs->C_Logout(h_session);
+            if (rc != CKR_OK) {
+                show_error(stdout, "C_Logout", rc);
+                continue;
+            }
+        }
+    
+        rc = funcs->C_CloseSession(h_session);
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_CloseSession", rc);
+            continue;
+        }
     }
     
     free(opt_pin);

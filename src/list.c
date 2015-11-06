@@ -170,10 +170,9 @@ int do_GetTokenMech(CK_FUNCTION_LIST *funcs,
     return rc;
 }
 
-static char *app_name = "pkcs11-util list";
+static char *app_name = "pkcs11-util";
 
 static const struct option options[] = {
-    { "show-info",          0, 0,           'I' },
     { "list-slots",         0, 0,           'L' },
     { "list-mechanisms",    0, 0,           'M' },
     { "list-objects",       0, 0,           'O' },
@@ -186,7 +185,6 @@ static const struct option options[] = {
 };
 
 static const char *option_help[] = {
-    "Show global token information",
     "List slots available on the token",
     "List mechanisms supported by the token",
     "List objects contained in the token",
@@ -197,6 +195,72 @@ static const char *option_help[] = {
     "Specify the directory for NSS database",
 };
 
+static char *info_name = "pkcs11-util info";
+static const char *info_help[] = {
+    "Print this help and exit",
+    "Specify the module to load",
+    "Specify the directory for NSS database",
+};
+static const struct option info_options[] = {
+    { "help",               0, 0,           'h' },
+    { "module",             1, 0,           'm' },
+    { "directory",          1, 0,           'd' },
+    { 0, 0, 0, 0 }
+};
+
+int info(int argc, char **argv)
+{
+    CK_FUNCTION_LIST  *funcs = NULL;
+    CK_INFO           info;
+    CK_RV             rc;
+    char *opt_module = NULL, *opt_dir = NULL;
+    int  long_optind = 0;
+
+    while (1) {
+        char c = getopt_long(argc, argv, "d:hm:",
+                             options, &long_optind);
+        if (c == -1)
+            break;
+        switch (c) {
+            case 'd':
+                opt_dir = optarg;
+                break;
+            case 'm':
+                opt_module = optarg;
+                break;
+            case 'h':
+            default:
+                print_usage_and_die(info_name, info_options, info_help);
+        }
+    }
+
+    funcs = pkcs11_get_function_list(opt_module);
+    if (!funcs) {
+        fprintf(stdout, "Could not get function list.\n");
+        return -1;
+    }
+
+    if(opt_dir) {
+        fprintf(stderr, "Using %s directory\n", opt_dir);
+    }
+
+    rc = pkcs11_initialize_nss(funcs, opt_dir);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_Initialize", rc);
+        return rc;
+    }
+
+    rc = funcs->C_GetInfo(&info);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_GetInfo", rc);
+        return rc;
+    } else {
+        print_ck_info(stdout, &info);
+    }
+
+    return rc;
+}
+
 int list(int argc, char **argv)
 {
     CK_ULONG          nslots, islot;
@@ -204,7 +268,6 @@ int list(int argc, char **argv)
     CK_FUNCTION_LIST  *funcs = NULL;
     CK_UTF8CHAR_PTR   opt_pin = NULL;
     CK_ULONG          opt_pin_len = 0;
-    CK_INFO           info;
     CK_RV             rc;
     CK_ULONG          opt_slot = -1;
     char *opt_module = NULL, *opt_dir = NULL;
@@ -220,7 +283,7 @@ int list(int argc, char **argv)
     init_crypto();
 
     while (1) {
-        c = getopt_long(argc, argv, "ILMOd:hp:s:m:",
+        c = getopt_long(argc, argv, "LMOd:hp:s:m:",
                         options, &long_optind);
         if (c == -1)
             break;
@@ -276,16 +339,6 @@ int list(int argc, char **argv)
     if (rc != CKR_OK) {
         show_error(stdout, "C_Initialize", rc);
         return rc;
-    }
-
-    if(do_show_info) {
-        rc = funcs->C_GetInfo(&info);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_GetInfo", rc);
-            return rc;
-        } else {
-            print_ck_info(stdout,&info);
-        }
     }
 
     rc = pkcs11_get_slots(funcs, stdout, &pslots, &nslots);

@@ -81,6 +81,8 @@ test: pkcs11-util pkcs11-token.la
 	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256   | @OPENSSL_BIN@ verify ; \
 		fi ; \
 	fi
+	./pkcs11-util info    $(MODULE)
+	./pkcs11-util list    $(MODULE) -L
 	./pkcs11-util list    $(MODULE_PIN_SLOT) -O
 	./pkcs11-util ssh     $(MODULE_PIN_SLOT)
 	./pkcs11-util clean   $(MODULE_PIN_SLOT) -r

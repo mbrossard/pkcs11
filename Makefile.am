@@ -65,7 +65,8 @@ pkcs11_token_la_LDFLAGS = \
 pkcs11_token_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_VISIBILITY)
 
 PIN=Vl0RJlAKiUMf
-MODULE_PIN_SLOT = -m @DEFAULT_PKCS11_MODULE@ -d . --pin $(PIN) --slot 2
+MODULE = -m @DEFAULT_PKCS11_MODULE@ -d .
+MODULE_PIN_SLOT = $(MODULE) --pin $(PIN) --slot 2
 
 test: pkcs11-util pkcs11-token.la
 	@rm -f cert8.db key3.db

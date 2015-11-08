@@ -37,6 +37,7 @@ pkcs11_util_SOURCES = \
 	src/clean.c \
 	src/common.c \
 	src/crypto.c \
+	src/info.c \
 	src/init.c \
 	src/keypair.c \
 	src/keygen.c \
@@ -78,8 +79,8 @@ test: pkcs11-util pkcs11-token.la
 	./pkcs11-util certify $(MODULE_PIN_SLOT) -l rsa2048 | @OPENSSL_BIN@ verify
 	if [ "@HAVE_OPENSSL_ECC@" = 1 ] ; then \
 	  if ! @OPENSSL_BIN@ pkeyutl &>/dev/null ; then \
-	    ./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256   | @OPENSSL_BIN@ req -verify ; \
-	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256   | @OPENSSL_BIN@ verify ; \
+	    ./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ req -verify ; \
+	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ verify ; \
 		fi ; \
 	fi
 	./pkcs11-util info    $(MODULE)

@@ -15,7 +15,9 @@ int clean(int argc, char **argv);
 int init_token(int argc, char **argv);
 int keygen(int argc, char **argv);
 int info(int argc, char **argv);
-int list(int argc, char **argv);
+int mechanisms(int argc, char **argv);
+int objects(int argc, char **argv);
+int slots(int argc, char **argv);
 int ssh(int argc, char **argv);
 
 #ifdef HAVE_PTHREAD

@@ -17,6 +17,9 @@ void usage()
            " * init: initialize token\n"
            " * keygen: create keys\n"
            " * list: list slots and objects\n"
+           " * [list-]mechanisms: list mechanisms\n"
+           " * [list-]objects: list objects\n"
+           " * [list-]slots: list slots\n"
 #ifdef HAVE_OPENSSL
            " * request: create a certificate request\n"
 #endif
@@ -52,8 +55,16 @@ int main(int argc, char **argv)
         r = init_token(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "keygen")) {
         keygen(argc - 1, argv + 1);
-    } else if(!strcmp(argv[1], "list")) {
-        r = list(argc - 1, argv + 1);
+    } else if(!strcmp(argv[1], "list-objects") ||
+            !strcmp(argv[1], "objects")) {
+        r = objects(argc - 1, argv + 1);
+    } else if(!strcmp(argv[1], "list-slots") ||
+            !strcmp(argv[1], "slots")) {
+        r = slots(argc - 1, argv + 1);
+    } else if(!strcmp(argv[1], "list-mechanisms") ||
+            !strcmp(argv[1], "mechanisms") ||
+            !strcmp(argv[1], "mechs")) {
+        r = mechanisms(argc - 1, argv + 1);
 #ifdef HAVE_OPENSSL
     } else if(!strcmp(argv[1], "request")) {
         r = request(argc - 1, argv + 1);

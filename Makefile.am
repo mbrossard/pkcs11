@@ -41,10 +41,12 @@ pkcs11_util_SOURCES = \
 	src/init.c \
 	src/keypair.c \
 	src/keygen.c \
-	src/list.c \
+	src/mechanisms.c \
+	src/objects.c \
 	src/pkcs11_display.c \
 	src/pkcs11-util.c \
 	src/request.c \
+	src/slots.c \
 	src/speed.c \
 	src/ssh.c \
 	src/wrap.c
@@ -72,7 +74,6 @@ MODULE_PIN_SLOT = $(MODULE) --pin $(PIN) --slot 2
 test: pkcs11-util pkcs11-token.la
 	@rm -f cert8.db key3.db
 	./pkcs11-util init    $(MODULE_PIN_SLOT)
-	./pkcs11-util list    $(MODULE_PIN_SLOT) -M
 	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l rsa2048 -k 2048
 	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l ec256   -k prime256v1
 	./pkcs11-util request $(MODULE_PIN_SLOT) -l rsa2048 | @OPENSSL_BIN@ req -verify
@@ -83,8 +84,9 @@ test: pkcs11-util pkcs11-token.la
 	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ verify ; \
 		fi ; \
 	fi
-	./pkcs11-util info    $(MODULE)
-	./pkcs11-util list    $(MODULE) -L
-	./pkcs11-util list    $(MODULE_PIN_SLOT) -O
-	./pkcs11-util ssh     $(MODULE_PIN_SLOT)
-	./pkcs11-util clean   $(MODULE_PIN_SLOT) -r
+	./pkcs11-util info            $(MODULE)
+	./pkcs11-util list-mechanisms $(MODULE)
+	./pkcs11-util list-slots      $(MODULE)
+	./pkcs11-util list-objects    $(MODULE_PIN_SLOT)
+	./pkcs11-util ssh             $(MODULE_PIN_SLOT)
+	./pkcs11-util clean           $(MODULE_PIN_SLOT) -r

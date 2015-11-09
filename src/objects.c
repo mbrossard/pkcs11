@@ -101,81 +101,9 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
     return rc;
 }
 
-int do_GetSlotInfo(CK_FUNCTION_LIST *funcs,
-                   CK_SLOT_ID slot_id)
-{
-    CK_SLOT_INFO  info;
-    CK_RV         rc;
-
-    rc = funcs->C_GetSlotInfo(slot_id, &info);
-    if (rc != CKR_OK) {
-        show_error(stdout, "   C_GetTokenInfo", rc);
-        return FALSE;
-    }
-
-    fprintf(stdout, "CK_SLOT_INFO for slot #%ld:  \n", slot_id);
-    print_slot_info(stdout, &info);
-    fprintf(stdout, "\n\n");
-
-    return TRUE;
-}
-
-int do_GetTokenInfo(CK_FUNCTION_LIST *funcs,
-                    CK_SLOT_ID slot_id)
-{
-    CK_TOKEN_INFO  info;
-    CK_RV          rc;
-
-    rc = funcs->C_GetTokenInfo(slot_id, &info);
-    if (rc != CKR_OK) {
-        show_error(stdout, "   C_GetTokenInfo", rc);
-        return FALSE;
-    }
-
-    fprintf(stdout, "CK_TOKEN_INFO for slot #%ld:  \n", slot_id);
-    print_token_info(stdout, &info);
-    fprintf(stdout, "\n\n");
-
-    return TRUE;
-}
-
-int do_GetTokenMech(CK_FUNCTION_LIST *funcs,
-                    CK_SLOT_ID slot_id)
-{
-    CK_RV             rc;
-    CK_MECHANISM_INFO minfo;
-    CK_MECHANISM_TYPE_PTR pMechanismList;
-    CK_ULONG          imech, ulMechCount;
-
-    rc = funcs->C_GetMechanismList(slot_id, NULL, &ulMechCount);
-
-    pMechanismList = (CK_MECHANISM_TYPE *) malloc(ulMechCount * sizeof(CK_MECHANISM_TYPE));
-    if (!pMechanismList) {
-        fprintf(stderr, "Failed on line %d\n", __LINE__);
-        return CKR_HOST_MEMORY;
-    }
-
-    rc = funcs->C_GetMechanismList(slot_id, pMechanismList, &ulMechCount);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_GetMechanismList", rc);
-        return rc;
-    }
-
-    for (imech = 0; imech < ulMechCount; imech++) {
-        rc = funcs->C_GetMechanismInfo(slot_id, pMechanismList[imech], &minfo);
-        print_mech_info(stdout, pMechanismList[imech], &minfo);
-    }
-
-    free(pMechanismList);
-    return rc;
-}
-
-static char *app_name = "pkcs11-util list";
+static char *app_name = "pkcs11-util list-objects";
 
 static const struct option options[] = {
-    { "list-slots",         0, 0,           'L' },
-    { "list-mechanisms",    0, 0,           'M' },
-    { "list-objects",       0, 0,           'O' },
     { "help",               0, 0,           'h' },
     { "pin",                1, 0,           'p' },
     { "slot",               1, 0,           's' },
@@ -185,9 +113,6 @@ static const struct option options[] = {
 };
 
 static const char *option_help[] = {
-    "List slots available on the token",
-    "List mechanisms supported by the token",
-    "List objects contained in the token",
     "Print this help and exit",
     "Supply PIN on the command line",
     "Specify number of the slot to use",
@@ -195,7 +120,7 @@ static const char *option_help[] = {
     "Specify the directory for NSS database",
 };
 
-int list(int argc, char **argv)
+int objects(int argc, char **argv)
 {
     CK_ULONG          nslots, islot;
     CK_SLOT_ID        *pslots = NULL;
@@ -206,40 +131,17 @@ int list(int argc, char **argv)
     CK_ULONG          opt_slot = -1;
     char *opt_module = NULL, *opt_dir = NULL;
     int long_optind = 0;
-    int do_show_info = 0;
-    int do_list_slots = 0;
-    int do_list_mechs = 0;
-    int do_list_objects = 0;
-    int action_count = 0;
-
-    char c;
 
     init_crypto();
 
     while (1) {
-        c = getopt_long(argc, argv, "LMOd:hp:s:m:",
-                        options, &long_optind);
+        char c = getopt_long(argc, argv, "d:hp:s:m:",
+                             options, &long_optind);
         if (c == -1)
             break;
         switch (c) {
             case 'd':
                 opt_dir = optarg;
-                break;
-            case 'I':
-                do_show_info = 1;
-                action_count++;
-                break;
-            case 'L':
-                do_list_slots = 1;
-                action_count++;
-                break;
-            case 'M':
-                do_list_mechs = 1;
-                action_count++;
-                break;
-            case 'O':
-                do_list_objects = 1;
-                action_count++;
                 break;
             case 'p':
                 opt_pin = (CK_UTF8CHAR_PTR) strdup(optarg);
@@ -284,24 +186,10 @@ int list(int argc, char **argv)
         /* TODO: Look in pslots */
         pslots = &opt_slot;
         nslots = 1;
-    } else {
-        if(opt_pin == NULL) {
-            fprintf(stdout, "No slot specified, the '--pin' parameter will be ignored\n");
-        }
     }
 
     for (islot = 0; islot < nslots; islot++) {
-        if (do_list_slots) {
-            do_GetSlotInfo(funcs, pslots[islot]);
-            do_GetTokenInfo(funcs, pslots[islot]);
-        }
-        if(do_list_mechs) {
-            do_GetTokenMech(funcs, pslots[islot]);
-        }
-
-        if(do_list_objects) {
-            do_list_token_objects(funcs, pslots[islot], opt_pin, opt_pin_len);
-        }
+        do_list_token_objects(funcs, pslots[islot], opt_pin, opt_pin_len);
     }
 
     free(opt_pin);

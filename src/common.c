@@ -2,6 +2,10 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
+#include "config.h"
+#include "common.h"
+#include "pkcs11_display.h"
+
 #include <string.h>
 #include <memory.h>
 
@@ -12,23 +16,10 @@
 
 #include <sys/types.h>
 #include <dlfcn.h>
-
-#define __USE_BSD 1
-
 #include <stdlib.h>
-#include <dirent.h>
-
-#include <sys/stat.h>
-#else
-#include <windows.h>
-#endif
-
-#include "common.h"
-#include "pkcs11_display.h"
-
-#if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
 #define DEFAULT_PKCSLIB "/usr/lib/pkcs11/opensc-pkcs11.so"
 #else
+#include <windows.h>
 #define DEFAULT_PKCSLIB "opensc-pkcs11.dll"
 #endif
 
@@ -58,12 +49,10 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list(const char *param)
     }
     pfoo = (CK_RV (*)())GetProcAddress(d, "C_GetFunctionList");
 #else
-    d = dlopen(e, RTLD_LAZY | RTLD_LOCAL);
-    if ( d == NULL ) {
-        d = dlopen(e, RTLD_LAZY);
-        if (d == NULL ) {
-            return NULL;
-        }
+    d = dlopen(e, RTLD_LAZY);
+    if (d == NULL ) {
+        fprintf(stdout, "dlopen('%s') failed\n", e);
+        return NULL;
     }
     *(void **) (&pfoo) = dlsym(d, "C_GetFunctionList");
 #endif
@@ -92,47 +81,6 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list(const char *param)
     
     return funcs;
 }
-
-int search_file(char *buffer, int size, char *key)
-#if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
-{
-    DIR *dir = opendir(buffer);
-    struct dirent *ent;
-    int found = 0;
-
-    if (!buffer)
-	    return 0;
-
-    dir = opendir(buffer);
-    if (!dir)
-	    return 0;
-
-    while((found == 0) && (ent = readdir(dir))) {
-        if((ent->d_type & DT_DIR)) {
-            int len = strlen(buffer);
-            if((ent->d_name[0] != '.') && (len < size - 8)) {
-                buffer[len] = '/';
-                strncpy(buffer + len + 1, ent->d_name, size - len - 1);
-                found = search_file(buffer, size, key);
-                if(found == 0) {
-                    buffer[len] = '\0';
-                }
-            }
-        }
-        if((ent->d_type & DT_REG)) {
-            if(strcmp(key, ent->d_name) == 0) {
-                found = 1;
-            }
-        }
-    }
-    closedir(dir);
-    return found;
-}
-#else
-{
-    return 0;
-}
-#endif
 
 CK_RV pkcs11_initialize(CK_FUNCTION_LIST_PTR funcs)
 {
@@ -173,24 +121,6 @@ CK_RV pkcs11_initialize_nss(CK_FUNCTION_LIST_PTR funcs, const char *path)
             snprintf(buffer, 256, "%s", z);
         } else if((z = getenv("NSS_DIR"))) {
             snprintf(buffer, 256, nss_init_string, z);
-        } else {
-            int found = 0;
-#if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
-            char search[256];
-            DIR *dir;
-            snprintf(search, 256, "%s/.mozilla", getenv("HOME"));
-            if ((dir = opendir(search)))   {
-                if(search_file(search, 256, "secmod.db")) {
-                    found = 1;
-                }
-                closedir(dir);
-            }
-            snprintf(buffer, 256, nss_init_string, search);
-
-            if(!found) {
-                return CKR_ARGUMENTS_BAD;
-            }
-#endif
         }
         rc = funcs->C_Initialize((CK_VOID_PTR)iap);
     }

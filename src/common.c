@@ -308,3 +308,33 @@ void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,
 	attr->pValue =  pvoid;
 	attr->ulValueLen = ulong;
 }
+
+CK_RV pkcs11_load_init(const char *module, const char *path,
+                       FILE *err, CK_FUNCTION_LIST_PTR *funcs)
+{
+    CK_RV rc = CKR_GENERAL_ERROR;
+    CK_FUNCTION_LIST_PTR f;
+
+    if(funcs == NULL) {
+        return rc;
+    }
+
+    f = pkcs11_get_function_list(module);
+    if (!f) {
+        fprintf(err, "Could not get function list.\n");
+        return rc;
+    }
+
+    if(path) {
+        fprintf(err, "Using %s directory\n", path);
+    }
+
+    rc = pkcs11_initialize_nss(f, path);
+    if (rc != CKR_OK) {
+        show_error(err, "C_Initialize", rc);
+        return rc;
+    }
+
+    *funcs = f;
+    return rc;
+}

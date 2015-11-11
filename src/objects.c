@@ -161,19 +161,8 @@ int objects(int argc, char **argv)
         }
     }
 
-    funcs = pkcs11_get_function_list(opt_module);
-    if (!funcs) {
-        fprintf(stdout, "Could not get function list.\n");
-        return -1;
-    }
-
-    if(opt_dir) {
-        fprintf(stderr, "Using %s directory\n", opt_dir);
-    }
-
-    rc = pkcs11_initialize_nss(funcs, opt_dir);
+    rc = pkcs11_load_init(opt_module, opt_dir, stdout, &funcs);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_Initialize", rc);
         return rc;
     }
 

@@ -71,6 +71,9 @@ CK_RV pkcs11_login_session(CK_FUNCTION_LIST_PTR funcs, FILE *out,  CK_SLOT_ID sl
 void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,
                    CK_VOID_PTR pvoid, CK_ULONG ulong);
 
+CK_RV pkcs11_load_init(const char *module, const char *path,
+                       FILE *err, CK_FUNCTION_LIST_PTR *funcs);
+
 #ifdef __cplusplus
 };
 #endif

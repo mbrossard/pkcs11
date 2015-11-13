@@ -72,7 +72,7 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list(const char *param)
 #undef CK_NEED_ARG_LIST
 #undef CK_PKCS11_FUNCTION_INFO
 #define CK_PKCS11_FUNCTION_INFO(name)                       \
-        if(funcs->name = (CK_RV (*)())GetProcAddress(d, #name)) { \
+        if((funcs->name = (CK_RV (*)())GetProcAddress(d, #name)) == NULL) { \
             fprintf(stdout, "Error looking up %s\n", #name); \
             free(funcs); \
             return NULL; \

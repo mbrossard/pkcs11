@@ -23,64 +23,81 @@
 #define DEFAULT_PKCSLIB "opensc-pkcs11.dll"
 #endif
 
+#if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
 CK_FUNCTION_LIST  *pkcs11_get_function_list(const char *param)
 {
     CK_FUNCTION_LIST  *funcs;
-    CK_RV              rc;
-    CK_RV            (*pfoo)();
+    CK_RV            (*get_fun)();
     void              *d;
-    const char        *e;
-    char              *z = DEFAULT_PKCSLIB;
+    const char        *e = param ? param : getenv("PKCS11_LIBRARY");
+    e = e ? e : DEFAULT_PKCSLIB;
 
-    if(param) {
-        e = param;
-    } else {
-        e = getenv("PKCS11_LIBRARY");
-        if (e == NULL) {
-            e = z;
-        }
-    }
-#if (defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
-    d = LoadLibrary(e);
-    
-    if (d == NULL ) {
-        fprintf(stdout, "LoadLibrary Failed\n");
-        return NULL;
-    }
-    pfoo = (CK_RV (*)())GetProcAddress(d, "C_GetFunctionList");
-#else
     d = dlopen(e, RTLD_LAZY);
     if (d == NULL ) {
         fprintf(stdout, "dlopen('%s') failed\n", e);
         return NULL;
     }
-    *(void **) (&pfoo) = dlsym(d, "C_GetFunctionList");
-#endif
-    if (pfoo == NULL ) {
+    *(void **) (&get_fun) = dlsym(d, "C_GetFunctionList");
+    if (get_fun == NULL ) {
         fprintf(stdout, "Symbol lookup failed\n");
         return NULL;
     }
-#if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
-    rc = pfoo(&funcs);
+    CK_RV rc = get_fun(&funcs);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_GetFunctionList", rc);
+        funcs = NULL;
+    } else if(funcs == NULL) {
+        fprintf(stdout, "C_GetFunctionList returned empty value\n");
+    }
+    return funcs;
+}
 #else
+CK_FUNCTION_LIST  *pkcs11_get_function_list(const char *param)
+{
+    CK_FUNCTION_LIST  *funcs;
+    void              *d;
+    const char        *e = param ? param : getenv("PKCS11_LIBRARY");
+    e = e ? e : DEFAULT_PKCSLIB;
+
+    d = LoadLibrary(e);    
+    if (d == NULL) {
+        fprintf(stdout, "LoadLibrary Failed\n");
+        return NULL;
+    }
+
+#ifndef USE_GET_FUNCTION_LIST
+    /* Look-up all symbols from dll */
     funcs = (CK_FUNCTION_LIST_PTR) malloc(sizeof(CK_FUNCTION_LIST));
     if(funcs) {
 #undef CK_NEED_ARG_LIST
 #undef CK_PKCS11_FUNCTION_INFO
 #define CK_PKCS11_FUNCTION_INFO(name)                       \
-        funcs->name = (CK_RV (*)())GetProcAddress(d, #name);
+        if(funcs->name = (CK_RV (*)())GetProcAddress(d, #name)) { \
+            fprintf(stdout, "Error looking up %s\n", #name); \
+            free(funcs); \
+            return NULL; \
+        }
 #include "pkcs11f.h"
-        rc = CKR_OK;
+    }
+#else
+    /* Look-up C_GetFunctionList and use it to get all functions */
+    CK_RV            (*get_fun)();
+    get_fun = (CK_RV (*)())GetProcAddress(d, "C_GetFunctionList");
+    if (get_fun == NULL ) {
+        fprintf(stdout, "Symbol lookup failed\n");
+        return NULL;
+    }
+    CK_RV rc = get_fun(&funcs);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_GetFunctionList", rc);
+        funcs = NULL;
+    } else if(funcs == NULL) {
+        fprintf(stdout, "C_GetFunctionList returned empty value\n");
     }
 #endif
-    if (rc != CKR_OK) {
-        fprintf(stdout, "Call to C_GetFunctionList failed\n");
-        funcs = NULL;
-    }
-    fprintf(stdout, "C_GetFunctionList returned %lx\n", (long unsigned int)funcs);
-    
     return funcs;
 }
+#endif
 
 CK_RV pkcs11_initialize(CK_FUNCTION_LIST_PTR funcs)
 {

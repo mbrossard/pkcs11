@@ -20,9 +20,7 @@ static const struct option options[] = {
     { "module",             1, 0,           'm' },
     { "directory",          1, 0,           'd' },
     { "key-type",           1, 0,           'k' },
-#ifdef HAVE_OPENSSL
     { "label",              1, 0,           'l' },
-#endif
     { 0, 0, 0, 0 }
 };
 

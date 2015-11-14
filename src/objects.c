@@ -10,7 +10,7 @@
 #include <string.h>
 
 int do_list_token_objects(CK_FUNCTION_LIST *funcs,
-                          CK_SLOT_ID        SLOT_ID,
+                          CK_SLOT_ID        slot,
                           CK_BYTE          *user_pin,
                           CK_ULONG          user_pin_len)
 {
@@ -19,7 +19,7 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
     CK_SESSION_HANDLE h_session;
     CK_OBJECT_HANDLE  obj;
 
-    rc = pkcs11_login_session(funcs, stdout, SLOT_ID, &h_session,
+    rc = pkcs11_login_session(funcs, stdout, slot, &h_session,
                               CK_FALSE, CKU_USER, user_pin, user_pin_len);
     if (rc != CKR_OK) {
         goto done;
@@ -96,7 +96,7 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
 
  done:
     if(user_pin) {
-        funcs->C_CloseAllSessions(SLOT_ID);
+        funcs->C_CloseAllSessions(slot);
     }
     return rc;
 }

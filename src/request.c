@@ -43,11 +43,12 @@ static const char *option_help[] = {
 int request( int argc, char **argv )
 {
     CK_FUNCTION_LIST *funcs = NULL;
+    CK_SLOT_ID       *pslots = NULL;
     char             *opt_label = NULL;
     CK_UTF8CHAR_PTR   opt_pin = NULL;
     CK_ULONG          opt_pin_len = 0;
     CK_RV             rc;
-    CK_ULONG          opt_slot = -1;
+    CK_ULONG          nslots, opt_slot = -1;
     CK_SESSION_HANDLE h_session;
     CK_OBJECT_HANDLE  key;
     char *opt_module = NULL, *opt_dir = NULL;
@@ -95,6 +96,24 @@ int request( int argc, char **argv )
     rc = pkcs11_load_init(opt_module, opt_dir, stdout, &funcs);
     if (rc != CKR_OK) {
         return rc;
+    }
+
+    rc = pkcs11_get_slots(funcs, stdout, &pslots, &nslots);
+    if (rc != CKR_OK) {
+        return rc;
+    }
+
+    if(opt_slot != -1) {
+        /* TODO: Look in pslots */
+        pslots = &opt_slot;
+        nslots = 1;
+    } else {
+        if(nslots == 1) {
+            opt_slot = pslots[0];
+        } else {
+            fprintf(stdout, "Found %ld slots, use --slot parameter to choose.\n", nslots);
+            exit(-1);
+        }
     }
 
     rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,

@@ -22,7 +22,7 @@ static const struct option options[] = {
     { "slot",               1, 0,           's' },
     { "module",             1, 0,           'm' },
     { "directory",          1, 0,           'd' },
-    { "key",                1, 0,           'k' },
+    /* { "key",                1, 0,           'k' }, */
     { 0, 0, 0, 0 }
 };
 
@@ -32,7 +32,7 @@ static const char *option_help[] = {
     "Specify number of the slot to use",
     "Specify the module to load",
     "Specify the directory for NSS database",
-    "ID of the key to wrap",
+    /* "ID of the key to wrap", */
 };
 
 int wrap( int argc, char **argv )

@@ -89,4 +89,5 @@ test: pkcs11-util pkcs11-token.la
 	./pkcs11-util list-slots      $(MODULE)
 	./pkcs11-util list-objects    $(MODULE_PIN_SLOT)
 	./pkcs11-util ssh             $(MODULE_PIN_SLOT)
+	./pkcs11-util wrap            $(MODULE_PIN_SLOT)
 	./pkcs11-util clean           $(MODULE_PIN_SLOT) -r

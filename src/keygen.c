@@ -144,7 +144,7 @@ int keygen( int argc, char **argv )
     if (rc != CKR_OK) {
         show_error(stdout, "C_Logout", rc);
         return rc;
-        }
+    }
     
     rc = funcs->C_CloseSession(h_session);
     if (rc != CKR_OK) {

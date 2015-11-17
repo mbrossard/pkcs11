@@ -37,6 +37,7 @@ int clean( int argc, char **argv )
     CK_ULONG          opt_pin_len = 0;
     CK_RV             rc;
     CK_ULONG          nslots, opt_slot = -1;
+    CK_SLOT_ID        *pslots = NULL;
     CK_SESSION_HANDLE h_session;
     char *opt_module = NULL, *opt_dir = NULL;
     int long_optind = 0, rw = 0, destroy = 0, i;
@@ -71,42 +72,28 @@ int clean( int argc, char **argv )
         }
     }
 
-    funcs = pkcs11_get_function_list(opt_module);
-    if (!funcs) {
-        fprintf(stdout, "Could not get function list.\n");
-        return -1;
-    }
-
-    if(opt_dir) {
-        fprintf(stdout, "Using %s directory\n", opt_dir);
-    }
-
-    rc = pkcs11_initialize_nss(funcs, opt_dir);
+    rc = pkcs11_load_init(opt_module, opt_dir, stdout, &funcs);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_Initialize", rc);
         return rc;
     }
 
-    if(opt_slot == -1) {
-        rc = funcs->C_GetSlotList(0, NULL_PTR, &nslots);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_GetSlotList", rc);
-            return rc;
-        }
-
-        if(nslots == 1) {
-            rc = funcs->C_GetSlotList(0, &opt_slot, &nslots);
-            if (rc != CKR_OK) {
-                show_error(stdout, "C_GetSlotList", rc);
-                return rc;
-            } else {
-                fprintf(stdout, "Using slot %ld\n", opt_slot);
-            }
-        } else {
-            fprintf(stdout, "Found %ld slots, use --slot parameter to choose.\n", nslots);
-        }
+    rc = pkcs11_get_slots(funcs, stdout, &pslots, &nslots);
+    if (rc != CKR_OK) {
+        return rc;
     }
 
+    if(opt_slot != -1) {
+        /* TODO: Look in pslots */
+        pslots = &opt_slot;
+        nslots = 1;
+    } else {
+        if(nslots == 1) {
+            opt_slot = pslots[0];
+        } else {
+            fprintf(stdout, "Found %ld slots, use --slot parameter to choose.\n", nslots);
+            exit(-1);
+        }
+    }
 
     rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
                               CK_TRUE, CKU_USER, opt_pin, opt_pin_len);

@@ -100,38 +100,18 @@ int keygen( int argc, char **argv )
     if (rc != CKR_OK) {
         return rc;
     }
-    
+
     if(opt_slot != -1) {
         /* TODO: Look in pslots */
         pslots = &opt_slot;
         nslots = 1;
     } else {
-        if(opt_pin_len) {
-            fprintf(stdout, "No slot specified, the '--pin' parameter will be ignored\n");
-        }
-    }
-
-    if(opt_slot == -1) {
-        rc = funcs->C_GetSlotList(0, NULL_PTR, &nslots);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_GetSlotList", rc);
-            return rc;
-        }
-        
         if(nslots == 1) {
-            rc = funcs->C_GetSlotList(0, &opt_slot, &nslots);
-            if (rc != CKR_OK) {
-                    show_error(stdout, "C_GetSlotList", rc);
-                    return rc;
-            } else {
-                fprintf(stdout, "Using slot %ld\n", opt_slot);
-            }
+            opt_slot = pslots[0];
+        } else {
+            fprintf(stdout, "Found %ld slots, use --slot parameter to choose.\n", nslots);
+            exit(-1);
         }
-    }
-    
-    if(opt_slot == -1) {
-        fprintf(stdout, "The key generation function requires the '--slot' parameter\n");
-        return -1;
     }
 
     rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,

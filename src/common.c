@@ -355,3 +355,26 @@ CK_RV pkcs11_load_init(const char *module, const char *path,
     *funcs = f;
     return rc;
 }
+
+CK_RV pkcs11_close(FILE *err, CK_FUNCTION_LIST_PTR funcs, CK_SESSION_HANDLE h_session)
+{
+    CK_RV rc = funcs->C_Logout(h_session);
+    if (rc != CKR_OK) {
+        show_error(err, "C_Logout", rc);
+        return rc;
+    }
+    
+    rc = funcs->C_CloseSession(h_session);
+    if (rc != CKR_OK) {
+        show_error(err, "C_CloseSession", rc);
+        return rc;
+    }
+
+    rc = funcs->C_Finalize(NULL);
+    if (rc != CKR_OK) {
+        show_error(err, "C_Finalize", rc);
+        return rc;
+    }
+
+    return rc;
+}

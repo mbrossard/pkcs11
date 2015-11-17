@@ -73,6 +73,7 @@ void fillAttribute(CK_ATTRIBUTE *attr, CK_ATTRIBUTE_TYPE type,
 
 CK_RV pkcs11_load_init(const char *module, const char *path,
                        FILE *err, CK_FUNCTION_LIST_PTR *funcs);
+CK_RV pkcs11_close(FILE *err, CK_FUNCTION_LIST_PTR funcs, CK_SESSION_HANDLE h_session);
 
 #ifdef __cplusplus
 };

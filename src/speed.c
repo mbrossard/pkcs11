@@ -156,6 +156,7 @@ int speed( int argc, char **argv )
 
     rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
                               CK_FALSE, CKU_USER, opt_pin, opt_pin_len);
+    free(opt_pin);
     if (rc != CKR_OK) {
         return rc;
     }
@@ -241,27 +242,7 @@ int speed( int argc, char **argv )
         }
     }
 
-    if(opt_pin) {
-        rc = funcs->C_Logout(h_session);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_Logout", rc);
-            return rc;
-        }
-    }
-    free(opt_pin);
-
-    rc = funcs->C_CloseSession(h_session);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_CloseSession", rc);
-        return rc;
-    }
-
-    rc = funcs->C_Finalize(NULL);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_Finalize", rc);
-        return rc;
-    }
-
+    rc = pkcs11_close(stdout, funcs, h_session);    
     return rc;
 }
 

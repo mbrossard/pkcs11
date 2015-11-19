@@ -116,7 +116,7 @@ static CK_RV init_module(void)
     dictionary   *dic   = NULL;
     void         *d     = NULL;
     const char   *z     = NULL;
-	int rv              = CKR_OK;
+    int rv              = CKR_OK;
 
     dic = iniparser_load("token.ini");
 
@@ -140,11 +140,11 @@ static CK_RV init_module(void)
         z = DEFAULT_PKCSLIB;
     }
 
-	/* Allocates the PKCS#11 function list structures */
-	if(!(pkcs11 = malloc(sizeof(CK_FUNCTION_LIST))) ||
+    /* Allocates the PKCS#11 function list structures */
+    if(!(pkcs11 = malloc(sizeof(CK_FUNCTION_LIST))) ||
        !(nss = malloc(sizeof(CK_FUNCTION_LIST)))) {
-		return CKR_HOST_MEMORY;
-	}
+        return CKR_HOST_MEMORY;
+    }
 
 #if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
     if (((d = dlopen(z, RTLD_LAZY)) == NULL) ||
@@ -232,34 +232,34 @@ static CK_RV init_module(void)
     pkcs11->C_CancelFunction = C_CancelFunction;
     pkcs11->C_WaitForSlotEvent = C_WaitForSlotEvent;
 
-	return rv;
+    return rv;
 }
 
 CK_RV DLL_EXPORTED C_GetFunctionList(CK_FUNCTION_LIST_PTR_PTR ppFunctionList)
 {
     CK_RV rv = CKR_OK;
-	if (pkcs11 == NULL_PTR) {
-		rv = init_module();
-	}
+    if (pkcs11 == NULL_PTR) {
+        rv = init_module();
+    }
 
     if (rv == CKR_OK) {
         *ppFunctionList = pkcs11;
     }
 
-	return rv;
+    return rv;
 }
 
 CK_RV DLL_EXPORTED C_Initialize(CK_VOID_PTR pInitArgs)
 {
     CK_RV rv = CKR_OK;
 
-    if(pkcs11_initialized == CK_TRUE) {
-		return CKR_CRYPTOKI_ALREADY_INITIALIZED;
+    if (pkcs11_initialized == CK_TRUE) {
+        return CKR_CRYPTOKI_ALREADY_INITIALIZED;
     }
 
     if (pkcs11 == NULL) {
         rv = init_module();
-	}
+    }
         
     if (rv == CKR_OK) {
         static const char *nss_init_string = "configdir='%s' certPrefix='' keyPrefix='' secmod='secmod.db'";
@@ -288,13 +288,13 @@ CK_RV DLL_EXPORTED C_Initialize(CK_VOID_PTR pInitArgs)
         rv = nss->C_Initialize( (CK_VOID_PTR)iap );
         pkcs11_initialized = CK_TRUE;
     }
-	return rv;
+    return rv;
 }
 
 CK_RV DLL_EXPORTED C_Finalize(CK_VOID_PTR pReserved)
 {
-    if(pkcs11_initialized == CK_FALSE) {
-		return CKR_CRYPTOKI_NOT_INITIALIZED;
+    if (pkcs11_initialized == CK_FALSE) {
+        return CKR_CRYPTOKI_NOT_INITIALIZED;
     }
 
     pkcs11_initialized = CK_FALSE;

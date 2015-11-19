@@ -2,16 +2,15 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
-#include "pkcs11-util.h"
+#include "config.h"
 
 #ifdef HAVE_OPENSSL
 
 #include "common.h"
+#include "pkcs11-util.h"
 #include "pkcs11_display.h"
 
 #include <string.h>
-#include <getopt.h>
-#include <stdio.h>
 #include <openssl/evp.h>
 
 static char *app_name = "pkcs11-util wrap";

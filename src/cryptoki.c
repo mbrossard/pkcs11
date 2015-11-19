@@ -303,7 +303,7 @@ CK_RV DLL_EXPORTED C_Finalize(CK_VOID_PTR pReserved)
 
 CK_RV DLL_EXPORTED C_GetInfo(CK_INFO_PTR pInfo)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GetInfo(pInfo);
@@ -312,7 +312,7 @@ CK_RV DLL_EXPORTED C_GetInfo(CK_INFO_PTR pInfo)
 
 CK_RV DLL_EXPORTED C_GetSlotList(CK_BBOOL tokenPresent, CK_SLOT_ID_PTR pSlotList, CK_ULONG_PTR pulCount)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GetSlotList(tokenPresent, pSlotList, pulCount);
@@ -321,7 +321,7 @@ CK_RV DLL_EXPORTED C_GetSlotList(CK_BBOOL tokenPresent, CK_SLOT_ID_PTR pSlotList
 
 CK_RV DLL_EXPORTED C_GetSlotInfo(CK_SLOT_ID slotID, CK_SLOT_INFO_PTR pInfo)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GetSlotInfo(slotID, pInfo);
@@ -330,7 +330,7 @@ CK_RV DLL_EXPORTED C_GetSlotInfo(CK_SLOT_ID slotID, CK_SLOT_INFO_PTR pInfo)
 
 CK_RV DLL_EXPORTED C_GetTokenInfo(CK_SLOT_ID slotID, CK_TOKEN_INFO_PTR pInfo)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GetTokenInfo(slotID, pInfo);
@@ -340,7 +340,7 @@ CK_RV DLL_EXPORTED C_GetTokenInfo(CK_SLOT_ID slotID, CK_TOKEN_INFO_PTR pInfo)
 CK_RV DLL_EXPORTED C_GetMechanismList(CK_SLOT_ID slotID, CK_MECHANISM_TYPE_PTR pMechanismList,
                                       CK_ULONG_PTR pulCount)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GetMechanismList(slotID, pMechanismList, pulCount);
@@ -350,7 +350,7 @@ CK_RV DLL_EXPORTED C_GetMechanismList(CK_SLOT_ID slotID, CK_MECHANISM_TYPE_PTR p
 CK_RV DLL_EXPORTED C_GetMechanismInfo(CK_SLOT_ID slotID, CK_MECHANISM_TYPE type,
                                       CK_MECHANISM_INFO_PTR pInfo)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GetMechanismInfo(slotID, type, pInfo);
@@ -360,7 +360,7 @@ CK_RV DLL_EXPORTED C_GetMechanismInfo(CK_SLOT_ID slotID, CK_MECHANISM_TYPE type,
 CK_RV DLL_EXPORTED C_InitToken(CK_SLOT_ID slotID, CK_UTF8CHAR_PTR pPin,
                                CK_ULONG ulPinLen, CK_UTF8CHAR_PTR pLabel)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_InitToken(slotID, pPin, ulPinLen, pLabel);
@@ -370,7 +370,7 @@ CK_RV DLL_EXPORTED C_InitToken(CK_SLOT_ID slotID, CK_UTF8CHAR_PTR pPin,
 CK_RV DLL_EXPORTED C_InitPIN(CK_SESSION_HANDLE hSession, CK_UTF8CHAR_PTR pPin,
                              CK_ULONG ulPinLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_InitPIN(hSession, pPin, ulPinLen);
@@ -381,7 +381,7 @@ CK_RV DLL_EXPORTED C_SetPIN(CK_SESSION_HANDLE hSession, CK_UTF8CHAR_PTR pOldPin,
                             CK_ULONG ulOldLen, CK_UTF8CHAR_PTR pNewPin,
                             CK_ULONG ulNewLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_SetPIN(hSession, pOldPin, ulOldLen, pNewPin, ulNewLen);
@@ -392,7 +392,7 @@ CK_RV DLL_EXPORTED C_OpenSession(CK_SLOT_ID slotID, CK_FLAGS flags,
                                  CK_VOID_PTR pApplication, CK_NOTIFY Notify,
                                  CK_SESSION_HANDLE_PTR phSession)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_OpenSession(slotID, flags, pApplication, Notify, phSession);
@@ -401,7 +401,7 @@ CK_RV DLL_EXPORTED C_OpenSession(CK_SLOT_ID slotID, CK_FLAGS flags,
 
 CK_RV DLL_EXPORTED C_CloseSession(CK_SESSION_HANDLE hSession)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_CloseSession(hSession);
@@ -410,7 +410,7 @@ CK_RV DLL_EXPORTED C_CloseSession(CK_SESSION_HANDLE hSession)
 
 CK_RV DLL_EXPORTED C_CloseAllSessions(CK_SLOT_ID slotID)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_CloseAllSessions(slotID);
@@ -420,7 +420,7 @@ CK_RV DLL_EXPORTED C_CloseAllSessions(CK_SLOT_ID slotID)
 CK_RV DLL_EXPORTED C_GetSessionInfo(CK_SESSION_HANDLE hSession,
                                     CK_SESSION_INFO_PTR pInfo)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GetSessionInfo(hSession, pInfo);
@@ -431,7 +431,7 @@ CK_RV DLL_EXPORTED C_GetOperationState(CK_SESSION_HANDLE hSession,
                                        CK_BYTE_PTR pOperationState,
                                        CK_ULONG_PTR pulOperationStateLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GetOperationState(hSession,
@@ -446,7 +446,7 @@ CK_RV DLL_EXPORTED C_SetOperationState(CK_SESSION_HANDLE hSession,
                                        CK_OBJECT_HANDLE hEncryptionKey,
                                        CK_OBJECT_HANDLE hAuthenticationKey)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_SetOperationState(hSession,
@@ -460,7 +460,7 @@ CK_RV DLL_EXPORTED C_SetOperationState(CK_SESSION_HANDLE hSession,
 CK_RV DLL_EXPORTED C_Login(CK_SESSION_HANDLE hSession, CK_USER_TYPE userType,
                            CK_UTF8CHAR_PTR pPin, CK_ULONG ulPinLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_Login(hSession, userType,
@@ -470,7 +470,7 @@ CK_RV DLL_EXPORTED C_Login(CK_SESSION_HANDLE hSession, CK_USER_TYPE userType,
 
 CK_RV DLL_EXPORTED C_Logout(CK_SESSION_HANDLE hSession)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_Logout(hSession);
@@ -480,7 +480,7 @@ CK_RV DLL_EXPORTED C_Logout(CK_SESSION_HANDLE hSession)
 CK_RV DLL_EXPORTED C_CreateObject(CK_SESSION_HANDLE hSession, CK_ATTRIBUTE_PTR pTemplate,
                                   CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phObject)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_CreateObject(hSession, pTemplate,
@@ -492,7 +492,7 @@ CK_RV DLL_EXPORTED C_CopyObject(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hOb
                                 CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount,
                                 CK_OBJECT_HANDLE_PTR phNewObject)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_CopyObject(hSession, hObject,
@@ -503,7 +503,7 @@ CK_RV DLL_EXPORTED C_CopyObject(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hOb
 
 CK_RV DLL_EXPORTED C_DestroyObject(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_DestroyObject(hSession, hObject);
@@ -513,7 +513,7 @@ CK_RV DLL_EXPORTED C_DestroyObject(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE 
 CK_RV DLL_EXPORTED C_GetObjectSize(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject,
                                    CK_ULONG_PTR pulSize)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GetObjectSize(hSession, hObject,
@@ -524,7 +524,7 @@ CK_RV DLL_EXPORTED C_GetObjectSize(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE 
 CK_RV DLL_EXPORTED C_GetAttributeValue(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject,
                                        CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GetAttributeValue(hSession, hObject,
@@ -535,7 +535,7 @@ CK_RV DLL_EXPORTED C_GetAttributeValue(CK_SESSION_HANDLE hSession, CK_OBJECT_HAN
 CK_RV DLL_EXPORTED C_SetAttributeValue(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject,
                                        CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_SetAttributeValue(hSession, hObject,
@@ -546,7 +546,7 @@ CK_RV DLL_EXPORTED C_SetAttributeValue(CK_SESSION_HANDLE hSession, CK_OBJECT_HAN
 CK_RV DLL_EXPORTED C_FindObjectsInit(CK_SESSION_HANDLE hSession, CK_ATTRIBUTE_PTR pTemplate,
                                      CK_ULONG ulCount)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_FindObjectsInit(hSession, pTemplate,
@@ -557,7 +557,7 @@ CK_RV DLL_EXPORTED C_FindObjectsInit(CK_SESSION_HANDLE hSession, CK_ATTRIBUTE_PT
 CK_RV DLL_EXPORTED C_FindObjects(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE_PTR phObject,
                                  CK_ULONG ulMaxObjectCount, CK_ULONG_PTR pulObjectCount)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_FindObjects(hSession, phObject,
@@ -567,7 +567,7 @@ CK_RV DLL_EXPORTED C_FindObjects(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE_PT
 
 CK_RV DLL_EXPORTED C_FindObjectsFinal(CK_SESSION_HANDLE hSession)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_FindObjectsFinal(hSession);
@@ -577,7 +577,7 @@ CK_RV DLL_EXPORTED C_FindObjectsFinal(CK_SESSION_HANDLE hSession)
 CK_RV DLL_EXPORTED C_EncryptInit(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism,
                                  CK_OBJECT_HANDLE hKey)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_EncryptInit(hSession, pMechanism,
@@ -588,7 +588,7 @@ CK_RV DLL_EXPORTED C_EncryptInit(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pM
 CK_RV DLL_EXPORTED C_Encrypt(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData, CK_ULONG ulDataLen,
                              CK_BYTE_PTR pEncryptedData, CK_ULONG_PTR pulEncryptedDataLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_Encrypt(hSession, pData, ulDataLen,
@@ -600,7 +600,7 @@ CK_RV DLL_EXPORTED C_EncryptUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pPart
                                    CK_ULONG ulPartLen, CK_BYTE_PTR pEncryptedPart,
                                    CK_ULONG_PTR pulEncryptedPartLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_EncryptUpdate(hSession, pPart,
@@ -612,7 +612,7 @@ CK_RV DLL_EXPORTED C_EncryptUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pPart
 CK_RV DLL_EXPORTED C_EncryptFinal(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pLastEncryptedPart,
                                   CK_ULONG_PTR pulLastEncryptedPartLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_EncryptFinal(hSession, pLastEncryptedPart,
@@ -623,7 +623,7 @@ CK_RV DLL_EXPORTED C_EncryptFinal(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pLastE
 CK_RV DLL_EXPORTED C_DecryptInit(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism,
                                  CK_OBJECT_HANDLE hKey)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_DecryptInit(hSession, pMechanism,
@@ -635,7 +635,7 @@ CK_RV DLL_EXPORTED C_Decrypt(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pEncryptedD
                              CK_ULONG ulEncryptedDataLen, CK_BYTE_PTR pData,
                              CK_ULONG_PTR pulDataLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_Decrypt(hSession, pEncryptedData,
@@ -648,7 +648,7 @@ CK_RV DLL_EXPORTED C_DecryptUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pEncr
                                    CK_ULONG ulEncryptedPartLen, CK_BYTE_PTR pPart,
                                    CK_ULONG_PTR pulPartLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_DecryptUpdate(hSession, pEncryptedPart,
@@ -660,7 +660,7 @@ CK_RV DLL_EXPORTED C_DecryptUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pEncr
 CK_RV DLL_EXPORTED C_DecryptFinal(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pLastPart,
                                   CK_ULONG_PTR pulLastPartLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_DecryptFinal(hSession, pLastPart,
@@ -670,7 +670,7 @@ CK_RV DLL_EXPORTED C_DecryptFinal(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pLastP
 
 CK_RV DLL_EXPORTED C_DigestInit(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_DigestInit(hSession, pMechanism);
@@ -681,7 +681,7 @@ CK_RV DLL_EXPORTED C_Digest(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData,
                             CK_ULONG ulDataLen, CK_BYTE_PTR pDigest,
                             CK_ULONG_PTR pulDigestLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_Digest(hSession, pData,
@@ -693,7 +693,7 @@ CK_RV DLL_EXPORTED C_Digest(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData,
 CK_RV DLL_EXPORTED C_DigestUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pPart,
                                   CK_ULONG ulPartLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_DigestUpdate(hSession, pPart,
@@ -703,7 +703,7 @@ CK_RV DLL_EXPORTED C_DigestUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pPart,
 
 CK_RV DLL_EXPORTED C_DigestKey(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hKey)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_DigestKey(hSession, hKey);
@@ -713,7 +713,7 @@ CK_RV DLL_EXPORTED C_DigestKey(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hKey
 CK_RV DLL_EXPORTED C_DigestFinal(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pDigest,
                                  CK_ULONG_PTR pulDigestLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_DigestFinal(hSession, pDigest,
@@ -724,7 +724,7 @@ CK_RV DLL_EXPORTED C_DigestFinal(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pDigest
 CK_RV DLL_EXPORTED C_SignInit(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism,
                               CK_OBJECT_HANDLE hKey)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_SignInit(hSession, pMechanism,
@@ -735,7 +735,7 @@ CK_RV DLL_EXPORTED C_SignInit(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMech
 CK_RV DLL_EXPORTED C_Sign(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData, CK_ULONG ulDataLen,
                           CK_BYTE_PTR pSignature, CK_ULONG_PTR pulSignatureLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_Sign(hSession, pData, ulDataLen,
@@ -746,7 +746,7 @@ CK_RV DLL_EXPORTED C_Sign(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData, CK_ULON
 CK_RV DLL_EXPORTED C_SignUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pPart,
                                 CK_ULONG ulPartLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_SignUpdate(hSession, pPart,
@@ -757,7 +757,7 @@ CK_RV DLL_EXPORTED C_SignUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pPart,
 CK_RV DLL_EXPORTED C_SignFinal(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pSignature,
                                CK_ULONG_PTR pulSignatureLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_SignFinal(hSession, pSignature,
@@ -768,7 +768,7 @@ CK_RV DLL_EXPORTED C_SignFinal(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pSignatur
 CK_RV DLL_EXPORTED C_SignRecoverInit(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism,
                                      CK_OBJECT_HANDLE hKey)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_SignRecoverInit(hSession, pMechanism, hKey);
@@ -779,7 +779,7 @@ CK_RV DLL_EXPORTED C_SignRecover(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData,
                                  CK_ULONG ulDataLen, CK_BYTE_PTR pSignature,
                                  CK_ULONG_PTR pulSignatureLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_SignRecover(hSession, pData,
@@ -791,7 +791,7 @@ CK_RV DLL_EXPORTED C_SignRecover(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData,
 CK_RV DLL_EXPORTED C_VerifyInit(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMechanism,
                                 CK_OBJECT_HANDLE hKey)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_VerifyInit(hSession, pMechanism,
@@ -803,7 +803,7 @@ CK_RV DLL_EXPORTED C_Verify(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData,
                             CK_ULONG ulDataLen, CK_BYTE_PTR pSignature,
                             CK_ULONG ulSignatureLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_Verify(hSession, pData,
@@ -815,7 +815,7 @@ CK_RV DLL_EXPORTED C_Verify(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData,
 CK_RV DLL_EXPORTED C_VerifyUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pPart,
                                   CK_ULONG ulPartLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_VerifyUpdate(hSession, pPart,
@@ -826,7 +826,7 @@ CK_RV DLL_EXPORTED C_VerifyUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pPart,
 CK_RV DLL_EXPORTED C_VerifyFinal(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pSignature,
                                  CK_ULONG ulSignatureLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_VerifyFinal(hSession, pSignature,
@@ -839,7 +839,7 @@ CK_RV DLL_EXPORTED C_VerifyRecoverInit(CK_SESSION_HANDLE hSession,
                                        CK_MECHANISM_PTR pMechanism,
                                        CK_OBJECT_HANDLE hKey)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_VerifyRecoverInit(hSession,
@@ -852,7 +852,7 @@ CK_RV DLL_EXPORTED C_VerifyRecover(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pSign
                                    CK_ULONG ulSignatureLen, CK_BYTE_PTR pData,
                                    CK_ULONG_PTR pulDataLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_VerifyRecover(hSession, pSignature,
@@ -865,7 +865,7 @@ CK_RV DLL_EXPORTED C_DigestEncryptUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR
                                          CK_ULONG ulPartLen, CK_BYTE_PTR pEncryptedPart,
                                          CK_ULONG_PTR pulEncryptedPartLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_DigestEncryptUpdate(hSession, pPart,
@@ -879,7 +879,7 @@ CK_RV DLL_EXPORTED C_DecryptDigestUpdate(CK_SESSION_HANDLE hSession,
                                          CK_ULONG ulEncryptedPartLen,
                                          CK_BYTE_PTR pPart, CK_ULONG_PTR pulPartLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_DecryptDigestUpdate(hSession,
@@ -893,7 +893,7 @@ CK_RV DLL_EXPORTED C_SignEncryptUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR p
                                        CK_ULONG ulPartLen, CK_BYTE_PTR pEncryptedPart,
                                        CK_ULONG_PTR pulEncryptedPartLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_SignEncryptUpdate(hSession, pPart,
@@ -907,7 +907,7 @@ CK_RV DLL_EXPORTED C_DecryptVerifyUpdate(CK_SESSION_HANDLE hSession,
                                          CK_ULONG ulEncryptedPartLen,
                                          CK_BYTE_PTR pPart, CK_ULONG_PTR pulPartLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_DecryptVerifyUpdate(hSession,
@@ -921,7 +921,7 @@ CK_RV DLL_EXPORTED C_GenerateKey(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pM
                                  CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount,
                                  CK_OBJECT_HANDLE_PTR phKey)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GenerateKey(hSession, pMechanism, pTemplate, ulCount, phKey);
@@ -936,7 +936,7 @@ CK_RV DLL_EXPORTED C_GenerateKeyPair(CK_SESSION_HANDLE hSession, CK_MECHANISM_PT
                                      CK_OBJECT_HANDLE_PTR phPublicKey,
                                      CK_OBJECT_HANDLE_PTR phPrivateKey)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GenerateKeyPair(hSession, pMechanism, pPublicKeyTemplate,
@@ -950,7 +950,7 @@ CK_RV DLL_EXPORTED C_WrapKey(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMecha
                              CK_OBJECT_HANDLE hWrappingKey, CK_OBJECT_HANDLE hKey,
                              CK_BYTE_PTR pWrappedKey, CK_ULONG_PTR pulWrappedKeyLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_WrapKey(hSession, pMechanism, hWrappingKey, hKey,
@@ -963,7 +963,7 @@ CK_RV DLL_EXPORTED C_UnwrapKey(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMec
                                CK_ULONG ulWrappedKeyLen, CK_ATTRIBUTE_PTR pTemplate,
                                CK_ULONG ulAttributeCount, CK_OBJECT_HANDLE_PTR phKey)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_UnwrapKey(hSession, pMechanism, hUnwrappingKey, pWrappedKey,
@@ -975,7 +975,7 @@ CK_RV DLL_EXPORTED C_DeriveKey(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMec
                                CK_OBJECT_HANDLE hBaseKey, CK_ATTRIBUTE_PTR pTemplate,
                                CK_ULONG ulAttributeCount, CK_OBJECT_HANDLE_PTR phKey)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_DeriveKey(hSession, pMechanism, hBaseKey,
@@ -986,7 +986,7 @@ CK_RV DLL_EXPORTED C_DeriveKey(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMec
 CK_RV DLL_EXPORTED C_SeedRandom(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pSeed,
                                 CK_ULONG ulSeedLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_SeedRandom(hSession, pSeed, ulSeedLen);
@@ -996,7 +996,7 @@ CK_RV DLL_EXPORTED C_SeedRandom(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pSeed,
 CK_RV DLL_EXPORTED C_GenerateRandom(CK_SESSION_HANDLE hSession, CK_BYTE_PTR RandomData,
                                     CK_ULONG ulRandomLen)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GenerateRandom(hSession, RandomData, ulRandomLen);
@@ -1005,7 +1005,7 @@ CK_RV DLL_EXPORTED C_GenerateRandom(CK_SESSION_HANDLE hSession, CK_BYTE_PTR Rand
 
 CK_RV DLL_EXPORTED C_GetFunctionStatus(CK_SESSION_HANDLE hSession)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_GetFunctionStatus(hSession);
@@ -1014,7 +1014,7 @@ CK_RV DLL_EXPORTED C_GetFunctionStatus(CK_SESSION_HANDLE hSession)
 
 CK_RV DLL_EXPORTED C_CancelFunction(CK_SESSION_HANDLE hSession)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_CancelFunction(hSession);
@@ -1024,7 +1024,7 @@ CK_RV DLL_EXPORTED C_CancelFunction(CK_SESSION_HANDLE hSession)
 CK_RV DLL_EXPORTED C_WaitForSlotEvent(CK_FLAGS flags, CK_SLOT_ID_PTR pSlot,
                                       CK_VOID_PTR pRserved)
 {
-	if (pkcs11 == NULL_PTR) {
+    if (pkcs11_initialized == CK_FALSE) {
         return CKR_CRYPTOKI_NOT_INITIALIZED;
     } else {
         return nss->C_WaitForSlotEvent(flags, pSlot, pRserved);

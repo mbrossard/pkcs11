@@ -130,7 +130,10 @@ int keygen( int argc, char **argv )
         fprintf(stdout, "Generating GOST R34.10-2001 key (%s) in slot %ld\n",
                 gen_param, opt_slot);
         rc = generateGostKeyPair(funcs, h_session, gen_param, opt_label);
-    } else {
+    } else if((strncmp(gen_param, "secp", 4) == 0) ||
+              (strncmp(gen_param, "nistp", 5) == 0) ||
+              (strncmp(gen_param, "prime", 5) == 0) ||
+              (strncmp(gen_param, "ansiX9", 6) == 0)) {
         CK_BBOOL full;
         rc = ecdsaNeedsEcParams(funcs, opt_slot, &full);
         if(rc == CKR_OK) {

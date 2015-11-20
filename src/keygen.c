@@ -142,6 +142,12 @@ int keygen( int argc, char **argv )
                     full ? "EC Parameters" : "Named Curve");
             rc = generateEcdsaKeyPair(funcs, h_session, gen_param, full, opt_label);
         }
+    } else if(strncmp(gen_param, "aes", 3) == 0) {
+        fprintf(stdout, "Generating AES key (%s) in slot %ld\n", gen_param, opt_slot);
+        /* TODO */
+    } else if(strncmp(gen_param, "3des", 4) == 0) {
+        fprintf(stdout, "Generating 3DES key in slot %ld\n", opt_slot);
+        /* TODO */
     }
     
     rc = pkcs11_close(stdout, funcs, h_session);

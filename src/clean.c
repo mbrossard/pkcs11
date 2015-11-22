@@ -108,7 +108,7 @@ int clean( int argc, char **argv )
         { CKA_CLASS, &pkey, sizeof(pkey)}
     };
     CK_OBJECT_HANDLE all_keys[65536];
-    CK_ULONG key_count = 65536;
+    CK_ULONG key_count = sizeof(all_keys) / sizeof(CK_OBJECT_HANDLE);
 
     rc = funcs->C_FindObjectsInit(h_session, search_all, 1);
     if (rc != CKR_OK) {

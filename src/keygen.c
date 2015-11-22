@@ -148,7 +148,7 @@ int keygen( int argc, char **argv )
         if(strcmp(gen_param, "aes256") == 0) {
             size = 256 / 8;
         } else if(strcmp(gen_param, "aes192") == 0) {
-            size = 256 / 8;
+            size = 192 / 8;
         } else if((strcmp(gen_param, "aes128") == 0) ||
                   (strcmp(gen_param, "aes") == 0)) {
             size = 128 / 8;

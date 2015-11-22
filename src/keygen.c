@@ -5,6 +5,7 @@
 #include "config.h"
 #include "common.h"
 #include "crypto.h"
+#include "key.h"
 #include "keypair.h"
 #include "pkcs11_display.h"
 
@@ -144,10 +145,10 @@ int keygen( int argc, char **argv )
         }
     } else if(strncmp(gen_param, "aes", 3) == 0) {
         fprintf(stdout, "Generating AES key (%s) in slot %ld\n", gen_param, opt_slot);
-        /* TODO */
-    } else if(strncmp(gen_param, "3des", 4) == 0) {
+        generateKey(funcs, h_session, CKK_AES, CKM_AES_KEY_GEN, 128 / 8, opt_label);     
+    } else if(strncmp(gen_param, "des3", 4) == 0) {
         fprintf(stdout, "Generating 3DES key in slot %ld\n", opt_slot);
-        /* TODO */
+        generateKey(funcs, h_session, CKK_DES3, CKM_DES3_KEY_GEN, 0, opt_label);
     }
     
     rc = pkcs11_close(stdout, funcs, h_session);

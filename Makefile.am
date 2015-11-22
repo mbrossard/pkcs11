@@ -39,6 +39,7 @@ pkcs11_util_SOURCES = \
 	src/crypto.c \
 	src/info.c \
 	src/init.c \
+	src/key.c \
 	src/keypair.c \
 	src/keygen.c \
 	src/mechanisms.c \
@@ -76,6 +77,8 @@ test: pkcs11-util pkcs11-token.la
 	./pkcs11-util init    $(MODULE_PIN_SLOT)
 	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l rsa2048 -k 2048
 	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l ec256   -k prime256v1
+	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l 3des    -k des3
+	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l aes     -k aes
 	./pkcs11-util request $(MODULE_PIN_SLOT) -l rsa2048 | @OPENSSL_BIN@ req -verify
 	./pkcs11-util certify $(MODULE_PIN_SLOT) -l rsa2048 | @OPENSSL_BIN@ verify
 	if [ "@HAVE_OPENSSL_ECC@" = 1 ] ; then \

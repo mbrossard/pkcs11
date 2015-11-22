@@ -225,6 +225,36 @@ int clean( int argc, char **argv )
 
     }
 
+    pkey = CKO_SECRET_KEY;
+    rc = funcs->C_FindObjectsInit(h_session, search_all, 1);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_FindObjectsInit", rc);
+        return rc;
+    }
+
+    key_count = sizeof(all_keys) / sizeof(CK_OBJECT_HANDLE);
+    rc = funcs->C_FindObjects(h_session, all_keys, key_count, &key_count);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_FindObjects", rc);
+        return rc;
+    }
+
+    rc = funcs->C_FindObjectsFinal(h_session);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_FindObjectsFinal", rc);
+        return rc;
+    }
+
+    fprintf(stdout, "Found %lu secret keys\n", key_count);
+
+    for(i = 0; i < key_count; i++) {
+        rc = funcs->C_DestroyObject(h_session, all_keys[i]);
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_DestroyObject", rc);
+        }
+        destroy += 1;
+    }
+
     if(destroy > 0) {
         fprintf(stdout, "\nDeleted %d objects\n", destroy);
     }

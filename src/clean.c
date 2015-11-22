@@ -208,13 +208,11 @@ int clean( int argc, char **argv )
                     rc = funcs->C_DestroyObject(h_session, all_keys[i]);
                     if (rc != CKR_OK) {
                         show_error(stdout, "C_DestroyObject", rc);
-                        return rc;
                     }
 
                     rc = funcs->C_DestroyObject(h_session, h_pub);
                     if (rc != CKR_OK) {
                         show_error(stdout, "C_DestroyObject", rc);
-                        return rc;
                     }
                     destroy += 2;
                 }

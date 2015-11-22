@@ -144,11 +144,26 @@ int keygen( int argc, char **argv )
             rc = generateEcdsaKeyPair(funcs, h_session, gen_param, full, opt_label);
         }
     } else if(strncmp(gen_param, "aes", 3) == 0) {
+        CK_ULONG size;
+        if(strcmp(gen_param, "aes256") == 0) {
+            size = 256 / 8;
+        } else if(strcmp(gen_param, "aes192") == 0) {
+            size = 256 / 8;
+        } else if((strcmp(gen_param, "aes128") == 0) ||
+                  (strcmp(gen_param, "aes") == 0)) {
+            size = 128 / 8;
+        } else {
+            fprintf(stdout, "Unknown key type '%s'\n", gen_param);
+            return -1;
+        }
         fprintf(stdout, "Generating AES key (%s) in slot %ld\n", gen_param, opt_slot);
-        generateKey(funcs, h_session, CKK_AES, CKM_AES_KEY_GEN, 128 / 8, opt_label);     
+        generateKey(funcs, h_session, CKK_AES, CKM_AES_KEY_GEN, size, opt_label);
     } else if(strncmp(gen_param, "des3", 4) == 0) {
         fprintf(stdout, "Generating 3DES key in slot %ld\n", opt_slot);
         generateKey(funcs, h_session, CKK_DES3, CKM_DES3_KEY_GEN, 0, opt_label);
+    } else {
+        fprintf(stdout, "Unknown key type '%s'\n", gen_param);
+        return -1;
     }
     
     rc = pkcs11_close(stdout, funcs, h_session);

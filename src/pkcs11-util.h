@@ -20,14 +20,13 @@ int objects(int argc, char **argv);
 int slots(int argc, char **argv);
 int ssh(int argc, char **argv);
 
+#ifdef HAVE_OPENSSL
+int certify(int argc, char **argv);
+int extract(int argc, char **argv);
+int request(int argc, char **argv);
 #ifdef HAVE_PTHREAD
 int speed(int argc, char **argv);
 #endif
-
-#ifdef HAVE_OPENSSL
-int certify(int argc, char **argv);
-int request(int argc, char **argv);
-int wrap(int argc, char **argv);
 #endif
 
 #ifdef __cplusplus

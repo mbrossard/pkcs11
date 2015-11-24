@@ -43,10 +43,6 @@ int main(int argc, char **argv)
               !strcmp(argv[1], "--help") ||
               !strcmp(argv[1], "-h")) {
         usage();
-#ifdef HAVE_OPENSSL
-    } else if(!strcmp(argv[1], "certify")) {
-        r = certify(argc - 1, argv + 1);
-#endif
     } else if(!strcmp(argv[1], "clean")) {
         r = clean(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "info")) {
@@ -66,19 +62,19 @@ int main(int argc, char **argv)
             !strcmp(argv[1], "mechs")) {
         r = mechanisms(argc - 1, argv + 1);
 #ifdef HAVE_OPENSSL
+    } else if(!strcmp(argv[1], "certify")) {
+        r = certify(argc - 1, argv + 1);
+    } else if(!strcmp(argv[1], "extract")) {
+        r = extract(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "request")) {
         r = request(argc - 1, argv + 1);
-#endif
 #ifdef HAVE_PTHREAD
     } else if(!strcmp(argv[1], "speed")) {
         r = speed(argc - 1, argv + 1);
 #endif
+#endif
     } else if(!strcmp(argv[1], "ssh")) {
         r = ssh(argc - 1, argv + 1);
-#ifdef HAVE_OPENSSL
-    } else if(!strcmp(argv[1], "wrap")) {
-        r = wrap(argc - 1, argv + 1);
-#endif
     } else {
         usage();
         r = -1;

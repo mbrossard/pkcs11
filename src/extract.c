@@ -34,7 +34,7 @@ static const char *option_help[] = {
     /* "ID of the key to wrap", */
 };
 
-int wrap( int argc, char **argv )
+int extract(int argc, char **argv)
 {
     CK_FUNCTION_LIST *funcs = NULL;
     CK_UTF8CHAR_PTR   opt_pin = NULL;

@@ -13,6 +13,9 @@ void usage()
     printf("Usage: pkcs11-util <command>\nOptions:\n"
            " * help (-h or --help): help message\n"
            " * clean: delete objects\n"
+#ifdef HAVE_OPENSSL
+           " * extract: extract keys\n"
+#endif
            " * info: show module information\n"
            " * init: initialize token\n"
            " * keygen: create keys\n"
@@ -27,9 +30,6 @@ void usage()
            " * speed: performance testing\n"
 #endif
            " * ssh: list SSH keys\n"
-#ifdef HAVE_OPENSSL
-           " * wrap: wrap keys\n"
-#endif
            "\n");
 }
 

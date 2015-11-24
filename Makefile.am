@@ -37,6 +37,7 @@ pkcs11_util_SOURCES = \
 	src/clean.c \
 	src/common.c \
 	src/crypto.c \
+	src/extract.c \
 	src/info.c \
 	src/init.c \
 	src/key.c \
@@ -49,8 +50,7 @@ pkcs11_util_SOURCES = \
 	src/request.c \
 	src/slots.c \
 	src/speed.c \
-	src/ssh.c \
-	src/wrap.c
+	src/ssh.c
 
 pkcs11_util_LDFLAGS = @OPENSSL_LDFLAGS@
 pkcs11_util_LDADD = @OPENSSL_LIBS@

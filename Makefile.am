@@ -47,6 +47,7 @@ pkcs11_util_SOURCES = \
 	src/objects.c \
 	src/pkcs11_display.c \
 	src/pkcs11-util.c \
+	src/random.c \
 	src/request.c \
 	src/slots.c \
 	src/speed.c \

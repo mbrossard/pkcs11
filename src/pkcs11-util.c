@@ -23,6 +23,7 @@ void usage()
            " * [list-]mechanisms: list mechanisms\n"
            " * [list-]objects: list objects\n"
            " * [list-]slots: list slots\n"
+           " * random: get random string\n"
 #ifdef HAVE_OPENSSL
            " * request: create a certificate request\n"
 #endif
@@ -61,6 +62,8 @@ int main(int argc, char **argv)
             !strcmp(argv[1], "mechanisms") ||
             !strcmp(argv[1], "mechs")) {
         r = mechanisms(argc - 1, argv + 1);
+    } else if(!strcmp(argv[1], "random")) {
+        r = random_p11(argc - 1, argv + 1);
 #ifdef HAVE_OPENSSL
     } else if(!strcmp(argv[1], "certify")) {
         r = certify(argc - 1, argv + 1);

@@ -71,7 +71,8 @@ pkcs11_token_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_VISIBILITY)
 
 PIN=Vl0RJlAKiUMf
 MODULE = -m @DEFAULT_PKCS11_MODULE@ -d .
-MODULE_PIN_SLOT = $(MODULE) --pin $(PIN) --slot 2
+SLOT = --slot 2
+MODULE_PIN_SLOT = $(MODULE) --pin $(PIN) $(SLOT)
 
 test: pkcs11-util pkcs11-token.la
 	@rm -f cert8.db key3.db
@@ -95,3 +96,4 @@ test: pkcs11-util pkcs11-token.la
 	./pkcs11-util ssh             $(MODULE_PIN_SLOT)
 	./pkcs11-util extract         $(MODULE_PIN_SLOT)
 	./pkcs11-util clean           $(MODULE_PIN_SLOT) -r
+	./pkcs11-util random          $(MODULE) $(SLOT) -l 512 | @OPENSSL_BIN@ base64

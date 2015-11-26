@@ -37,7 +37,7 @@ int random_p11(int argc, char **argv)
     CK_RV             rc;
     char *opt_module = NULL, *opt_dir = NULL, *opt_out = NULL;
     int long_optind = 0;
-    FILE *out;
+    FILE *out = stdout;
 
     while (1) {
         char c = getopt_long(argc, argv, "d:hl:m:o:s:",
@@ -92,8 +92,6 @@ int random_p11(int argc, char **argv)
                 fprintf(stderr, "Error opening '%s'\n", opt_out);
                 return -1;
             }
-        } else {
-            out = stdout;
         }
 
         rc = funcs->C_OpenSession(pslots[0], flags, NULL, NULL, &h_session);

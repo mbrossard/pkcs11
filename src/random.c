@@ -15,6 +15,7 @@ static const struct option options[] = {
     { "help",               0, 0,           'h' },
     { "directory",          1, 0,           'd' },
     { "length",             1, 0,           'l' },
+    { "output",             1, 0,           'o' },
     { "module",             1, 0,           'm' },
     { "slot",               1, 0,           's' },
     { 0, 0, 0, 0 }
@@ -34,11 +35,12 @@ int random_p11(int argc, char **argv)
     CK_SLOT_ID        *pslots = NULL, opt_slot;
     CK_FUNCTION_LIST  *funcs = NULL;
     CK_RV             rc;
-    char *opt_module = NULL, *opt_dir = NULL;
+    char *opt_module = NULL, *opt_dir = NULL, *opt_out = NULL;
     int long_optind = 0;
+    FILE *out;
 
     while (1) {
-        char c = getopt_long(argc, argv, "d:hl:m:s:",
+        char c = getopt_long(argc, argv, "d:hl:m:o:s:",
                              options, &long_optind);
         if (c == -1)
             break;
@@ -51,6 +53,9 @@ int random_p11(int argc, char **argv)
                 break;
             case 'm':
                 opt_module = optarg;
+                break;
+            case 'o':
+                opt_out = optarg;
                 break;
             case 's':
                 opt_slot = (CK_SLOT_ID) atoi(optarg);
@@ -81,6 +86,16 @@ int random_p11(int argc, char **argv)
         CK_SESSION_HANDLE h_session;
         CK_FLAGS flags = CKF_SERIAL_SESSION;
 
+        if(opt_out) {
+            out = fopen(opt_out, "wb");
+            if(out == NULL) {
+                fprintf(stderr, "Error opening '%s'\n", opt_out);
+                return -1;
+            }
+        } else {
+            out = stdout;
+        }
+
         rc = funcs->C_OpenSession(pslots[0], flags, NULL, NULL, &h_session);
         if (rc != CKR_OK) {
             show_error(stderr, "C_OpenSession", rc);
@@ -92,9 +107,13 @@ int random_p11(int argc, char **argv)
             CK_ULONG l = opt_length;
             l = (l > sizeof(buffer) ? sizeof(buffer) : l);
             rc = funcs->C_GenerateRandom(h_session, buffer, l);
-            fwrite(buffer, l, 1, stdout);
+            fwrite(buffer, l, 1, out);
             opt_length -= l;
         } while (opt_length);
+
+        if(opt_out) {
+            fclose(out);
+        }
     }
 
     rc = funcs->C_Finalize(NULL);

@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
+ */
+
 #include "config.h"
 #include "crypto.h"
 #include "pkcs11_display.h"

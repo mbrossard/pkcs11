@@ -2,13 +2,12 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "config.h"
 #include "common.h"
 #include "pkcs11_display.h"
+
+#include <stdio.h>
+#include <string.h>
 
 CK_RV generateKey(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
                   CK_KEY_TYPE type, CK_ULONG mech, CK_ULONG size,

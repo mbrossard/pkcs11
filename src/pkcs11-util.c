@@ -49,7 +49,7 @@ int main(int argc, char **argv)
     } else if(!strcmp(argv[1], "info")) {
         r = info(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "init")) {
-        r = init_token(argc - 1, argv + 1);
+        r = init_p11(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "keygen")) {
         keygen(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "list-objects") ||

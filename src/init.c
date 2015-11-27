@@ -57,7 +57,7 @@ static CK_RV pkcs11_initialize_db(CK_FUNCTION_LIST_PTR funcs, const char *path)
 }
 
 /* init is a reserved symbol */
-int init_token( int argc, char **argv )
+int init_p11(int argc, char **argv)
 {
     CK_ULONG          nslots, islot;
     CK_SLOT_ID        *pslots = NULL;

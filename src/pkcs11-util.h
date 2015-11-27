@@ -12,7 +12,7 @@ extern "C" {
 #include "config.h"
 
 int clean(int argc, char **argv);
-int init_token(int argc, char **argv);
+int init_p11(int argc, char **argv);
 int keygen(int argc, char **argv);
 int info(int argc, char **argv);
 int mechanisms(int argc, char **argv);

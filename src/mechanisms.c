@@ -95,7 +95,7 @@ int mechanisms(int argc, char **argv)
     if (rc != CKR_OK) {
         return rc;
     }
-    
+
     if(opt_slot != -1) {
         /* TODO: Look in pslots */
         pslots = &opt_slot;

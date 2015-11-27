@@ -175,7 +175,7 @@ int clean( int argc, char **argv )
             };
             CK_OBJECT_HANDLE h_pub;
             CK_ULONG pub_count = 1;
-            
+
             fprintf(stdout, "Didn't find matching certificate. Now looking for public key.\n");
 
             rc = funcs->C_FindObjectsInit(h_session, search_pub, 2);
@@ -204,7 +204,7 @@ int clean( int argc, char **argv )
                            all_keys[i], h_pub);
                 } else {
                     fprintf(stdout, "Deleting private key and public key with handles 0x%lx 0x%lx\n", all_keys[i], h_pub);
-                    
+
                     rc = funcs->C_DestroyObject(h_session, all_keys[i]);
                     if (rc != CKR_OK) {
                         show_error(stdout, "C_DestroyObject", rc);

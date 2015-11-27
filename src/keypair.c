@@ -362,7 +362,7 @@ CK_RV generateGostKeyPair(CK_FUNCTION_LIST_PTR p11,
     CK_OBJECT_HANDLE hPublicKey, hPrivateKey;
     CK_ATTRIBUTE attrs[1];
 
-    CK_MECHANISM mechanism = { CKM_GOSTR3410_KEY_PAIR_GEN, NULL_PTR, 0 }; 
+    CK_MECHANISM mechanism = { CKM_GOSTR3410_KEY_PAIR_GEN, NULL_PTR, 0 };
     CK_BBOOL t = TRUE;
     CK_BBOOL f = FALSE;
     CK_KEY_TYPE kt = CKK_GOSTR3410;

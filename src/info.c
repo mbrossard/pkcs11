@@ -7,6 +7,7 @@
 #include "pkcs11_display.h"
 
 static char *app_name = "pkcs11-util info";
+
 static const char *option_help[] = {
     "Print this help and exit",
     "Specify the module to load",

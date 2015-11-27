@@ -165,7 +165,7 @@ int keygen( int argc, char **argv )
         fprintf(stdout, "Unknown key type '%s'\n", gen_param);
         return -1;
     }
-    
+
     rc = pkcs11_close(stdout, funcs, h_session);
     return rc;
 }

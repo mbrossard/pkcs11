@@ -59,7 +59,7 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list(const char *param)
     const char        *e = param ? param : getenv("PKCS11_LIBRARY");
     e = e ? e : DEFAULT_PKCSLIB;
 
-    d = LoadLibrary(e);    
+    d = LoadLibrary(e);
     if (d == NULL) {
         fprintf(stdout, "LoadLibrary Failed\n");
         return NULL;
@@ -131,7 +131,7 @@ CK_RV pkcs11_initialize_nss(CK_FUNCTION_LIST_PTR funcs, const char *path)
         ia.flags = CKF_OS_LOCKING_OK;
         ia.LibraryParameters = (CK_CHAR_PTR)buffer;
         ia.pReserved = NULL_PTR;
- 
+
         if(path) {
             snprintf(buffer, 256, nss_init_string, path);
         } else if((z = getenv("NSS_INIT"))) {
@@ -363,7 +363,7 @@ CK_RV pkcs11_close(FILE *err, CK_FUNCTION_LIST_PTR funcs, CK_SESSION_HANDLE h_se
         show_error(err, "C_Logout", rc);
         return rc;
     }
-    
+
     rc = funcs->C_CloseSession(h_session);
     if (rc != CKR_OK) {
         show_error(err, "C_CloseSession", rc);

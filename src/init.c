@@ -33,7 +33,7 @@ static CK_RV pkcs11_initialize_db(CK_FUNCTION_LIST_PTR funcs, const char *path)
 {
     CK_RV rc = CKR_HOST_MEMORY;
     static const char *nss_init_string = "configdir='%s' certPrefix='' keyPrefix='' secmod='secmod.db'";
-    
+
     char buffer[256];
     CK_C_INITIALIZE_ARGS *iap = NULL;
     struct {
@@ -45,7 +45,7 @@ static CK_RV pkcs11_initialize_db(CK_FUNCTION_LIST_PTR funcs, const char *path)
         CK_CHAR_PTR LibraryParameters;
         CK_VOID_PTR pReserved;
     } ia;
-    
+
     iap = (CK_C_INITIALIZE_ARGS *)&ia;
     ia.flags = CKF_OS_LOCKING_OK;
     ia.LibraryParameters = (CK_CHAR_PTR)buffer;

@@ -32,7 +32,6 @@ CK_RV generateKey(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
     };
     CK_ATTRIBUTE att[1];
 
-
 	if(!p11) {
         goto done;
     }

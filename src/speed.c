@@ -91,7 +91,7 @@ void *do_sign(void *arg)
     pthread_exit(NULL);
 }
 
-int speed( int argc, char **argv )
+int speed(int argc, char **argv)
 {
     CK_UTF8CHAR_PTR   opt_pin = NULL;
     char             *opt_label = NULL;
@@ -199,7 +199,7 @@ int speed( int argc, char **argv )
     }
 
     for (i = 0; i < threads; i++) {
-        rc = pthread_create( &(work[i].thread), &pattr, do_sign, (void *) &(work[i]));
+        rc = pthread_create(&(work[i].thread), &pattr, do_sign, (void *) &(work[i]));
     }
 
     /* Wait until all threads are ready */

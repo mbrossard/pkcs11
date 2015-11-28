@@ -743,7 +743,7 @@ const char *lookup_enum_spec(enum_spec *spec, CK_ULONG value)
 const char *lookup_enum(CK_ULONG type, CK_ULONG value)
 {
     CK_ULONG i;
-    for(i = 0; ck_types[i].type < ( sizeof(ck_types) / sizeof(enum_spec) ) ; i++) {
+    for(i = 0; ck_types[i].type < (sizeof(ck_types) / sizeof(enum_spec)) ; i++) {
         if(ck_types[i].type == type) {
             return lookup_enum_spec(&(ck_types[i]), value);
         }
@@ -751,9 +751,9 @@ const char *lookup_enum(CK_ULONG type, CK_ULONG value)
     return NULL;
 }
 
-void show_error( FILE *f, char *str, CK_RV rc )
+void show_error(FILE *f, char *str, CK_RV rc)
 {
-    fprintf(f, "%s returned:  %ld %s", str, rc, lookup_enum ( RV_T, rc ));
+    fprintf(f, "%s returned:  %ld %s", str, rc, lookup_enum(RV_T, rc));
     fprintf(f, "\n");
 }
 
@@ -990,7 +990,7 @@ int print_object_info(CK_FUNCTION_LIST *funcs, FILE *f, CK_ULONG j,
         attribute.pValue = NULL;
         attribute.ulValueLen = 0;
 
-        rc = funcs->C_GetAttributeValue( h_session, obj, &attribute, 1);
+        rc = funcs->C_GetAttributeValue(h_session, obj, &attribute, 1);
         if ((rc == CKR_OK) && ((CK_LONG)attribute.ulValueLen != -1)) {
             attribute.pValue = (CK_VOID_PTR) malloc(attribute.ulValueLen);
 

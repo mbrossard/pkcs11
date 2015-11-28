@@ -35,7 +35,7 @@ static const char *option_help[] = {
     "Label to set",
 };
 
-int keygen( int argc, char **argv )
+int keygen(int argc, char **argv)
 {
     CK_ULONG          nslots, keysize;
     CK_SLOT_ID        *pslots = NULL;

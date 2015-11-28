@@ -40,7 +40,7 @@ static const char *option_help[] = {
     "Specify the directory for NSS database",
 };
 
-int request( int argc, char **argv )
+int request(int argc, char **argv)
 {
     CK_FUNCTION_LIST *funcs = NULL;
     CK_SLOT_ID       *pslots = NULL;

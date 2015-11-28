@@ -2,11 +2,11 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
+#include "pkcs11-util.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "pkcs11-util.h"
 
 void usage()
 {

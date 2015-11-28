@@ -285,7 +285,7 @@ CK_RV DLL_EXPORTED C_Initialize(CK_VOID_PTR pInitArgs)
         } else {
             snprintf(buffer, 256, nss_init_string, ".");
         }
-        rv = nss->C_Initialize( (CK_VOID_PTR)iap );
+        rv = nss->C_Initialize((CK_VOID_PTR)iap);
         pkcs11_initialized = CK_TRUE;
     }
     return rv;

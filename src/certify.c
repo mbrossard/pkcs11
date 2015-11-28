@@ -40,7 +40,7 @@ static const char *option_help[] = {
     "Reduce amount of information printed",
 };
 
-int certify( int argc, char **argv )
+int certify(int argc, char **argv)
 {
     CK_FUNCTION_LIST *funcs = NULL;
     CK_SLOT_ID       *pslots = NULL;

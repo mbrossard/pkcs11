@@ -33,12 +33,12 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list(const char *param)
     e = e ? e : DEFAULT_PKCSLIB;
 
     d = dlopen(e, RTLD_LAZY);
-    if (d == NULL ) {
+    if (d == NULL) {
         fprintf(stdout, "dlopen('%s') failed\n", e);
         return NULL;
     }
     *(void **) (&get_fun) = dlsym(d, "C_GetFunctionList");
-    if (get_fun == NULL ) {
+    if (get_fun == NULL) {
         fprintf(stdout, "Symbol lookup failed\n");
         return NULL;
     }
@@ -83,7 +83,7 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list(const char *param)
     /* Look-up C_GetFunctionList and use it to get all functions */
     CK_RV            (*get_fun)();
     get_fun = (CK_RV (*)())GetProcAddress(d, "C_GetFunctionList");
-    if (get_fun == NULL ) {
+    if (get_fun == NULL) {
         fprintf(stdout, "Symbol lookup failed\n");
         return NULL;
     }

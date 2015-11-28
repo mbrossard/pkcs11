@@ -31,7 +31,7 @@ static const char *option_help[] = {
 
 static CK_FUNCTION_LIST *funcs = NULL;
 
-int clean( int argc, char **argv )
+int clean(int argc, char **argv)
 {
     CK_UTF8CHAR_PTR   opt_pin = NULL;
     CK_ULONG          opt_pin_len = 0;

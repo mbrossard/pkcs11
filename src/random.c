@@ -28,6 +28,7 @@ static const char *option_help[] = {
     "Specify number of the slot to use",
 };
 
+/* random is a reserved symbol */
 int random_p11(int argc, char **argv)
 {
     CK_ULONG          nslots, opt_length;

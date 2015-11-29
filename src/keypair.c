@@ -88,7 +88,7 @@ CK_RV generateRsaKeyPair(CK_FUNCTION_LIST_PTR p11,
 
     if((rv = p11->C_GenerateKeyPair
         (session, &mechanism, publicKeyTemplate, 8,
-         privateKeyTemplate, 8, &hPublicKey, &hPrivateKey)) != CKR_OK ) {
+         privateKeyTemplate, 8, &hPublicKey, &hPrivateKey)) != CKR_OK) {
         show_error(stdout, "C_GenerateKeyPair", rv);
         goto done;
     }
@@ -284,7 +284,7 @@ CK_RV generateEcdsaKeyPair(CK_FUNCTION_LIST_PTR p11,
 
     if((rv = p11->C_GenerateKeyPair
         (session, &mechanism, pubTemplate, 2,
-         privTemplate, 4, &hPublicKey, &hPrivateKey)) != CKR_OK ) {
+         privTemplate, 4, &hPublicKey, &hPrivateKey)) != CKR_OK) {
         show_error(stdout, "C_GenerateKeyPair", rv);
         goto done;
     }
@@ -414,7 +414,7 @@ CK_RV generateGostKeyPair(CK_FUNCTION_LIST_PTR p11,
 
     if((rv = p11->C_GenerateKeyPair
         (session, &mechanism, pubTemplate, 6,
-         privTemplate, 8, &hPublicKey, &hPrivateKey)) != CKR_OK ) {
+         privTemplate, 8, &hPublicKey, &hPrivateKey)) != CKR_OK) {
         show_error(stdout, "C_GenerateKeyPair", rv);
         goto done;
     }

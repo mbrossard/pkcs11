@@ -89,7 +89,7 @@ void find_x509(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE h_session,
 
     if(k == 1) {
         fillAttribute(&crt_get, CKA_VALUE, crt, sizeof(crt));
-        rc = funcs->C_GetAttributeValue( h_session, crto, &crt_get, 1);
+        rc = funcs->C_GetAttributeValue(h_session, crto, &crt_get, 1);
         if (rc != CKR_OK) {
             show_error(stdout, "C_GetAttributeValue", rc);
             goto done;
@@ -153,7 +153,7 @@ int do_list_rsa_ssh_keys(CK_FUNCTION_LIST *funcs,
             fillAttribute(&(aid[1]), CKA_PUBLIC_EXPONENT, e, sizeof(e));
             fillAttribute(&(aid[2]), CKA_MODULUS, n, sizeof(n));
 
-            rc = funcs->C_GetAttributeValue( h_session, obj[j], aid, 3);
+            rc = funcs->C_GetAttributeValue(h_session, obj[j], aid, 3);
             if (rc != CKR_OK) {
                 continue;
                 show_error(stdout, "C_GetAttributeValue", rc);

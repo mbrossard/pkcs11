@@ -2,16 +2,13 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
-#include "pkcs11-util.h"
+#include "config.h"
 
 #ifdef HAVE_PTHREAD
 #include "common.h"
 #include "pkcs11_display.h"
 
 #include <string.h>
-#include <getopt.h>
-#include <stdio.h>
-
 #include <unistd.h>
 #include <pthread.h>
 #include <sys/time.h>

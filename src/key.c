@@ -6,7 +6,6 @@
 #include "common.h"
 #include "pkcs11_display.h"
 
-#include <stdio.h>
 #include <string.h>
 
 CK_RV generateKey(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,

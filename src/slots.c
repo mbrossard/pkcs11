@@ -3,7 +3,6 @@
  */
 
 #include "config.h"
-#include "crypto.h"
 #include "common.h"
 #include "pkcs11_display.h"
 

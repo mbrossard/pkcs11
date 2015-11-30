@@ -2,10 +2,13 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
+#include "config.h"
+#include "common.h"
+#include "pkcs11_display.h"
+
 #ifdef HAVE_OPENSSL
 #include <openssl/x509.h>
 #endif
-#include "pkcs11_display.h"
 
 /* Historical Netscape */
 #define CKM_NETSCAPE_PBE_SHA1_DES_CBC         0x80000002
@@ -726,8 +729,6 @@ type_spec ck_attribute_specs[] = {
 };
 
 CK_ULONG ck_attribute_num = sizeof(ck_attribute_specs)/sizeof(type_spec);
-
-#include <stdio.h>
 
 const char *lookup_enum_spec(enum_spec *spec, CK_ULONG value)
 {

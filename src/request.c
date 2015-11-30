@@ -2,7 +2,7 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
-#include "pkcs11-util.h"
+#include "config.h"
 
 #ifdef HAVE_OPENSSL
 

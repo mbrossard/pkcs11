@@ -2,13 +2,12 @@
  * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "config.h"
 #include "common.h"
 #include "pkcs11_display.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef HAVE_OPENSSL
 #include <openssl/evp.h>

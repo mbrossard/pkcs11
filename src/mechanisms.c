@@ -3,8 +3,8 @@
  */
 
 #include "config.h"
-#include "crypto.h"
 #include "common.h"
+#include "crypto.h"
 #include "pkcs11_display.h"
 
 int do_GetTokenMech(CK_FUNCTION_LIST *funcs,

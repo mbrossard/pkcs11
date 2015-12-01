@@ -76,19 +76,19 @@ void find_x509(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE h_session,
     rc = funcs->C_FindObjectsInit(h_session, crt_search, 2);
     if (rc != CKR_OK) {
         show_error(stdout, "C_FindObjectsInit", rc);
-        goto done;
+        return;
     }
         
     rc = funcs->C_FindObjects(h_session, &crto, 1, &k);
     if (rc != CKR_OK) {
         show_error(stdout, "C_FindObjects", rc);
-        goto done;
+        return;
     }
 
     rc = funcs->C_FindObjectsFinal(h_session);
     if (rc != CKR_OK) {
         show_error(stdout, "C_FindObjectsFinal", rc);
-        goto done;
+        return;
     }
 
     if(k == 1) {
@@ -96,13 +96,10 @@ void find_x509(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE h_session,
         rc = funcs->C_GetAttributeValue(h_session, crto, &crt_get, 1);
         if (rc != CKR_OK) {
             show_error(stdout, "C_GetAttributeValue", rc);
-            goto done;
+            return;
         }
         dump_x509(crt, crt_get.ulValueLen, stdout);
     }
-
- done:
-    return;
 }
 #endif
 

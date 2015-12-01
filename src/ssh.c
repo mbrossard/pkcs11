@@ -16,43 +16,47 @@
 #include <openssl/sha.h>
 #include <openssl/bn.h>
 
-void dump_x509(unsigned char *crt, unsigned int len)
+void dump_x509(unsigned char *crt, unsigned int len, FILE *out)
 {
+    int flags = XN_FLAG_RFC2253;
+    X509_EXTENSION *ext; 
+    BIGNUM *bn;
     X509 *x509;
+    BIO *bio;
     unsigned char *p = crt;
     x509 = d2i_X509(NULL, (const unsigned char **)&p, len);
-    if(x509) {
-        int flags =  XN_FLAG_RFC2253;
-        BIO *bio = BIO_new(BIO_s_file());
-        X509_EXTENSION *ext; 
-        BIO_set_fp(bio, stdout, BIO_NOCLOSE);
-        fprintf(stdout, "Subject: ");
-        X509_NAME_print_ex(bio, X509_get_subject_name(x509), 0, flags);
-        fprintf(stdout, "\nIssuer: ");
-        X509_NAME_print_ex(bio, X509_get_issuer_name(x509), 0, flags);
-        fprintf(stdout, "\nSerial Number: ");
-        BIGNUM *bn = ASN1_INTEGER_to_BN(X509_get_serialNumber(x509), NULL);
-        BN_print(bio, bn);
-        BN_free(bn);
-        fprintf(stdout, "\nValidity: ");
-        ASN1_TIME_print(bio, X509_get_notBefore(x509));
-        fprintf(stdout, " to ");
-        ASN1_TIME_print(bio, X509_get_notAfter(x509));
-
-        ext = X509_get_ext(x509, X509_get_ext_by_NID(x509, NID_key_usage, 0));
-        if(ext) {
-            fprintf(stdout, "\nKey Usage: ");
-            X509V3_EXT_print(bio, ext, 0, 0);
-        }
-        ext = X509_get_ext(x509, X509_get_ext_by_NID(x509, NID_ext_key_usage, 0));
-        if(ext) {
-            fprintf(stdout, "\nExtended Key Usage: ");
-            X509V3_EXT_print(bio, ext, 0, 0);
-        }
-        
-        fprintf(stdout, "\n");
-        BIO_free(bio);
+    if(x509 == NULL) {
+        return;
     }
+ 
+    bio = BIO_new(BIO_s_file());
+    BIO_set_fp(bio, out, BIO_NOCLOSE);
+    fprintf(out, "Subject: ");
+    X509_NAME_print_ex(bio, X509_get_subject_name(x509), 0, flags);
+    fprintf(out, "\nIssuer: ");
+    X509_NAME_print_ex(bio, X509_get_issuer_name(x509), 0, flags);
+    fprintf(out, "\nSerial Number: ");
+    bn = ASN1_INTEGER_to_BN(X509_get_serialNumber(x509), NULL);
+    BN_print(bio, bn);
+    BN_free(bn);
+    fprintf(out, "\nValidity: ");
+    ASN1_TIME_print(bio, X509_get_notBefore(x509));
+    fprintf(out, " to ");
+    ASN1_TIME_print(bio, X509_get_notAfter(x509));
+    
+    ext = X509_get_ext(x509, X509_get_ext_by_NID(x509, NID_key_usage, 0));
+    if(ext) {
+        fprintf(out, "\nKey Usage: ");
+        X509V3_EXT_print(bio, ext, 0, 0);
+    }
+    ext = X509_get_ext(x509, X509_get_ext_by_NID(x509, NID_ext_key_usage, 0));
+    if(ext) {
+        fprintf(out, "\nExtended Key Usage: ");
+        X509V3_EXT_print(bio, ext, 0, 0);
+    }
+    
+    fprintf(out, "\n");
+    BIO_free(bio);
 }
 
 void find_x509(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE h_session,
@@ -94,7 +98,7 @@ void find_x509(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE h_session,
             show_error(stdout, "C_GetAttributeValue", rc);
             goto done;
         }
-        dump_x509(crt, crt_get.ulValueLen);
+        dump_x509(crt, crt_get.ulValueLen, stdout);
     }
 
  done:

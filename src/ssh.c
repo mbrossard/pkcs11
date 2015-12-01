@@ -157,9 +157,6 @@ int do_list_rsa_ssh_keys(CK_FUNCTION_LIST *funcs,
             rc = funcs->C_GetAttributeValue(h_session, obj[j], aid, 3);
             if (rc != CKR_OK) {
                 continue;
-                show_error(stdout, "C_GetAttributeValue", rc);
-                rc = FALSE;
-                goto done;
             }
 
             rawl = ssh_dump(raw, (CK_BYTE *)"ssh-rsa", 7);
@@ -176,7 +173,6 @@ int do_list_rsa_ssh_keys(CK_FUNCTION_LIST *funcs,
         }
     }
 
- done:
     return rc;
 }
 

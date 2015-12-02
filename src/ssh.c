@@ -199,12 +199,9 @@ int do_list_ecdsa_ssh_keys(CK_FUNCTION_LIST *funcs,
     fillAttribute(&(search[1]), CKA_KEY_TYPE, &kt, sizeof(kt));
 
     rc = pkcs11_find_object(funcs, stdout, h_session, search, 2, obj,
-                            sizeof(obj)/sizeof(CK_OBJECT_HANDLE), &i);
-    if (rc != CKR_OK) {
-        goto done;
-    }
-    if(i == 0) {
-        goto done;
+                            sizeof(obj) / sizeof(CK_OBJECT_HANDLE), &i);
+    if ((rc != CKR_OK) || (i == 0)) {
+        return rc;
     }
 
     fprintf(stdout, "Found: %ld EC keys\n", i);
@@ -276,7 +273,6 @@ int do_list_ecdsa_ssh_keys(CK_FUNCTION_LIST *funcs,
 #endif
     }
 
- done:
     return rc;
 }
 

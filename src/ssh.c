@@ -236,6 +236,7 @@ int do_list_ecdsa_ssh_keys(CK_FUNCTION_LIST *funcs,
             ecpsize = 133;
         } else {
             fprintf(stdout, "Unknown EC key parameters\n");
+            continue;
         }
 
         fillAttribute(&(aid[1]), CKA_KEY_TYPE, &kt, sizeof(kt));

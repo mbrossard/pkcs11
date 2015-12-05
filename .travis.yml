@@ -36,6 +36,9 @@ matrix:
     compiler: clang
     osx_image: xcode7.1
   - os: osx
+    compiler: clang
+    osx_image: xcode7.2b3
+  - os: osx
     env: INSTALL=gcc5
     compiler: gcc-5
 

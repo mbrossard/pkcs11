@@ -31,7 +31,7 @@ static const char *option_help[] = {
 /* random is a reserved symbol */
 int random_p11(int argc, char **argv)
 {
-    CK_ULONG          nslots, opt_length;
+    CK_ULONG          nslots, opt_length = 0;
     CK_SLOT_ID        *pslots = NULL, opt_slot;
     CK_FUNCTION_LIST  *funcs = NULL;
     CK_RV             rc;

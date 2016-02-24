@@ -57,6 +57,8 @@ pkcs11_util_LDFLAGS = @OPENSSL_LDFLAGS@
 pkcs11_util_LDADD = @OPENSSL_LIBS@
 
 pkcs11d_SOURCES = \
+	src/dictionary.c \
+	src/iniparser.c \
 	src/pkcs11d.c \
 	src/pkcs11_display.c
 

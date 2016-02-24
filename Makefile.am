@@ -29,7 +29,7 @@ AM_CFLAGS = @OPENSSL_INCLUDES@ \
 	-ffunction-sections \
 	-fdata-sections
 
-bin_PROGRAMS = pkcs11-util
+bin_PROGRAMS = pkcs11-util pkcs11d
 
 pkcs11_util_SOURCES = \
 	src/base64.c \

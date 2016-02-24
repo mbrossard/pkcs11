@@ -56,6 +56,9 @@ pkcs11_util_SOURCES = \
 pkcs11_util_LDFLAGS = @OPENSSL_LDFLAGS@
 pkcs11_util_LDADD = @OPENSSL_LIBS@
 
+pkcs11d_SOURCES = \
+	src/pkcs11d.c \
+
 lib_LTLIBRARIES = pkcs11-token.la
 
 pkcs11_token_la_SOURCES = \

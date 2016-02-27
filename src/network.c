@@ -26,6 +26,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+#include "network.h"
+
 #include <strings.h>
 #include <string.h>
 #include <stdlib.h>
@@ -33,8 +36,6 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
-
-#include "network.h"
 
 #ifndef UNIX_PATH_MAX
 #define UNIX_PATH_MAX 108

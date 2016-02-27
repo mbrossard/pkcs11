@@ -141,7 +141,7 @@ int nw_tcp_client(const char *host, int port, struct sockaddr_in *inetaddr)
 
     inetaddr->sin_family = AF_INET;
     inetaddr->sin_port = htons(port);
-    inetaddr->sin_addr.s_addr = ((struct in_addr *)ent->h_addr)->s_addr;
+    inetaddr->sin_addr.s_addr = ((struct in_addr *)ent->h_addr_list[0])->s_addr;
     if(connect(fd, (struct sockaddr *)inetaddr,
                sizeof(struct sockaddr_in)) < 0) {
         close(fd);

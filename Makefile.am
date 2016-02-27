@@ -82,6 +82,10 @@ pkcs11_token_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_VISIBILITY)
 libpkcs11d_la_SOURCES = \
 	src/libpkcs11d.c
 
+libpkcs11d_la_LDFLAGS = \
+	-version-info @VERSION_INFO@ \
+	-avoid-version -module -no-undefined
+
 PIN=Vl0RJlAKiUMf
 MODULE = -m @DEFAULT_PKCS11_MODULE@ -d .
 SLOT = --slot 2

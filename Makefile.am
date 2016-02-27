@@ -66,7 +66,7 @@ pkcs11d_SOURCES = \
 pkcs11d_LDFLAGS = @OPENSSL_LDFLAGS@
 pkcs11d_LDADD = @OPENSSL_LIBS@
 
-lib_LTLIBRARIES = pkcs11-token.la
+lib_LTLIBRARIES = pkcs11-token.la libpkcs11d.la
 
 pkcs11_token_la_SOURCES = \
 	src/cryptoki.c \
@@ -78,6 +78,9 @@ pkcs11_token_la_LDFLAGS = \
 	-avoid-version -module -no-undefined
 
 pkcs11_token_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_VISIBILITY)
+
+libpkcs11d_la_SOURCES = \
+	src/libpkcs11d.c
 
 PIN=Vl0RJlAKiUMf
 MODULE = -m @DEFAULT_PKCS11_MODULE@ -d .

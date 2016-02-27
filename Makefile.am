@@ -84,7 +84,10 @@ libpkcs11d_la_SOURCES = \
 
 libpkcs11d_la_LDFLAGS = \
 	-version-info @VERSION_INFO@ \
-	-avoid-version -module -no-undefined
+	-avoid-version -module -no-undefined \
+	@OPENSSL_LDFLAGS@
+
+libpkcs11d_la_LIBADD = @OPENSSL_LIBS@
 
 PIN=Vl0RJlAKiUMf
 MODULE = -m @DEFAULT_PKCS11_MODULE@ -d .

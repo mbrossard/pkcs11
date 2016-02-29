@@ -18,6 +18,12 @@ static int engine_destroy(ENGINE * engine)
 	return 1;
 }
 
+static int engine_finish(ENGINE * engine)
+{
+	(void)engine;
+	return 1;
+}
+
 static int bind_fn(ENGINE * e, const char *id)
 {
 	if (id && (strcmp(id, ENGINE_ID) != 0)) {
@@ -27,7 +33,8 @@ static int bind_fn(ENGINE * e, const char *id)
     if (!ENGINE_set_id(e, ENGINE_ID) ||
         !ENGINE_set_name(e, ENGINE_NAME) ||
         !ENGINE_set_init_function(e, engine_init) ||
-        !ENGINE_set_destroy_function(e, engine_destroy)) {
+        !ENGINE_set_destroy_function(e, engine_destroy) ||
+        !ENGINE_set_finish_function(e, engine_finish)) {
 		fprintf(stderr, "Error setting engine functions\n");
 		return 0;
 	}

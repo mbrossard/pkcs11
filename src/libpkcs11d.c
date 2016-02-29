@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include <openssl/engine.h>
+#include <openssl/evp.h>
 
 #define ENGINE_ID   "pkcs11d"
 #define ENGINE_NAME "pkcs11d"
@@ -34,6 +35,12 @@ static int engine_ctrl(ENGINE * e, int cmd, long i, void *p, void (*f) ())
 	return 0;
 }
 
+EVP_PKEY *engine_load_private_key(ENGINE * e, const char *s_key_id,
+                                  UI_METHOD * ui_method, void *callback_data)
+{
+    return NULL;
+}
+
 static int bind_fn(ENGINE * e, const char *id)
 {
 	if (id && (strcmp(id, ENGINE_ID) != 0)) {
@@ -45,7 +52,8 @@ static int bind_fn(ENGINE * e, const char *id)
         !ENGINE_set_init_function(e, engine_init) ||
         !ENGINE_set_destroy_function(e, engine_destroy) ||
         !ENGINE_set_finish_function(e, engine_finish) ||
-        !ENGINE_set_ctrl_function(e, engine_ctrl)) {
+        !ENGINE_set_ctrl_function(e, engine_ctrl) ||
+        !ENGINE_set_load_privkey_function(e, engine_load_private_key)) {
 		fprintf(stderr, "Error setting engine functions\n");
 		return 0;
 	}

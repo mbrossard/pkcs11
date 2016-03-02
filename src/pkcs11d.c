@@ -23,8 +23,37 @@ static const char *option_help[] = {
 
 int main(int argc, char **argv)
 {
+    CK_UTF8CHAR_PTR   opt_pin = NULL;
+    CK_ULONG          opt_pin_len = 0;
+    CK_ULONG          opt_slot = -1;
+    char *opt_module = NULL;
     struct sockaddr_un sockaddr;
+    int long_optind = 0;
     int fd;
+    while (1) {
+        char c = getopt_long(argc, argv, "hp:s:m:",
+                             options, &long_optind);
+        if (c == -1)
+            break;
+        switch (c) {
+            case 'p':
+                opt_pin = (CK_UTF8CHAR_PTR) strdup(optarg);
+                if(opt_pin) {
+                    opt_pin_len = strlen(optarg);
+                }
+                break;
+            case 's':
+                opt_slot = (CK_SLOT_ID) atoi(optarg);
+                break;
+            case 'm':
+                opt_module = optarg;
+                break;
+            case 'h':
+            default:
+                print_usage_and_die(app_name, options, option_help);
+        }
+    }
+
     fd = nw_unix_server("pkcs11d.sock", &sockaddr, 0, 0, 0, 64);
     close(fd);
     fd = nw_tcp_server(1234, 0, 64);

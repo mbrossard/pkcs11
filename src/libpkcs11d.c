@@ -36,6 +36,10 @@ static int engine_ctrl(ENGINE * e, int cmd, long i, void *p, void (*f) ())
 	return 0;
 }
 
+static const ENGINE_CMD_DEFN engine_cmd_defns[] = {
+	{0, NULL, NULL, 0}
+};
+
 static RSA_METHOD *engine_rsa_method(void)
 {
     return NULL;
@@ -59,6 +63,7 @@ static int bind_fn(ENGINE * e, const char *id)
         !ENGINE_set_destroy_function(e, engine_destroy) ||
         !ENGINE_set_finish_function(e, engine_finish) ||
         !ENGINE_set_ctrl_function(e, engine_ctrl) ||
+        !ENGINE_set_cmd_defns(e, engine_cmd_defns) ||
 #ifndef OPENSSL_NO_RSA
         !ENGINE_set_RSA(e, engine_rsa_method()) ||
 #endif

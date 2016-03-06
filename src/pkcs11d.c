@@ -24,8 +24,10 @@ static const char *option_help[] = {
 
 int main(int argc, char **argv)
 {
+    CK_FUNCTION_LIST  *funcs = NULL;
     CK_UTF8CHAR_PTR   opt_pin = NULL;
     CK_ULONG          opt_pin_len = 0;
+    CK_RV             rc;
     CK_ULONG          opt_slot = -1;
     char *opt_module = NULL;
     struct sockaddr_un sockaddr;
@@ -72,4 +74,9 @@ int main(int argc, char **argv)
     } while(1);
 
     close(fd);
+
+    rc = pkcs11_load_init(opt_module, NULL, stdout, &funcs);
+    if (rc != CKR_OK) {
+        return rc;
+    }
 }

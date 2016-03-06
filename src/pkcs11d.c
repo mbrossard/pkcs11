@@ -3,6 +3,7 @@
  */
 
 #include "common.h"
+#include "crypto.h"
 #include "network.h"
 static char *app_name = "pkcs11d";
 
@@ -30,6 +31,9 @@ int main(int argc, char **argv)
     struct sockaddr_un sockaddr;
     int long_optind = 0;
     int fd;
+
+    init_crypto();
+
     while (1) {
         char c = getopt_long(argc, argv, "hp:s:m:",
                              options, &long_optind);

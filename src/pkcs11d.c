@@ -24,6 +24,8 @@ static const char *option_help[] = {
 
 int main(int argc, char **argv)
 {
+    CK_ULONG          nslots, islot;
+    CK_SLOT_ID        *pslots = NULL;
     CK_FUNCTION_LIST  *funcs = NULL;
     CK_UTF8CHAR_PTR   opt_pin = NULL;
     CK_ULONG          opt_pin_len = 0;
@@ -76,6 +78,11 @@ int main(int argc, char **argv)
     close(fd);
 
     rc = pkcs11_load_init(opt_module, NULL, stdout, &funcs);
+    if (rc != CKR_OK) {
+        return rc;
+    }
+
+    rc = pkcs11_get_slots(funcs, stdout, &pslots, &nslots);
     if (rc != CKR_OK) {
         return rc;
     }

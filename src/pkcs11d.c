@@ -86,4 +86,6 @@ int main(int argc, char **argv)
     if (rc != CKR_OK) {
         return rc;
     }
+    
+    return rc;
 }

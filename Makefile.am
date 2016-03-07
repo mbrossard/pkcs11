@@ -58,6 +58,7 @@ pkcs11_util_LDADD = @OPENSSL_LIBS@
 
 pkcs11d_SOURCES = \
 	src/common.c \
+	src/crypto.c \
 	src/dictionary.c \
 	src/iniparser.c \
 	src/network.c \

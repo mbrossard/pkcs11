@@ -98,10 +98,7 @@ int main(int argc, char **argv)
 
     close(fd);
 
-    rc = pkcs11_load_init(opt_module, NULL, stdout, &funcs);
-    if (rc != CKR_OK) {
-        return rc;
-    }
+    free(opt_pin);
 
     rc = pkcs11_get_slots(funcs, stdout, &pslots, &nslots);
     if (rc != CKR_OK) {

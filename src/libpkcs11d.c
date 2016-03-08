@@ -10,6 +10,9 @@
 #ifndef OPENSSL_NO_ECDSA
 #include <openssl/ecdsa.h>
 #endif
+#ifndef OPENSSL_NO_ECDH
+#include <openssl/ecdh.h>
+#endif
 
 #define ENGINE_ID   "pkcs11d"
 #define ENGINE_NAME "pkcs11d"
@@ -56,6 +59,11 @@ static ECDSA_METHOD *engine_ecdsa_method(void)
 	return NULL;
 }
 
+static ECDH_METHOD *engine_ecdh_method(void)
+{
+	return NULL;
+}
+
 EVP_PKEY *engine_load_private_key(ENGINE * e, const char *s_key_id,
                                   UI_METHOD * ui_method, void *callback_data)
 {
@@ -81,6 +89,9 @@ static int bind_fn(ENGINE * e, const char *id)
 #ifndef OPENSSL_NO_EC
 #ifndef OPENSSL_NO_ECDSA
         !ENGINE_set_ECDSA(e, engine_ecdsa_method()) ||
+#endif
+#ifndef OPENSSL_NO_ECDH
+        !ENGINE_set_ECDH(e, engine_ecdh_method()) ||
 #endif
 #endif
         !ENGINE_set_load_privkey_function(e, engine_load_private_key)) {

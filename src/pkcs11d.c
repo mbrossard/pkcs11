@@ -67,6 +67,11 @@ int main(int argc, char **argv)
         return rc;
     }
 
+    rc = pkcs11_get_slots(funcs, stdout, &pslots, &nslots);
+    if (rc != CKR_OK) {
+        return rc;
+    }
+
     fd = nw_unix_server("pkcs11d.sock", &sockaddr, 0, 0, 0, 64);
     close(fd);
     fd = nw_tcp_server(1234, 0, 64);

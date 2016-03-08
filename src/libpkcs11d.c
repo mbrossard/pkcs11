@@ -6,12 +6,12 @@
 #include <openssl/rsa.h>
 #ifndef OPENSSL_NO_EC
 #include <openssl/ec.h>
-#endif
 #ifndef OPENSSL_NO_ECDSA
 #include <openssl/ecdsa.h>
 #endif
 #ifndef OPENSSL_NO_ECDH
 #include <openssl/ecdh.h>
+#endif
 #endif
 
 #define ENGINE_ID   "pkcs11d"

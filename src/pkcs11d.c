@@ -5,6 +5,61 @@
 #include "common.h"
 #include "crypto.h"
 #include "network.h"
+
+int list_rsa_objects(CK_FUNCTION_LIST *funcs,
+                     CK_SESSION_HANDLE h_session)
+{
+    CK_RV             rc;
+    CK_ULONG          l;
+    CK_OBJECT_HANDLE *rsa_keys;
+    CK_OBJECT_CLASS   pkey = CKO_PRIVATE_KEY;
+    CK_KEY_TYPE       type = CKK_RSA;
+    CK_ATTRIBUTE search_rsa[2] = {
+        { CKA_CLASS,    &pkey, sizeof(pkey)},
+        { CKA_KEY_TYPE, &type, sizeof(type)     },
+    };
+
+    rc = funcs->C_FindObjectsInit(h_session, search_rsa, 2);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_FindObjectsInit", rc);
+        rc = FALSE;
+        goto done;
+    }
+
+    rc = funcs->C_FindObjects(h_session, NULL, 0, &l);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_FindObjects", rc);
+        rc = FALSE;
+        goto done;
+    }
+
+    rsa_keys = (CK_OBJECT_HANDLE *)malloc(sizeof(CK_OBJECT_HANDLE) * l);
+    if(rsa_keys) {
+        rc = FALSE;
+        goto done;        
+    }
+    
+    rc = funcs->C_FindObjects(h_session, rsa_keys, l, &l);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_FindObjects", rc);
+        rc = FALSE;
+        goto done;
+    }
+
+    rc = funcs->C_FindObjectsFinal(h_session);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_FindObjectsFinal", rc);
+        rc = FALSE;
+        goto done;
+    }
+
+    fprintf(stdout, "Found: %ld objects\n", l);
+    rc = TRUE;
+
+ done:
+    return rc;
+}
+
 static char *app_name = "pkcs11d";
 
 static const struct option options[] = {

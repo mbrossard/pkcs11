@@ -162,7 +162,10 @@ int main(int argc, char **argv)
 
     close(fd);
 
-    free(opt_pin);
+    if(opt_pin) {
+        funcs->C_CloseAllSessions(opt_slot);
+        free(opt_pin);
+    }
 
     rc = funcs->C_Finalize(NULL);
     if (rc != CKR_OK) {

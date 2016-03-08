@@ -79,6 +79,8 @@ int main(int argc, char **argv)
         } else {
             opt_slot = pslots[0];
         }
+    } else {
+        /* Check selected slot is in pslots */
     }
 
     fd = nw_unix_server("pkcs11d.sock", &sockaddr, 0, 0, 0, 64);

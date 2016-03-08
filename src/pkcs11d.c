@@ -62,6 +62,11 @@ int main(int argc, char **argv)
         }
     }
 
+    rc = pkcs11_load_init(opt_module, NULL, stdout, &funcs);
+    if (rc != CKR_OK) {
+        return rc;
+    }
+
     fd = nw_unix_server("pkcs11d.sock", &sockaddr, 0, 0, 0, 64);
     close(fd);
     fd = nw_tcp_server(1234, 0, 64);

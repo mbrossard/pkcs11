@@ -100,8 +100,9 @@ int main(int argc, char **argv)
 
     free(opt_pin);
 
-    rc = pkcs11_get_slots(funcs, stdout, &pslots, &nslots);
+    rc = funcs->C_Finalize(NULL);
     if (rc != CKR_OK) {
+        show_error(stdout, "C_Finalize", rc);
         return rc;
     }
     

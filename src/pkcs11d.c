@@ -72,6 +72,15 @@ int main(int argc, char **argv)
         return rc;
     }
 
+    if(opt_slot != -1) {
+        if(nslots < 1) {
+            /* No slots */
+            return -1;
+        } else {
+            opt_slot = pslots[0];
+        }
+    }
+
     fd = nw_unix_server("pkcs11d.sock", &sockaddr, 0, 0, 0, 64);
     close(fd);
     fd = nw_tcp_server(1234, 0, 64);

@@ -86,6 +86,7 @@ int main(int argc, char **argv)
     CK_ULONG          opt_pin_len = 0;
     CK_RV             rc;
     CK_ULONG          opt_slot = -1;
+    CK_SESSION_HANDLE h_session;
     char *opt_module = NULL;
     struct sockaddr_un sockaddr;
     int long_optind = 0;
@@ -138,6 +139,14 @@ int main(int argc, char **argv)
         /* Check selected slot is in pslots */
     }
 
+    fprintf(stdout, "Slot: %ld\n", opt_slot);
+    rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
+                              CK_TRUE, CKU_USER, opt_pin, opt_pin_len);
+    if (rc != CKR_OK) {
+        show_error(stdout, "Login", rc);
+        return rc;
+    }
+    
     fd = nw_unix_server("pkcs11d.sock", &sockaddr, 0, 0, 0, 64);
     close(fd);
     fd = nw_tcp_server(1234, 0, 64);

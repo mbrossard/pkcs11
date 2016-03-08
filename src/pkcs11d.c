@@ -147,6 +147,8 @@ int main(int argc, char **argv)
         return rc;
     }
     
+    list_rsa_objects(funcs, h_session)
+
     fd = nw_unix_server("pkcs11d.sock", &sockaddr, 0, 0, 0, 64);
     close(fd);
     fd = nw_tcp_server(1234, 0, 64);

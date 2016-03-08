@@ -54,15 +54,21 @@ static RSA_METHOD *engine_rsa_method(void)
     return NULL;
 }
 
+#ifndef OPENSSL_NO_EC
+#ifndef OPENSSL_NO_ECDSA
 static ECDSA_METHOD *engine_ecdsa_method(void)
 {
 	return NULL;
 }
+#endif
 
+#ifndef OPENSSL_NO_ECDH
 static ECDH_METHOD *engine_ecdh_method(void)
 {
 	return NULL;
 }
+#endif
+#endif
 
 EVP_PKEY *engine_load_private_key(ENGINE * e, const char *s_key_id,
                                   UI_METHOD * ui_method, void *callback_data)

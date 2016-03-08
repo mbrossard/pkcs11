@@ -70,6 +70,12 @@ static ECDH_METHOD *engine_ecdh_method(void)
 #endif
 #endif
 
+EVP_PKEY *engine_load_public_key(ENGINE * e, const char *s_key_id,
+                                 UI_METHOD * ui_method, void *callback_data)
+{
+    return NULL;
+}
+
 EVP_PKEY *engine_load_private_key(ENGINE * e, const char *s_key_id,
                                   UI_METHOD * ui_method, void *callback_data)
 {
@@ -100,6 +106,7 @@ static int bind_fn(ENGINE * e, const char *id)
         !ENGINE_set_ECDH(e, engine_ecdh_method()) ||
 #endif
 #endif
+        !ENGINE_set_load_pubkey_function(e, engine_load_public_key) ||
         !ENGINE_set_load_privkey_function(e, engine_load_private_key)) {
 		fprintf(stderr, "Error setting engine functions\n");
 		return 0;

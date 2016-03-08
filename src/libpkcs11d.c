@@ -4,6 +4,12 @@
 #include <openssl/engine.h>
 #include <openssl/evp.h>
 #include <openssl/rsa.h>
+#ifndef OPENSSL_NO_EC
+#include <openssl/ec.h>
+#endif
+#ifndef OPENSSL_NO_ECDSA
+#include <openssl/ecdsa.h>
+#endif
 
 #define ENGINE_ID   "pkcs11d"
 #define ENGINE_NAME "pkcs11d"
@@ -45,6 +51,11 @@ static RSA_METHOD *engine_rsa_method(void)
     return NULL;
 }
 
+static ECDSA_METHOD *engine_ecdsa_method(void)
+{
+	return NULL;
+}
+
 EVP_PKEY *engine_load_private_key(ENGINE * e, const char *s_key_id,
                                   UI_METHOD * ui_method, void *callback_data)
 {
@@ -66,6 +77,11 @@ static int bind_fn(ENGINE * e, const char *id)
         !ENGINE_set_cmd_defns(e, engine_cmd_defns) ||
 #ifndef OPENSSL_NO_RSA
         !ENGINE_set_RSA(e, engine_rsa_method()) ||
+#endif
+#ifndef OPENSSL_NO_EC
+#ifndef OPENSSL_NO_ECDSA
+        !ENGINE_set_ECDSA(e, engine_ecdsa_method()) ||
+#endif
 #endif
         !ENGINE_set_load_privkey_function(e, engine_load_private_key)) {
 		fprintf(stderr, "Error setting engine functions\n");

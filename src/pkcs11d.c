@@ -128,7 +128,7 @@ int main(int argc, char **argv)
         return rc;
     }
 
-    if(opt_slot != -1) {
+    if(opt_slot == -1) {
         if(nslots < 1) {
             /* No slots */
             return -1;

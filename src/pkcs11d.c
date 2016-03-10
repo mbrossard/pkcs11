@@ -67,6 +67,7 @@ static const struct option options[] = {
     { "pin",                1, 0,           'p' },
     { "slot",               1, 0,           's' },
     { "module",             1, 0,           'm' },
+    { "directory",          1, 0,           'd' },
     { 0, 0, 0, 0 }
 };
 
@@ -75,6 +76,7 @@ static const char *option_help[] = {
     "Supply PIN on the command line",
     "Specify number of the slot to use",
     "Specify the module to load",
+    "Specify the directory for NSS database",
 };
 
 int main(int argc, char **argv)
@@ -87,7 +89,7 @@ int main(int argc, char **argv)
     CK_RV             rc;
     CK_ULONG          opt_slot = -1;
     CK_SESSION_HANDLE h_session;
-    char *opt_module = NULL;
+    char *opt_module = NULL, *opt_dir = NULL;
     struct sockaddr_un sockaddr;
     int long_optind = 0;
     int fd;
@@ -95,11 +97,14 @@ int main(int argc, char **argv)
     init_crypto();
 
     while (1) {
-        char c = getopt_long(argc, argv, "hp:s:m:",
+        char c = getopt_long(argc, argv, "d:hp:s:m:",
                              options, &long_optind);
         if (c == -1)
             break;
         switch (c) {
+            case 'd':
+                opt_dir = optarg;
+                break;
             case 'p':
                 opt_pin = (CK_UTF8CHAR_PTR) strdup(optarg);
                 if(opt_pin) {
@@ -118,7 +123,7 @@ int main(int argc, char **argv)
         }
     }
 
-    rc = pkcs11_load_init(opt_module, NULL, stdout, &funcs);
+    rc = pkcs11_load_init(opt_module, opt_dir, stdout, &funcs);
     if (rc != CKR_OK) {
         return rc;
     }

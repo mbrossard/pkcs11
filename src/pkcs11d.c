@@ -22,13 +22,13 @@ int load_keys(CK_FUNCTION_LIST *funcs,
     rc = funcs->C_FindObjectsInit(h_session, search, 2);
     if (rc != CKR_OK) {
         show_error(stdout, "C_FindObjectsInit", rc);
-        goto done;
+        return 1;
     }
 
     rc = funcs->C_FindObjects(h_session, handles, 1024, &l);
     if (rc != CKR_OK) {
         show_error(stdout, "C_FindObjects", rc);
-        goto done;
+        return 1;
     }
 
     rc = funcs->C_FindObjectsFinal(h_session);
@@ -36,7 +36,6 @@ int load_keys(CK_FUNCTION_LIST *funcs,
         show_error(stdout, "C_FindObjectsFinal", rc);
     }
 
- done:
     return 0;
 }
 

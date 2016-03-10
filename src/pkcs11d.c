@@ -36,6 +36,11 @@ int load_keys(CK_FUNCTION_LIST *funcs,
         show_error(stdout, "C_FindObjectsFinal", rc);
     }
 
+    fprintf(stdout, "Found: %ld objects\n", l);
+    for(i = 0; i < l; i++) {
+        print_object_info(funcs, stdout, i, h_session, handles[i]);
+    }
+
     return 0;
 }
 

@@ -5,6 +5,7 @@
 #include "common.h"
 #include "crypto.h"
 #include "network.h"
+#include "pkcs11_display.h"
 
 int load_keys(CK_FUNCTION_LIST *funcs,
               CK_SESSION_HANDLE h_session,

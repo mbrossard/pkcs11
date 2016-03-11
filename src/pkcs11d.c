@@ -63,6 +63,14 @@ int load_keys(CK_FUNCTION_LIST *funcs,
         BIO_free_all(bio);
     }
 
+    if(out) {
+        *out = keys;
+    }
+
+    if(len) {
+        *len = j;
+    }
+
     return 0;
 }
 

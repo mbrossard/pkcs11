@@ -253,6 +253,8 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
                 EC_KEY_free(ecdsa);
                 ecdsa = NULL;
             }
+
+            EC_KEY_set_private_key(ecdsa, BN_value_one());
             
             if(point) {
                 M_ASN1_OCTET_STRING_free(point);

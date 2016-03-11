@@ -59,6 +59,9 @@ int load_keys(CK_FUNCTION_LIST *funcs,
             j += 1;
         }
     }
+    if (bio) {
+        BIO_free_all(bio);
+    }
 
     return 0;
 }

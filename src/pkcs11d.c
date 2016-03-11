@@ -18,6 +18,7 @@ int load_keys(CK_FUNCTION_LIST *funcs,
     CK_RV             rc;
     CK_ULONG          l, i;
     CK_OBJECT_HANDLE  handles[1024];
+    EVP_PKEY        **keys = NULL;
     CK_OBJECT_CLASS   pkey = CKO_PRIVATE_KEY;
     CK_ATTRIBUTE search[2] = {
         { CKA_CLASS,    &pkey, sizeof(pkey)},
@@ -39,6 +40,11 @@ int load_keys(CK_FUNCTION_LIST *funcs,
     rc = funcs->C_FindObjectsFinal(h_session);
     if (rc != CKR_OK) {
         show_error(stdout, "C_FindObjectsFinal", rc);
+    }
+
+    keys = (EVP_PKEY **)calloc(l, sizeof(EVP_PKEY *));
+    if(keys == NULL) {
+        return 1;
     }
 
     fprintf(stdout, "Found: %ld objects\n", l);

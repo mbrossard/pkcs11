@@ -8,6 +8,8 @@
 #include "pkcs11_display.h"
 
 #include <string.h>
+#include <openssl/bio.h>
+#include <openssl/pem.h>
 
 int load_keys(CK_FUNCTION_LIST *funcs,
               CK_SESSION_HANDLE h_session,

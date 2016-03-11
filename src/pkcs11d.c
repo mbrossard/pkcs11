@@ -16,7 +16,7 @@ int load_keys(CK_FUNCTION_LIST *funcs,
               CK_ULONG_PTR      len)
 {
     CK_RV             rc;
-    CK_ULONG          l, i;
+    CK_ULONG          l, i, j = 0;
     CK_OBJECT_HANDLE  handles[1024];
     EVP_PKEY        **keys = NULL;
     CK_OBJECT_CLASS   pkey = CKO_PRIVATE_KEY;
@@ -50,6 +50,10 @@ int load_keys(CK_FUNCTION_LIST *funcs,
     fprintf(stdout, "Found: %ld objects\n", l);
     for(i = 0; i < l; i++) {
         print_object_info(funcs, stdout, i, h_session, handles[i]);
+        keys[j] = load_pkcs11_key(funcs, h_session, handles[i]);
+        if(keys[j]) {
+            j += 1;
+        }
     }
 
     return 0;

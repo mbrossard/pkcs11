@@ -184,6 +184,12 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
                                rsa_attributes[0].ulValueLen, NULL);
             rsa->e = BN_bin2bn(rsa_attributes[1].pValue,
                                rsa_attributes[1].ulValueLen, NULL);
+            rsa->d = BN_dup(BN_value_one());
+            rsa->p = BN_dup(BN_value_one());
+            rsa->q = BN_dup(BN_value_one());
+            rsa->dmp1 = BN_dup(BN_value_one());
+            rsa->dmq1 = BN_dup(BN_value_one());
+            rsa->iqmp = BN_dup(BN_value_one());
 
             if((k = EVP_PKEY_new()) != NULL) {
                 RSA_set_method(rsa, get_pkcs11_rsa_method());

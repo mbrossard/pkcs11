@@ -12,7 +12,7 @@
 int load_keys(CK_FUNCTION_LIST *funcs,
               CK_SESSION_HANDLE h_session,
               CK_KEY_TYPE       type,
-              EVP_PKEY        **out,
+              EVP_PKEY       ***out,
               CK_ULONG_PTR      len)
 {
     CK_RV             rc;

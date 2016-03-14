@@ -69,6 +69,10 @@ int load_keys(CK_FUNCTION_LIST *funcs,
 
     if(out) {
         *out = keys;
+    } else {
+        for(i = 0; i < j; i++) {
+            unload_pkcs11_key(keys[i]);
+        }
     }
 
     if(len) {

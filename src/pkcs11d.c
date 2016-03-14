@@ -57,6 +57,8 @@ int load_keys(CK_FUNCTION_LIST *funcs,
         if(keys[j]) {
             if(type == CKK_RSA) {
                 PEM_write_bio_RSAPrivateKey(bio, EVP_PKEY_get1_RSA(keys[j]), NULL, NULL, 0, NULL, NULL);
+            } if(type == CKK_EC) {
+                PEM_write_bio_ECPrivateKey(bio, EVP_PKEY_get1_EC_KEY(keys[j]), NULL, NULL, 0, NULL, NULL);
             }
             j += 1;
         }
@@ -169,6 +171,7 @@ int main(int argc, char **argv)
     }
     
     load_keys(funcs, h_session, CKK_RSA, NULL, NULL);
+    load_keys(funcs, h_session, CKK_EC, NULL, NULL);
 
     fd = nw_unix_server("pkcs11d.sock", &sockaddr, 0, 0, 0, 64);
     close(fd);

@@ -103,7 +103,7 @@ static const char *option_help[] = {
 
 int main(int argc, char **argv)
 {
-    CK_ULONG          nslots, islot;
+    CK_ULONG          nslots;
     CK_SLOT_ID        *pslots = NULL;
     CK_FUNCTION_LIST  *funcs = NULL;
     CK_UTF8CHAR_PTR   opt_pin = NULL;

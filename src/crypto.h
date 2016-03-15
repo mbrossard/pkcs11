@@ -20,6 +20,7 @@ void init_crypto();
 
 #ifdef HAVE_OPENSSL
 EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK_OBJECT_HANDLE key);
+void unload_pkcs11_key(EVP_PKEY *k);
 #endif
 
 #ifdef __cplusplus

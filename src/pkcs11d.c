@@ -185,15 +185,44 @@ int main(int argc, char **argv)
     
     do {
         struct sockaddr address;
+        const EVP_MD *hash = EVP_sha256();
+        unsigned char md[EVP_MAX_MD_SIZE];
         socklen_t a_len = sizeof(address);
         int s = accept(fd, &address, &a_len);
 
         BIO *b = BIO_new_socket(s, BIO_NOCLOSE);
+        
         for(i = 0; i < rsa_len; i++) {
+            unsigned int j, n;
+            BIO *bio = BIO_new(BIO_s_null());
+            BIO *h = BIO_new(BIO_f_md());
+            BIO_set_md(h, hash);
+            bio = BIO_push(h, bio);
             PEM_write_bio_RSAPrivateKey(b, EVP_PKEY_get1_RSA(rsa_keys[i]), NULL, NULL, 0, NULL, NULL);
+            i2d_RSAPublicKey_bio(bio, EVP_PKEY_get1_RSA(rsa_keys[i]));
+            n = BIO_gets(h, md, EVP_MAX_MD_SIZE);
+            for(j = 0; j < n; j++) {
+                BIO_printf(b, "%02X", md[j]);
+            }
+            BIO_printf(b, "\n");
+            BIO_free_all(bio);
+            // PEM_write_bio_RSAPublicKey(b, EVP_PKEY_get1_RSA(rsa_keys[i]));
         }
         for(i = 0; i < ec_len; i++) {
+            unsigned int j, n;
+            BIO *bio = BIO_new(BIO_s_null());
+            BIO *h = BIO_new(BIO_f_md());
+            BIO_set_md(h, hash);
+            bio = BIO_push(h, bio);
             PEM_write_bio_ECPrivateKey(b, EVP_PKEY_get1_EC_KEY(ec_keys[i]), NULL, NULL, 0, NULL, NULL);
+            i2d_EC_PUBKEY_bio(bio, EVP_PKEY_get1_EC_KEY(ec_keys[i]));
+            n = BIO_gets(h, md, EVP_MAX_MD_SIZE);
+            for(j = 0; j < n; j++) {
+                BIO_printf(b, "%02X", md[j]);
+            }
+            BIO_printf(b, "\n");
+            BIO_free_all(bio);
+            // PEM_write_bio_EC_PUBKEY(b, EVP_PKEY_get1_EC_KEY(ec_keys[i]));
         }
 
         close(s);

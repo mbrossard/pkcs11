@@ -115,6 +115,8 @@ int main(int argc, char **argv)
     struct sockaddr_un sockaddr;
     int long_optind = 0;
     int fd;
+    EVP_PKEY **rsa_keys, **ec_keys;
+    CK_ULONG rsa_len = 0, ec_len = 0, i;
 
     init_crypto();
 
@@ -174,8 +176,8 @@ int main(int argc, char **argv)
         return rc;
     }
     
-    load_keys(funcs, h_session, CKK_RSA, NULL, NULL);
-    load_keys(funcs, h_session, CKK_EC, NULL, NULL);
+    load_keys(funcs, h_session, CKK_RSA, &rsa_keys, &rsa_len);
+    load_keys(funcs, h_session, CKK_EC,  &ec_keys,  &ec_len);
 
     fd = nw_unix_server("pkcs11d.sock", &sockaddr, 0, 0, 0, 64);
     close(fd);
@@ -186,7 +188,14 @@ int main(int argc, char **argv)
         socklen_t a_len = sizeof(address);
         int s = accept(fd, &address, &a_len);
 
-        nw_nwrite(s, "Hello world!\n", 14);
+        BIO *b = BIO_new_socket(s, BIO_NOCLOSE);
+        for(i = 0; i < rsa_len; i++) {
+            PEM_write_bio_RSAPrivateKey(b, EVP_PKEY_get1_RSA(rsa_keys[i]), NULL, NULL, 0, NULL, NULL);
+        }
+        for(i = 0; i < ec_len; i++) {
+            PEM_write_bio_ECPrivateKey(b, EVP_PKEY_get1_EC_KEY(ec_keys[i]), NULL, NULL, 0, NULL, NULL);
+        }
+
         close(s);
     } while(1);
 

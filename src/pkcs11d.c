@@ -11,6 +11,13 @@
 #include <openssl/bio.h>
 #include <openssl/pem.h>
 
+#define KEY_ID_SIZE 64 /* 256 * 2 / 8 */
+
+typedef struct {
+    char id[KEY_ID_SIZE];
+    EVP_PKEY *key;
+} key_id_t;
+
 int load_keys(CK_FUNCTION_LIST *funcs,
               CK_SESSION_HANDLE h_session,
               CK_KEY_TYPE       type,

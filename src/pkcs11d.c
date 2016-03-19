@@ -124,8 +124,6 @@ int main(int argc, char **argv)
     int fd;
     EVP_PKEY **rsa_keys, **ec_keys;
     CK_ULONG rsa_len = 0, ec_len = 0, i;
-    const EVP_MD *hash = EVP_sha256();
-    unsigned char md[EVP_MAX_MD_SIZE];
 
     init_crypto();
 
@@ -188,36 +186,7 @@ int main(int argc, char **argv)
     load_keys(funcs, h_session, CKK_RSA, &rsa_keys, &rsa_len);
     load_keys(funcs, h_session, CKK_EC,  &ec_keys,  &ec_len);
 
-    for(i = 0; i < rsa_len; i++) {
-        unsigned int j, n;
-        BIO *bio = BIO_new(BIO_s_null());
-        BIO *h = BIO_new(BIO_f_md());
-        BIO_set_md(h, hash);
-        bio = BIO_push(h, bio);
-        i2d_RSAPublicKey_bio(bio, EVP_PKEY_get1_RSA(rsa_keys[i]));
-        n = BIO_gets(h, (char*)md, EVP_MAX_MD_SIZE);
-        for(j = 0; j < n; j++) {
-            fprintf(stdout, "%02X", md[j]);
-        }
-        fprintf(stdout, "\n");
-        BIO_free_all(bio);
-    }
 
-    for(i = 0; i < ec_len; i++) {
-        unsigned int j, n;
-        BIO *bio = BIO_new(BIO_s_null());
-        BIO *h = BIO_new(BIO_f_md());
-        BIO_set_md(h, hash);
-        bio = BIO_push(h, bio);
-        i2d_EC_PUBKEY_bio(bio, EVP_PKEY_get1_EC_KEY(ec_keys[i]));
-        n = BIO_gets(h, (char*)md, EVP_MAX_MD_SIZE);
-        for(j = 0; j < n; j++) {
-            fprintf(stdout, "%02X", md[j]);
-        }
-        fprintf(stdout, "\n");
-        BIO_free_all(bio);
-    }
-    
     /* fd = nw_unix_server("pkcs11d.sock", &sockaddr, 0, 0, 0, 64); */
     /* close(fd); */
     fd = nw_tcp_server(1234, 0, 64);

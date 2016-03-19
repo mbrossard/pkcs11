@@ -21,13 +21,13 @@ typedef struct {
 int load_keys(CK_FUNCTION_LIST *funcs,
               CK_SESSION_HANDLE h_session,
               CK_KEY_TYPE       type,
-              EVP_PKEY       ***out,
+              key_id_t        **out,
               CK_ULONG_PTR      len)
 {
     CK_RV             rc;
     CK_ULONG          l, i, j = 0;
     CK_OBJECT_HANDLE  handles[1024];
-    EVP_PKEY        **keys = NULL;
+    key_id_t         *keys = NULL;
     CK_OBJECT_CLASS   pkey = CKO_PRIVATE_KEY;
     CK_ATTRIBUTE search[2] = {
         { CKA_CLASS,    &pkey, sizeof(pkey)},
@@ -51,7 +51,7 @@ int load_keys(CK_FUNCTION_LIST *funcs,
         show_error(stdout, "C_FindObjectsFinal", rc);
     }
 
-    keys = (EVP_PKEY **)calloc(l, sizeof(EVP_PKEY *));
+    keys = (key_id_t*)calloc(l, sizeof(key_id_t));
     if(keys == NULL) {
         return 1;
     }
@@ -60,12 +60,12 @@ int load_keys(CK_FUNCTION_LIST *funcs,
     BIO *bio = BIO_new_fp(stdout, BIO_NOCLOSE | BIO_FP_TEXT);
     for(i = 0; i < l; i++) {
         // print_object_info(funcs, stdout, i, h_session, handles[i]);
-        keys[j] = load_pkcs11_key(funcs, h_session, handles[i]);
-        if(keys[j]) {
+        keys[j].key = load_pkcs11_key(funcs, h_session, handles[i]);
+        if(keys[j].key) {
             if(type == CKK_RSA) {
-                PEM_write_bio_RSAPrivateKey(bio, EVP_PKEY_get1_RSA(keys[j]), NULL, NULL, 0, NULL, NULL);
+                PEM_write_bio_RSAPrivateKey(bio, EVP_PKEY_get1_RSA(keys[j].key), NULL, NULL, 0, NULL, NULL);
             } if(type == CKK_EC) {
-                PEM_write_bio_ECPrivateKey(bio, EVP_PKEY_get1_EC_KEY(keys[j]), NULL, NULL, 0, NULL, NULL);
+                PEM_write_bio_ECPrivateKey(bio, EVP_PKEY_get1_EC_KEY(keys[j].key), NULL, NULL, 0, NULL, NULL);
             }
             j += 1;
         }
@@ -78,7 +78,7 @@ int load_keys(CK_FUNCTION_LIST *funcs,
         *out = keys;
     } else {
         for(i = 0; i < j; i++) {
-            unload_pkcs11_key(keys[i]);
+            unload_pkcs11_key(keys[i].key);
         }
     }
 
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
     /* struct sockaddr_un sockaddr; */
     int long_optind = 0;
     int fd;
-    EVP_PKEY **rsa_keys, **ec_keys;
+    key_id_t *rsa_keys, *ec_keys;
     CK_ULONG rsa_len = 0, ec_len = 0, i;
 
     init_crypto();
@@ -198,10 +198,10 @@ int main(int argc, char **argv)
         BIO *b = BIO_new_socket(s, BIO_NOCLOSE);
         
         for(i = 0; i < rsa_len; i++) {
-            PEM_write_bio_RSAPrivateKey(b, EVP_PKEY_get1_RSA(rsa_keys[i]), NULL, NULL, 0, NULL, NULL);
+            PEM_write_bio_RSAPrivateKey(b, EVP_PKEY_get1_RSA(rsa_keys[i].key), NULL, NULL, 0, NULL, NULL);
         }
         for(i = 0; i < ec_len; i++) {
-            PEM_write_bio_ECPrivateKey(b, EVP_PKEY_get1_EC_KEY(ec_keys[i]), NULL, NULL, 0, NULL, NULL);
+            PEM_write_bio_ECPrivateKey(b, EVP_PKEY_get1_EC_KEY(ec_keys[i].key), NULL, NULL, 0, NULL, NULL);
         }
 
         close(s);

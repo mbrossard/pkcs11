@@ -214,9 +214,13 @@ int main(int argc, char **argv)
         BIO *b = BIO_new_socket(s, BIO_NOCLOSE);
         
         for(i = 0; i < rsa_len; i++) {
+            BIO_write(b, rsa_keys[i].id, KEY_ID_SIZE);
+            BIO_write(b, "\n", 1);
             PEM_write_bio_RSAPrivateKey(b, EVP_PKEY_get1_RSA(rsa_keys[i].key), NULL, NULL, 0, NULL, NULL);
         }
         for(i = 0; i < ec_len; i++) {
+            BIO_write(b, ec_keys[i].id, KEY_ID_SIZE);
+            BIO_write(b, "\n", 1);
             PEM_write_bio_ECPrivateKey(b, EVP_PKEY_get1_EC_KEY(ec_keys[i].key), NULL, NULL, 0, NULL, NULL);
         }
 

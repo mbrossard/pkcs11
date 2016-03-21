@@ -66,7 +66,15 @@ static int pkcs11d_rsa_private_encrypt(int flen, const unsigned char *from,
 
 static RSA_METHOD *engine_rsa_method(void)
 {
-    return NULL;
+	static RSA_METHOD *pkcs11d_rsa_method = NULL;
+	if(pkcs11d_rsa_method == NULL) {
+		const RSA_METHOD *def = RSA_get_default_method();
+		pkcs11d_rsa_method = calloc(1, sizeof(*pkcs11d_rsa_method));
+		memcpy(pkcs11d_rsa_method, def, sizeof(*pkcs11d_rsa_method));
+		pkcs11d_rsa_method->name = "pkcs11d";
+		pkcs11d_rsa_method->rsa_priv_enc = pkcs11d_rsa_private_encrypt;
+	}
+	return pkcs11d_rsa_method;
 }
 
 #ifndef OPENSSL_NO_EC

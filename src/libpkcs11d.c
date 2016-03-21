@@ -53,6 +53,9 @@ static const ENGINE_CMD_DEFN engine_cmd_defns[] = {
 	{0, NULL, NULL, 0}
 };
 
+/* RSA */
+static int pkcs11d_rsa_key_idx = -1;
+
 static RSA_METHOD *engine_rsa_method(void)
 {
     return NULL;

@@ -70,13 +70,13 @@ static ECDH_METHOD *engine_ecdh_method(void)
 #endif
 #endif
 
-EVP_PKEY *engine_load_public_key(ENGINE * e, const char *s_key_id,
+static EVP_PKEY *engine_load_public_key(ENGINE * e, const char *s_key_id,
                                  UI_METHOD * ui_method, void *callback_data)
 {
     return NULL;
 }
 
-EVP_PKEY *engine_load_private_key(ENGINE * e, const char *s_key_id,
+static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *s_key_id,
                                   UI_METHOD * ui_method, void *callback_data)
 {
     return NULL;

@@ -59,7 +59,12 @@ static int pkcs11d_rsa_key_idx = -1;
 static int pkcs11d_rsa_private_encrypt(int flen, const unsigned char *from,
                                        unsigned char *to, RSA *rsa, int padding)
 {
+    struct pkcs11d_data *pkd = NULL;
     int rval = -1;
+    
+    if(((pkd = RSA_get_ex_data(rsa, pkcs11d_rsa_key_idx)) != NULL)) {
+        /* Insert implementation here */
+    }
 
 	return (rval);
 }

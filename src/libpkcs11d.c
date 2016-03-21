@@ -17,6 +17,10 @@
 #define ENGINE_ID   "pkcs11d"
 #define ENGINE_NAME "pkcs11d"
 
+struct pkcs11d_data {
+    int socket;
+};
+
 static int engine_init(ENGINE * engine)
 {
 	(void)engine;

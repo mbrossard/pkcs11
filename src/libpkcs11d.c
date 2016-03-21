@@ -56,6 +56,14 @@ static const ENGINE_CMD_DEFN engine_cmd_defns[] = {
 /* RSA */
 static int pkcs11d_rsa_key_idx = -1;
 
+static int pkcs11d_rsa_private_encrypt(int flen, const unsigned char *from,
+                                       unsigned char *to, RSA *rsa, int padding)
+{
+    int rval = -1;
+
+	return (rval);
+}
+
 static RSA_METHOD *engine_rsa_method(void)
 {
     return NULL;

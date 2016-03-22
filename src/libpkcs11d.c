@@ -101,16 +101,16 @@ static ECDH_METHOD *engine_ecdh_method(void)
 #endif
 #endif
 
-static EVP_PKEY *engine_load_public_key(ENGINE * e, const char *s_key_id,
-                                 UI_METHOD * ui_method, void *callback_data)
+static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *path,
+                                         UI_METHOD * ui_method, void *callback_data)
 {
     return NULL;
 }
 
-static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *s_key_id,
-                                  UI_METHOD * ui_method, void *callback_data)
+static EVP_PKEY *engine_load_public_key(ENGINE * e, const char *path,
+                                        UI_METHOD * ui_method, void *callback_data)
 {
-    return NULL;
+    return engine_load_private_key(e, path, ui_method, callback_data);
 }
 
 static int bind_fn(ENGINE * e, const char *id)

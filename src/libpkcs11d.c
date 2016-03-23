@@ -3,6 +3,7 @@
 
 #include <openssl/engine.h>
 #include <openssl/evp.h>
+#include <openssl/pem.h>
 #include <openssl/rsa.h>
 #ifndef OPENSSL_NO_EC
 #include <openssl/ec.h>
@@ -61,7 +62,7 @@ static int pkcs11d_rsa_private_encrypt(int flen, const unsigned char *from,
 {
     struct pkcs11d_data *pkd = NULL;
     int rval = -1;
-    
+
     if(((pkd = RSA_get_ex_data(rsa, pkcs11d_rsa_key_idx)) != NULL)) {
         /* Insert implementation here */
     }
@@ -104,7 +105,13 @@ static ECDH_METHOD *engine_ecdh_method(void)
 static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *path,
                                          UI_METHOD * ui_method, void *callback_data)
 {
-    return NULL;
+    EVP_PKEY *pkey = NULL;
+    BIO *key = BIO_new_file(path, "r");
+    if(key) {
+        pkey = PEM_read_bio_PrivateKey(key, NULL, NULL, NULL);
+        BIO_free(key);
+    }
+    return pkey;
 }
 
 static EVP_PKEY *engine_load_public_key(ENGINE * e, const char *path,

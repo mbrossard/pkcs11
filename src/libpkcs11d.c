@@ -18,8 +18,10 @@
 #define ENGINE_ID   "pkcs11d"
 #define ENGINE_NAME "pkcs11d"
 
+#define KEY_ID_SIZE 64 /* 256 * 2 / 8 */
+
 struct pkcs11d_data {
-    int socket;
+    char id[KEY_ID_SIZE + 1];
 };
 
 static int engine_init(ENGINE * engine)
@@ -109,6 +111,23 @@ static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *path,
     BIO *key = BIO_new_file(path, "r");
     if(key) {
         pkey = PEM_read_bio_PrivateKey(key, NULL, NULL, NULL);
+
+        if(pkey) {
+            unsigned int k, l, n;
+            unsigned char md[EVP_MAX_MD_SIZE];
+            char key_id[KEY_ID_SIZE + 1];
+            const EVP_MD *hash = EVP_sha256();
+            BIO *s = BIO_new(BIO_s_null());
+            BIO *h = BIO_new(BIO_f_md());
+            BIO_set_md(h, hash);
+            s = BIO_push(h, s);
+
+            i2d_RSAPublicKey_bio(s, EVP_PKEY_get1_RSA(pkey));
+            n = BIO_gets(h, (char*)md, EVP_MAX_MD_SIZE);
+            for(k = 0, l = 0; k < n; k++) {
+                l += sprintf(key_id + l, "%02X", md[k]);
+            }
+        }
         BIO_free(key);
     }
     return pkey;

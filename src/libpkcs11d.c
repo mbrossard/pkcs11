@@ -141,10 +141,6 @@ static EVP_PKEY *engine_load_public_key(ENGINE * e, const char *path,
 
 static int bind_fn(ENGINE * e, const char *id)
 {
-	if (id && (strcmp(id, ENGINE_ID) != 0)) {
-		fprintf(stderr, "Wrong engine id\n");
-		return 0;
-	}
     if (!ENGINE_set_id(e, ENGINE_ID) ||
         !ENGINE_set_name(e, ENGINE_NAME) ||
         !ENGINE_set_init_function(e, engine_init) ||

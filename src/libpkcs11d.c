@@ -127,6 +127,10 @@ static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *path,
             for(k = 0, l = 0; k < n; k++) {
                 l += sprintf(key_id + l, "%02X", md[k]);
             }
+            fprintf(stderr, "key id=%s\n", key_id);
+            struct pkcs11d_data *pd = (struct pkcs11d_data *) malloc(sizeof(struct pkcs11d_data));
+            RSA_set_method(EVP_PKEY_get1_RSA(pkey), engine_rsa_method());
+            RSA_set_ex_data(EVP_PKEY_get1_RSA(pkey), pkcs11d_rsa_key_idx, pd);
         }
         BIO_free(key);
     }

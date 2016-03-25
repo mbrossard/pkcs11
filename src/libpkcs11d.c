@@ -15,6 +15,8 @@
 #endif
 #endif
 
+#include "network.h"
+
 #define ENGINE_ID   "pkcs11d"
 #define ENGINE_NAME "pkcs11d"
 
@@ -66,6 +68,8 @@ static int pkcs11d_rsa_private_encrypt(int flen, const unsigned char *from,
     int rval = -1;
 
     if(((pkd = RSA_get_ex_data(rsa, pkcs11d_rsa_key_idx)) != NULL)) {
+        struct sockaddr_in inetaddr;
+        int fd = nw_tcp_client("127.0.0.1", 1234, &inetaddr);
         /* Insert implementation here */
     }
 

@@ -16,6 +16,7 @@
 #endif
 
 #include "network.h"
+#include "network.c"
 
 #define ENGINE_ID   "pkcs11d"
 #define ENGINE_NAME "pkcs11d"

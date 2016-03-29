@@ -134,6 +134,7 @@ static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *path,
             }
             fprintf(stderr, "key id=%s\n", key_id);
             struct pkcs11d_data *pd = (struct pkcs11d_data *) malloc(sizeof(struct pkcs11d_data));
+            memcpy(pd->id, key_id, sizeof(key_id));
             RSA_set_method(EVP_PKEY_get1_RSA(pkey), engine_rsa_method());
             RSA_set_ex_data(EVP_PKEY_get1_RSA(pkey), pkcs11d_rsa_key_idx, pd);
         }

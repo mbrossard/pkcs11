@@ -71,6 +71,12 @@ static int pkcs11d_rsa_private_encrypt(int flen, const unsigned char *from,
     if(((pkd = RSA_get_ex_data(rsa, pkcs11d_rsa_key_idx)) != NULL)) {
         struct sockaddr_in inetaddr;
         int fd = nw_tcp_client("127.0.0.1", 1234, &inetaddr);
+        BIO *b = BIO_new_socket(fd, BIO_NOCLOSE);
+        BIO *buf = BIO_new(BIO_f_buffer());
+        b = BIO_push(buf, b);
+        char buffer[4096];
+        int l, slen = 0;
+
         /* Insert implementation here */
     }
 

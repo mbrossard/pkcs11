@@ -240,6 +240,8 @@ int main(int argc, char **argv)
         l = RSA_private_encrypt(plen, (unsigned char *)buffer, (unsigned char *)sig,
                                 EVP_PKEY_get1_RSA(rsa_keys[0].key), RSA_PKCS1_PADDING);
         slen = l;
+        if(l > 0) {
+            fprintf(stdout, "Signature size = %d\n", l);
         }
 
         BIO_printf(b, "200 Ok\r\n");

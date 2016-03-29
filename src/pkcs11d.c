@@ -217,6 +217,12 @@ int main(int argc, char **argv)
         char buffer[4096], sig[4096];
         int l, slen = 0, plen = 0;
 
+        l = BIO_gets(b, buffer, sizeof(buffer));
+        if(l > 0) {
+            if(strncmp(buffer, "POST /rsa/", 10) == 0) {
+                buffer[10 + KEY_ID_SIZE] = '\0';
+            }
+        }
         for(i = 0; i < rsa_len; i++) {
             BIO_write(b, rsa_keys[i].id, KEY_ID_SIZE);
             BIO_write(b, "\n", 1);

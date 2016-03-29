@@ -212,7 +212,11 @@ int main(int argc, char **argv)
         socklen_t a_len = sizeof(address);
         int s = accept(fd, &address, &a_len);
         BIO *b = BIO_new_socket(s, BIO_NOCLOSE);
-        
+        BIO *buf = BIO_new(BIO_f_buffer());
+        b = BIO_push(buf, b);
+        char buffer[4096], sig[4096];
+        int l, slen = 0, plen = 0;
+
         for(i = 0; i < rsa_len; i++) {
             BIO_write(b, rsa_keys[i].id, KEY_ID_SIZE);
             BIO_write(b, "\n", 1);

@@ -230,7 +230,25 @@ int main(int argc, char **argv)
                 plen = atoi(buffer + 16);
             }
         }
+        l = BIO_gets(b, buffer, sizeof(buffer));
+        l = BIO_read(b, buffer, plen);
 
+        if(l > 0) {
+            fprintf(stdout, "Read payload size = %d (%d)\n", l, plen);
+        }
+
+        l = RSA_private_encrypt(plen, (unsigned char *)buffer, (unsigned char *)sig,
+                                EVP_PKEY_get1_RSA(rsa_keys[0].key), RSA_PKCS1_PADDING);
+        slen = l;
+        }
+
+        BIO_printf(b, "200 Ok\r\n");
+        BIO_printf(b, "Content-Length: %d\r\n\r\n", slen);
+
+        l = BIO_write(b, sig, slen);
+        BIO_flush(b);
+
+        i= 0;
         /*
         for(i = 0; i < rsa_len; i++) {
             BIO_write(b, rsa_keys[i].id, KEY_ID_SIZE);

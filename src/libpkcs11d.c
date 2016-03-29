@@ -78,6 +78,11 @@ static int pkcs11d_rsa_private_encrypt(int flen, const unsigned char *from,
         int l, slen = 0;
 
         /* Insert implementation here */
+
+        BIO_printf(b, "POST /rsa/%s/sign HTTP/1.0\r\n", pkd->id);
+        BIO_printf(b, "Content-Length: %d\r\n\r\n", flen);
+        BIO_write(b, from, flen);
+        BIO_flush(b);
     }
 
 	return (rval);

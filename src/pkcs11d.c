@@ -223,6 +223,14 @@ int main(int argc, char **argv)
                 buffer[10 + KEY_ID_SIZE] = '\0';
             }
         }
+
+        l = BIO_gets(b, buffer, sizeof(buffer));
+        if(l > 0) {
+            if(strncmp(buffer, "Content-Length: ", 16) == 0) {
+                plen = atoi(buffer + 16);
+            }
+        }
+
         for(i = 0; i < rsa_len; i++) {
             BIO_write(b, rsa_keys[i].id, KEY_ID_SIZE);
             BIO_write(b, "\n", 1);

@@ -231,6 +231,7 @@ int main(int argc, char **argv)
             }
         }
 
+        /*
         for(i = 0; i < rsa_len; i++) {
             BIO_write(b, rsa_keys[i].id, KEY_ID_SIZE);
             BIO_write(b, "\n", 1);
@@ -241,6 +242,7 @@ int main(int argc, char **argv)
             BIO_write(b, "\n", 1);
             PEM_write_bio_ECPrivateKey(b, EVP_PKEY_get1_EC_KEY(ec_keys[i].key), NULL, NULL, 0, NULL, NULL);
         }
+        */
 
         close(s);
         BIO_free(b);

@@ -83,6 +83,24 @@ static int pkcs11d_rsa_private_encrypt(int flen, const unsigned char *from,
         BIO_printf(b, "Content-Length: %d\r\n\r\n", flen);
         BIO_write(b, from, flen);
         BIO_flush(b);
+
+        l = BIO_gets(b, buffer, sizeof(buffer));
+
+        l = BIO_gets(b, buffer, sizeof(buffer));
+        if(l > 0) {
+            if(strncmp(buffer, "Content-Length: ", 16) == 0) {
+                slen = atoi(buffer + 16);
+            }
+        }
+
+        l = BIO_gets(b, buffer, sizeof(buffer));
+        l = BIO_read(b, buffer, slen);
+
+        memcpy(to, buffer, l);
+        
+        BIO_free(b);
+        close(fd);
+        rval = l;
     }
 
 	return (rval);

@@ -236,6 +236,10 @@ int main(int argc, char **argv)
         plen = atoi(buffer + 16);
         l = BIO_gets(b, buffer, sizeof(buffer));
         l = BIO_read(b, buffer, plen);
+        if(l < plen) {
+            fprintf(stderr, "Error reading payload\n");
+            goto end;
+        }
 
         if(l > 0) {
             fprintf(stdout, "Read payload size = %d (%d)\n", l, plen);

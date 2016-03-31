@@ -39,19 +39,19 @@ int load_keys(CK_FUNCTION_LIST *funcs,
 
     rc = funcs->C_FindObjectsInit(h_session, search, 2);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjectsInit", rc);
+        show_error(stderr, "C_FindObjectsInit", rc);
         return 1;
     }
 
     rc = funcs->C_FindObjects(h_session, handles, 1024, &l);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjects", rc);
+        show_error(stderr, "C_FindObjects", rc);
         return 1;
     }
 
     rc = funcs->C_FindObjectsFinal(h_session);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_FindObjectsFinal", rc);
+        show_error(stderr, "C_FindObjectsFinal", rc);
     }
 
     keys = (key_id_t*)calloc(l, sizeof(key_id_t));
@@ -59,10 +59,10 @@ int load_keys(CK_FUNCTION_LIST *funcs,
         return 1;
     }
 
-    fprintf(stdout, "Found: %ld objects\n", l);
-    BIO *bio = BIO_new_fp(stdout, BIO_NOCLOSE | BIO_FP_TEXT);
+    fprintf(stderr, "Found: %ld objects\n", l);
+    BIO *bio = BIO_new_fp(stderr, BIO_NOCLOSE | BIO_FP_TEXT);
     for(i = 0; i < l; i++) {
-        // print_object_info(funcs, stdout, i, h_session, handles[i]);
+        // print_object_info(funcs, stderr, i, h_session, handles[i]);
         keys[j].key = load_pkcs11_key(funcs, h_session, handles[i]);
         if(keys[j].key) {
             unsigned int k, l, n;
@@ -170,12 +170,12 @@ int main(int argc, char **argv)
         }
     }
 
-    rc = pkcs11_load_init(opt_module, opt_dir, stdout, &funcs);
+    rc = pkcs11_load_init(opt_module, opt_dir, stderr, &funcs);
     if (rc != CKR_OK) {
         return rc;
     }
 
-    rc = pkcs11_get_slots(funcs, stdout, &pslots, &nslots);
+    rc = pkcs11_get_slots(funcs, stderr, &pslots, &nslots);
     if (rc != CKR_OK) {
         return rc;
     }
@@ -191,11 +191,11 @@ int main(int argc, char **argv)
         /* Check selected slot is in pslots */
     }
 
-    fprintf(stdout, "Slot: %ld\n", opt_slot);
-    rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
+    fprintf(stderr, "Slot: %ld\n", opt_slot);
+    rc = pkcs11_login_session(funcs, stderr, opt_slot, &h_session,
                               CK_TRUE, CKU_USER, opt_pin, opt_pin_len);
     if (rc != CKR_OK) {
-        show_error(stdout, "Login", rc);
+        show_error(stderr, "Login", rc);
         return rc;
     }
     
@@ -277,7 +277,7 @@ int main(int argc, char **argv)
 
     rc = funcs->C_Finalize(NULL);
     if (rc != CKR_OK) {
-        show_error(stdout, "C_Finalize", rc);
+        show_error(stderr, "C_Finalize", rc);
         return rc;
     }
     

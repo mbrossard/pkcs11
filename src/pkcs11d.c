@@ -230,6 +230,10 @@ int main(int argc, char **argv)
             memcpy(keyid, buffer + 15, KEY_ID_SIZE - 1);
             type = CKK_RSA;
             operation = CKA_SIGN;
+        } else if(strncmp(buffer, "POST /decrypt/rsa/", 18) == 0) {
+            memcpy(keyid, buffer + 18, KEY_ID_SIZE - 1);
+            type = CKK_RSA;
+            operation = CKA_DECRYPT;
         }
         keyid[KEY_ID_SIZE] = '\0';
 
@@ -267,6 +271,9 @@ int main(int argc, char **argv)
         
         if(type == CKK_RSA && operation == CKA_SIGN) {
             l = RSA_private_encrypt(plen, (unsigned char *)buffer, (unsigned char *)sig,
+                                    EVP_PKEY_get1_RSA(pkey), RSA_PKCS1_PADDING);
+        } else if(type == CKK_RSA && operation == CKA_DECRYPT) {
+            l = RSA_private_decrypt(plen, (unsigned char *)buffer, (unsigned char *)sig,
                                     EVP_PKEY_get1_RSA(pkey), RSA_PKCS1_PADDING);
         }
 

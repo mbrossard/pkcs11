@@ -264,10 +264,12 @@ int main(int argc, char **argv)
             fprintf(stderr, "Key not found\n");
             goto end;
         }
+        
+        if(type == CKK_RSA && operation == CKA_SIGN) {
+            l = RSA_private_encrypt(plen, (unsigned char *)buffer, (unsigned char *)sig,
+                                    EVP_PKEY_get1_RSA(pkey), RSA_PKCS1_PADDING);
         }
 
-        l = RSA_private_encrypt(plen, (unsigned char *)buffer, (unsigned char *)sig,
-                                EVP_PKEY_get1_RSA(rsa_keys[0].key), RSA_PKCS1_PADDING);
         slen = l;
         if(l > 0) {
             fprintf(stdout, "Signature size = %d\n", l);

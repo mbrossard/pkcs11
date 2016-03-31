@@ -229,11 +229,11 @@ int main(int argc, char **argv)
         keyid[KEY_ID_SIZE] = '\0';
 
         l = BIO_gets(b, buffer, sizeof(buffer));
-        if(l > 0) {
-            if(strncmp(buffer, "Content-Length: ", 16) == 0) {
-                plen = atoi(buffer + 16);
-            }
+        if((l <= 0) || strncmp(buffer, "Content-Length: ", 16) != 0) {
+            fprintf(stderr, "Invalid content length line = %s\n", buffer);
+            goto end;
         }
+        plen = atoi(buffer + 16);
         l = BIO_gets(b, buffer, sizeof(buffer));
         l = BIO_read(b, buffer, plen);
 

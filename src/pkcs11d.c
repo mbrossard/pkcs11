@@ -214,15 +214,19 @@ int main(int argc, char **argv)
         BIO *b = BIO_new_socket(s, BIO_NOCLOSE);
         BIO *buf = BIO_new(BIO_f_buffer());
         b = BIO_push(buf, b);
-        char buffer[4096], sig[4096];
+        char buffer[4096], sig[4096], keyid[KEY_ID_SIZE + 1];
         int l, slen = 0, plen = 0;
 
         l = BIO_gets(b, buffer, sizeof(buffer));
-        if(l > 0) {
-            if(strncmp(buffer, "POST /rsa/", 10) == 0) {
-                buffer[10 + KEY_ID_SIZE] = '\0';
-            }
+        if(l <= 0) {
+            fprintf(stderr, "Error reading query line\n");
+            goto end;
         }
+
+        if(strncmp(buffer, "POST /sign/rsa/", 15) == 0) {
+            memcpy(keyid, buffer + 15, KEY_ID_SIZE - 1);
+        }
+        keyid[KEY_ID_SIZE] = '\0';
 
         l = BIO_gets(b, buffer, sizeof(buffer));
         if(l > 0) {
@@ -264,6 +268,8 @@ int main(int argc, char **argv)
         }
         */
 
+
+    end:
         close(s);
         BIO_free(b);
     } while(1);

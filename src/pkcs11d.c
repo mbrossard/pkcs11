@@ -216,6 +216,8 @@ int main(int argc, char **argv)
         b = BIO_push(buf, b);
         char buffer[4096], sig[4096], keyid[KEY_ID_SIZE + 1];
         int l, slen = 0, plen = 0;
+        CK_KEY_TYPE type;
+        CK_ATTRIBUTE_TYPE operation;
 
         l = BIO_gets(b, buffer, sizeof(buffer));
         if(l <= 0) {
@@ -225,6 +227,8 @@ int main(int argc, char **argv)
 
         if(strncmp(buffer, "POST /sign/rsa/", 15) == 0) {
             memcpy(keyid, buffer + 15, KEY_ID_SIZE - 1);
+            type = CKK_RSA;
+            operation = CKA_SIGN;
         }
         keyid[KEY_ID_SIZE] = '\0';
 

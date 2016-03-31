@@ -18,7 +18,7 @@ matrix:
           - ubuntu-toolchain-r-test
           - llvm-toolchain-precise
   - os: linux
-    compiler: clang-3.8
+    compiler: clang
     addons:
       apt:
         packages: ["clang-3.8", "libnss3-dev", "libtool" ]

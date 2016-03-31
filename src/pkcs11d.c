@@ -271,8 +271,9 @@ int main(int argc, char **argv)
         }
 
         slen = l;
-        if(l > 0) {
-            fprintf(stdout, "Signature size = %d\n", l);
+        if(l <= 0) {
+            goto end;
+            fprintf(stderr, "Error signing\n");
         }
 
         BIO_printf(b, "200 Ok\r\n");

@@ -218,6 +218,7 @@ int main(int argc, char **argv)
         int l, slen = 0, plen = 0;
         CK_KEY_TYPE type;
         CK_ATTRIBUTE_TYPE operation;
+        EVP_PKEY *pkey = NULL;
 
         l = BIO_gets(b, buffer, sizeof(buffer));
         if(l <= 0) {
@@ -245,8 +246,24 @@ int main(int argc, char **argv)
             goto end;
         }
 
-        if(l > 0) {
-            fprintf(stdout, "Read payload size = %d (%d)\n", l, plen);
+
+        if(type == CKK_RSA) {
+            for(i = 0; (i < rsa_len) && (pkey == NULL); i++) {
+                if(strncmp(rsa_keys[i].id, keyid, KEY_ID_SIZE - 1) == 0) {
+                    pkey = rsa_keys[i].key;
+                }
+            }
+        } else if(type == CKK_EC) {
+            for(i = 0; (i < ec_len) && (pkey == NULL); i++) {
+                if(strncmp(ec_keys[i].id, keyid, KEY_ID_SIZE - 1) == 0) {
+                    pkey = ec_keys[i].key;
+                }
+            }
+        }
+        if(pkey == NULL) {
+            fprintf(stderr, "Key not found\n");
+            goto end;
+        }
         }
 
         l = RSA_private_encrypt(plen, (unsigned char *)buffer, (unsigned char *)sig,

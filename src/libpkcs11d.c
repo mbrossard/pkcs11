@@ -62,7 +62,6 @@ static const ENGINE_CMD_DEFN engine_cmd_defns[] = {
 /* RSA */
 static int pkcs11d_rsa_key_idx = -1;
 
-static int pkcs11d_rsa_private_encrypt(int flen, const unsigned char *from,
                                        unsigned char *to, RSA *rsa, int padding)
 {
     struct pkcs11d_data *pkd = NULL;
@@ -79,7 +78,7 @@ static int pkcs11d_rsa_private_encrypt(int flen, const unsigned char *from,
 
         /* Insert implementation here */
 
-        BIO_printf(b, "POST /sign/rsa/%s HTTP/1.0\r\n", pkd->id);
+        BIO_printf(b, "POST /%s/rsa/%s HTTP/1.0\r\n", op, pkd->id);
         BIO_printf(b, "Content-Length: %d\r\n\r\n", flen);
         BIO_write(b, from, flen);
         BIO_flush(b);
@@ -106,6 +105,18 @@ static int pkcs11d_rsa_private_encrypt(int flen, const unsigned char *from,
 	return (rval);
 }
 
+static int pkcs11d_rsa_private_encrypt(int flen, const unsigned char *from,
+                                       unsigned char *to, RSA *rsa, int padding)
+{
+    return pkcs11d_rsa_private_common("sign", flen, from, to, rsa, padding);
+}
+
+static int pkcs11d_rsa_private_decrypt(int flen, const unsigned char *from,
+                                       unsigned char *to, RSA *rsa, int padding)
+{
+    return pkcs11d_rsa_private_common("decrypt", flen, from, to, rsa, padding);
+}
+
 static RSA_METHOD *engine_rsa_method(void)
 {
 	static RSA_METHOD *pkcs11d_rsa_method = NULL;
@@ -118,6 +129,7 @@ static RSA_METHOD *engine_rsa_method(void)
 		memcpy(pkcs11d_rsa_method, def, sizeof(*pkcs11d_rsa_method));
 		pkcs11d_rsa_method->name = "pkcs11d";
 		pkcs11d_rsa_method->rsa_priv_enc = pkcs11d_rsa_private_encrypt;
+		pkcs11d_rsa_method->rsa_priv_dec = pkcs11d_rsa_private_decrypt;
 	}
 	return pkcs11d_rsa_method;
 }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <openssl/ossl_typ.h>
 #include <openssl/engine.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
@@ -62,7 +63,8 @@ static const ENGINE_CMD_DEFN engine_cmd_defns[] = {
 /* RSA */
 static int pkcs11d_rsa_key_idx = -1;
 
-                                       unsigned char *to, RSA *rsa, int padding)
+static int pkcs11d_rsa_private_common(const char *op, int flen, const unsigned char *from,
+                                      unsigned char *to, RSA *rsa, int padding)
 {
     struct pkcs11d_data *pkd = NULL;
     int rval = -1;

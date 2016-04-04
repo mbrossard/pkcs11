@@ -86,6 +86,9 @@ static int pkcs11d_rsa_private_common(const char *op, int flen, const unsigned c
         BIO_flush(b);
 
         l = BIO_gets(b, buffer, sizeof(buffer));
+        if(l <= 0) {
+            goto end;
+        }
 
         l = BIO_gets(b, buffer, sizeof(buffer));
         if(l > 0) {
@@ -102,6 +105,7 @@ static int pkcs11d_rsa_private_common(const char *op, int flen, const unsigned c
             rval = l;
         }
 
+    end:
         BIO_free(b);
         close(fd);
     }

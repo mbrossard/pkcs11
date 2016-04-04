@@ -97,14 +97,16 @@ static int pkcs11d_rsa_private_common(const char *op, int flen, const unsigned c
         l = BIO_gets(b, buffer, sizeof(buffer));
         l = BIO_read(b, buffer, slen);
 
-        memcpy(to, buffer, l);
-        
+        if(l > 0) {
+            memcpy(to, buffer, l);
+            rval = l;
+        }
+
         BIO_free(b);
         close(fd);
-        rval = l;
     }
 
-	return (rval);
+	return rval;
 }
 
 static int pkcs11d_rsa_private_encrypt(int flen, const unsigned char *from,

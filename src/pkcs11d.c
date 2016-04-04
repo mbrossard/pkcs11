@@ -234,6 +234,8 @@ int main(int argc, char **argv)
             memcpy(keyid, buffer + 18, KEY_ID_SIZE - 1);
             type = CKK_RSA;
             operation = CKA_DECRYPT;
+        } else {
+            goto end;
         }
         keyid[KEY_ID_SIZE] = '\0';
 

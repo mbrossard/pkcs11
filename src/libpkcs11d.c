@@ -92,6 +92,7 @@ static int pkcs11d_rsa_private_common(const char *op, int flen, const unsigned c
 
         l = BIO_gets(b, buffer, sizeof(buffer));
         if(l > 0) {
+            buffer[sizeof(buffer) - 1] = '\0';
             if(strncmp(buffer, "Content-Length: ", 16) == 0) {
                 slen = atoi(buffer + 16);
             }

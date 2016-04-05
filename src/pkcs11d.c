@@ -278,9 +278,15 @@ int main(int argc, char **argv)
         }
         
         if(type == CKK_RSA && operation == CKA_SIGN) {
+            if(verbose) {
+                fprintf(stderr, "RSA signature operation requested\n");
+            }
             l = RSA_private_encrypt(plen, (unsigned char *)buffer, (unsigned char *)sig,
                                     EVP_PKEY_get1_RSA(pkey), RSA_PKCS1_PADDING);
         } else if(type == CKK_RSA && operation == CKA_DECRYPT) {
+            if(verbose) {
+                fprintf(stderr, "RSA decryption operation requested\n");
+            }
             l = RSA_private_decrypt(plen, (unsigned char *)buffer, (unsigned char *)sig,
                                     EVP_PKEY_get1_RSA(pkey), RSA_PKCS1_PADDING);
         }

@@ -289,6 +289,11 @@ int main(int argc, char **argv)
             }
             l = RSA_private_decrypt(plen, (unsigned char *)buffer, (unsigned char *)sig,
                                     EVP_PKEY_get1_RSA(pkey), RSA_PKCS1_PADDING);
+        } else {
+            if(verbose) {
+                fprintf(stderr, "Invalid operation requested\n");
+            }
+            goto end;
         }
 
         slen = l;

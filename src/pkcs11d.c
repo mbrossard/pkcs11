@@ -293,8 +293,12 @@ int main(int argc, char **argv)
 
         slen = l;
         if(l <= 0) {
+            if(verbose) {
+                fprintf(stderr, "Error unsuccessful\n");
+            }
             goto end;
-            fprintf(stderr, "Error signing\n");
+        } else if(verbose) {
+            fprintf(stderr, "Operation successful\n");
         }
 
         BIO_printf(b, "200 Ok\r\n");

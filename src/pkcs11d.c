@@ -273,6 +273,8 @@ int main(int argc, char **argv)
         if(pkey == NULL) {
             fprintf(stderr, "Key not found\n");
             goto end;
+        } else if(verbose) {
+            fprintf(stderr, "Key '%s'found\n", keyid);
         }
         
         if(type == CKK_RSA && operation == CKA_SIGN) {

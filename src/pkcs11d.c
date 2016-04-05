@@ -113,6 +113,7 @@ static const struct option options[] = {
     { "slot",               1, 0,           's' },
     { "module",             1, 0,           'm' },
     { "directory",          1, 0,           'd' },
+    { "verbose",            0, 0,           'v' },
     { 0, 0, 0, 0 }
 };
 
@@ -137,14 +138,14 @@ int main(int argc, char **argv)
     char *opt_module = NULL, *opt_dir = NULL;
     /* struct sockaddr_un sockaddr; */
     int long_optind = 0;
-    int fd;
+    int fd, verbose = 0;
     key_id_t *rsa_keys, *ec_keys;
     CK_ULONG rsa_len = 0, ec_len = 0, i;
 
     init_crypto();
 
     while (1) {
-        char c = getopt_long(argc, argv, "d:hp:s:m:",
+        char c = getopt_long(argc, argv, "d:hp:s:m:v",
                              options, &long_optind);
         if (c == -1)
             break;
@@ -163,6 +164,9 @@ int main(int argc, char **argv)
                 break;
             case 'm':
                 opt_module = optarg;
+                break;
+            case 'h':
+                verbose = 1;
                 break;
             case 'h':
             default:

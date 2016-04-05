@@ -165,7 +165,7 @@ int main(int argc, char **argv)
             case 'm':
                 opt_module = optarg;
                 break;
-            case 'h':
+            case 'v':
                 verbose = 1;
                 break;
             case 'h':

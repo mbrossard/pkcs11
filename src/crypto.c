@@ -49,6 +49,30 @@ static int pkcs11_rsa_private_encrypt(int flen, const unsigned char *from,
 	return (rval);
 }
 
+static int pkcs11_rsa_private_decrypt(int flen, const unsigned char *from,
+                                      unsigned char *to, RSA *rsa, int padding)
+{
+    struct pkcs11_key_data *pkd = NULL;
+	CK_MECHANISM mech = {
+		CKM_RSA_PKCS, NULL_PTR, 0
+	};
+	CK_ULONG tlen = 0;
+	CK_RV rv;
+	int rval = -1;
+
+    tlen = RSA_size(rsa);
+    if(((pkd = RSA_get_ex_data(rsa, pkcs11_rsa_key_idx)) != NULL) &&
+       ((rv = pkd->funcs->C_DecryptInit(pkd->session, &mech, pkd->key)) == CKR_OK) &&
+       /* TODO: handle CKR_BUFFER_TOO_SMALL */
+       ((rv = pkd->funcs->C_Decrypt(pkd->session, (CK_BYTE *)from, flen, to, &tlen)) == CKR_OK)) {
+        rval = tlen;
+    } else {
+        return -1;
+    }
+
+	return (rval);
+}
+
 static RSA_METHOD *get_pkcs11_rsa_method(void) {
 	static RSA_METHOD *pkcs11_rsa_method = NULL;
 	if(pkcs11_rsa_key_idx == -1) {
@@ -60,6 +84,7 @@ static RSA_METHOD *get_pkcs11_rsa_method(void) {
 		memcpy(pkcs11_rsa_method, def, sizeof(*pkcs11_rsa_method));
 		pkcs11_rsa_method->name = "pkcs11";
 		pkcs11_rsa_method->rsa_priv_enc = pkcs11_rsa_private_encrypt;
+		pkcs11_rsa_method->rsa_priv_dec = pkcs11_rsa_private_decrypt;
 	}
 	return pkcs11_rsa_method;
 }

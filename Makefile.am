@@ -17,8 +17,9 @@ MAINTAINERCLEANFILES = \
     $(srcdir)/src/config.h.in
 
 EXTRA_DIST = \
-		$(srcdir)/LICENSE \
+		$(srcdir)/include/*.h \
 		$(srcdir)/README.md \
+		$(srcdir)/src/*.h \
 		$(srcdir)/m4/*.m4
 
 AM_CFLAGS = @OPENSSL_INCLUDES@ \

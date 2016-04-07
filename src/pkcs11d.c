@@ -123,6 +123,7 @@ static const char *option_help[] = {
     "Specify number of the slot to use",
     "Specify the module to load",
     "Specify the directory for NSS database",
+    "Display additional information",
 };
 
 int main(int argc, char **argv)

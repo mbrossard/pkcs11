@@ -88,6 +88,8 @@ static int pkcs11d_rsa_private_common(const char *op, int flen, const unsigned c
         l = BIO_gets(b, buffer, sizeof(buffer));
         if(l <= 0) {
             goto end;
+        } else {
+            /* TODO: Check error code */
         }
 
         l = BIO_gets(b, buffer, sizeof(buffer));

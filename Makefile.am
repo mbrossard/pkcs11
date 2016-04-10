@@ -89,8 +89,8 @@ libpkcs11d_la_CFLAGS = $(AM_CFLAGS) \
 	-fvisibility=default
 
 libpkcs11d_la_LDFLAGS = \
-	-version-info @VERSION_INFO@ \
-	-avoid-version -module -no-undefined \
+	-avoid-version -module --shared -export-dynamic \
+	-export-symbols "$(srcdir)/src/pkcs11d.exports" \
 	@OPENSSL_LDFLAGS@
 
 libpkcs11d_la_LIBADD = @OPENSSL_LIBS@

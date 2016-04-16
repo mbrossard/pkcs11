@@ -84,6 +84,7 @@ pkcs11_token_la_LDFLAGS = \
 pkcs11_token_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_VISIBILITY)
 
 libpkcs11d_la_SOURCES = \
+	src/ec-utils.c \
 	src/libpkcs11d.c
 
 libpkcs11d_la_CFLAGS = $(AM_CFLAGS) \

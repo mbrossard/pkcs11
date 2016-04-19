@@ -163,7 +163,14 @@ static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
 
 static ECDSA_METHOD *engine_ecdsa_method(void)
 {
-	return NULL;
+    static ECDSA_METHOD *pkcs11d_ecdsa_method = NULL;
+	if(pkcs11d_ecdsa_method == NULL) {
+		const ECDSA_METHOD *def = ECDSA_get_default_method();
+		pkcs11d_ecdsa_method = ECDSA_METHOD_new((ECDSA_METHOD *)def);
+		ECDSA_METHOD_set_name(pkcs11d_ecdsa_method, "pkcs11d");
+		ECDSA_METHOD_set_sign(pkcs11d_ecdsa_method, pkcs11d_ecdsa_sign);
+	}
+	return pkcs11d_ecdsa_method;
 }
 #endif
 

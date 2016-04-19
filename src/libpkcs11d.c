@@ -152,6 +152,15 @@ static RSA_METHOD *engine_rsa_method(void)
 
 #ifndef OPENSSL_NO_EC
 #ifndef OPENSSL_NO_ECDSA
+
+/* ECDSA */
+static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
+                                     const BIGNUM *inv, const BIGNUM *rp,
+                                     EC_KEY *ec) {
+    ECDSA_SIG *rval = NULL;
+    return rval;
+}
+
 static ECDSA_METHOD *engine_ecdsa_method(void)
 {
 	return NULL;

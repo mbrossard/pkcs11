@@ -239,6 +239,10 @@ int main(int argc, char **argv)
             memcpy(keyid, buffer + 18, KEY_ID_SIZE - 1);
             type = CKK_RSA;
             operation = CKA_DECRYPT;
+        } else if(strncmp(buffer, "POST /sign/ec/", 14) == 0) {
+            memcpy(keyid, buffer + 14, KEY_ID_SIZE - 1);
+            type = CKK_EC;
+            operation = CKA_SIGN;
         } else {
             goto end;
         }
@@ -290,6 +294,11 @@ int main(int argc, char **argv)
             }
             l = RSA_private_decrypt(plen, (unsigned char *)buffer, (unsigned char *)sig,
                                     EVP_PKEY_get1_RSA(pkey), RSA_PKCS1_PADDING);
+        } else if (type == CKK_EC && operation == CKA_SIGN) {
+            unsigned char *ptr = (unsigned char *)sig;
+            ECDSA_SIG *s = ECDSA_do_sign((unsigned char *)buffer, plen, EVP_PKEY_get1_EC_KEY(pkey));
+            l = i2d_ECDSA_SIG(s, &ptr);
+            ECDSA_SIG_free(s);
         } else {
             if(verbose) {
                 fprintf(stderr, "Invalid operation requested\n");

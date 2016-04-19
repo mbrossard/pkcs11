@@ -61,7 +61,6 @@ pkcs11d_SOURCES = \
 	src/common.c \
 	src/crypto.c \
 	src/dictionary.c \
-	src/ec-utils.c \
 	src/iniparser.c \
 	src/network.c \
 	src/pkcs11d.c \

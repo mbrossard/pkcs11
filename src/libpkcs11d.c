@@ -184,7 +184,11 @@ static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *path,
             BIO_set_md(h, hash);
             s = BIO_push(h, s);
 
-            i2d_RSAPublicKey_bio(s, EVP_PKEY_get1_RSA(pkey));
+            if(pkey->type == EVP_PKEY_RSA) {
+                i2d_RSAPublicKey_bio(s, EVP_PKEY_get1_RSA(pkey));
+            } else if(pkey->type == EVP_PKEY_EC) {
+                i2d_EC_PUBKEY_bio(s, EVP_PKEY_get1_EC_KEY(pkey));
+            }
             n = BIO_gets(h, (char*)md, EVP_MAX_MD_SIZE);
             for(k = 0, l = 0; k < n; k++) {
                 l += sprintf(key_id + l, "%02X", md[k]);

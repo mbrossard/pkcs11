@@ -151,6 +151,9 @@ static RSA_METHOD *engine_rsa_method(void)
 }
 
 #ifndef OPENSSL_NO_EC
+
+static int pkcs11d_ec_key_idx = -1;
+
 #ifndef OPENSSL_NO_ECDSA
 
 /* ECDSA */
@@ -164,6 +167,9 @@ static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
 static ECDSA_METHOD *engine_ecdsa_method(void)
 {
     static ECDSA_METHOD *pkcs11d_ecdsa_method = NULL;
+	if(pkcs11d_ec_key_idx == -1) {
+		pkcs11d_ec_key_idx = ECDSA_get_ex_new_index(0, NULL, NULL, NULL, 0);
+	}
 	if(pkcs11d_ecdsa_method == NULL) {
 		const ECDSA_METHOD *def = ECDSA_get_default_method();
 		pkcs11d_ecdsa_method = ECDSA_METHOD_new((ECDSA_METHOD *)def);

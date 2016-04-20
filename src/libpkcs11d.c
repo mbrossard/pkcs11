@@ -172,9 +172,16 @@ static ECDSA_METHOD *engine_ecdsa_method(void)
 	}
 	if(pkcs11d_ecdsa_method == NULL) {
 		const ECDSA_METHOD *def = ECDSA_get_default_method();
+#ifdef ECDSA_F_ECDSA_METHOD_NEW
 		pkcs11d_ecdsa_method = ECDSA_METHOD_new((ECDSA_METHOD *)def);
 		ECDSA_METHOD_set_name(pkcs11d_ecdsa_method, "pkcs11d");
 		ECDSA_METHOD_set_sign(pkcs11d_ecdsa_method, pkcs11d_ecdsa_sign);
+#else
+		pkcs11d_ecdsa_method = calloc(1, sizeof(*pkcs11d_ecdsa_method));
+		memcpy(pkcs11d_ecdsa_method, def, sizeof(*pkcs11d_ecdsa_method));
+		pkcs11_ecdsa_method->name = "pkcs11d";
+		pkcs11_ecdsa_method->ecdsa_do_sign = pkcs11d_ecdsa_sign;
+#endif
 	}
 	return pkcs11d_ecdsa_method;
 }

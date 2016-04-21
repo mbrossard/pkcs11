@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "config.h"
+#include "network.h"
+#include "network.c"
+
 #include <openssl/ossl_typ.h>
 #include <openssl/engine.h>
 #include <openssl/evp.h>
@@ -15,9 +19,6 @@
 #include <openssl/ecdh.h>
 #endif
 #endif
-
-#include "network.h"
-#include "network.c"
 
 #define ENGINE_ID   "pkcs11d"
 #define ENGINE_NAME "pkcs11d"

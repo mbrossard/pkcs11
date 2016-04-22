@@ -10,10 +10,16 @@
 #include <openssl/evp.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
+
 #ifndef OPENSSL_NO_EC
 #include <openssl/ec.h>
 #ifndef OPENSSL_NO_ECDSA
+#if ((defined(LIBRESSL_VERSION_NUMBER) && \
+	(LIBRESSL_VERSION_NUMBER >= 0x20010002L))) || \
+	(defined(ECDSA_F_ECDSA_METHOD_NEW))
 #include <openssl/ecdsa.h>
+#define ENABLE_PKCS11_ECDSA 1
+#endif
 #endif
 #ifndef OPENSSL_NO_ECDH
 #include <openssl/ecdh.h>
@@ -155,8 +161,7 @@ static RSA_METHOD *engine_rsa_method(void)
 
 static int pkcs11d_ec_key_idx = -1;
 
-#ifndef OPENSSL_NO_ECDSA
-
+#ifdef ENABLE_PKCS11_ECDSA
 /* ECDSA */
 static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
                                      const BIGNUM *inv, const BIGNUM *rp,
@@ -256,7 +261,7 @@ static int bind_fn(ENGINE * e, const char *id)
         !ENGINE_set_RSA(e, engine_rsa_method()) ||
 #endif
 #ifndef OPENSSL_NO_EC
-#ifndef OPENSSL_NO_ECDSA
+#ifdef ENABLE_PKCS11_ECDSA
         !ENGINE_set_ECDSA(e, engine_ecdsa_method()) ||
 #endif
 #ifndef OPENSSL_NO_ECDH

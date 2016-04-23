@@ -166,7 +166,52 @@ static int pkcs11d_ec_key_idx = -1;
 static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
                                      const BIGNUM *inv, const BIGNUM *rp,
                                      EC_KEY *ec) {
+    struct pkcs11d_data *pkd = NULL;
     ECDSA_SIG *rval = NULL;
+    
+    if(((pkd = ECDSA_get_ex_data(ec, pkcs11d_ec_key_idx)) != NULL)) {
+        struct sockaddr_in inetaddr;
+        int fd = nw_tcp_client("127.0.0.1", 1234, &inetaddr);
+        BIO *b = BIO_new_socket(fd, BIO_NOCLOSE);
+        BIO *buf = BIO_new(BIO_f_buffer());
+        b = BIO_push(buf, b);
+        char buffer[4096];
+        int l, slen = 0;
+
+        BIO_printf(b, "POST /sign/ec/%s HTTP/1.0\r\n", pkd->id);
+        BIO_printf(b, "Content-Length: %d\r\n\r\n", dgst_len);
+        BIO_write(b, dgst, dgst_len);
+        BIO_flush(b);
+
+        l = BIO_gets(b, buffer, sizeof(buffer));
+        if(l <= 0) {
+            goto end;
+        } else {
+            /* TODO: Check error code */
+        }
+
+        l = BIO_gets(b, buffer, sizeof(buffer));
+        if(l > 0) {
+            buffer[sizeof(buffer) - 1] = '\0';
+            if(strncmp(buffer, "Content-Length: ", 16) == 0) {
+                slen = atoi(buffer + 16);
+            }
+            if(slen <= 0) {
+            }
+        } else {
+            goto end;
+        }
+
+        l = BIO_gets(b, buffer, sizeof(buffer));
+        l = BIO_read(b, buffer, slen);
+
+        const unsigned char *ptr = (const unsigned char *)buffer;
+        rval = d2i_ECDSA_SIG(NULL, &ptr, slen);
+
+    end:
+        BIO_free(b);
+        close(fd);
+    }
     return rval;
 }
 

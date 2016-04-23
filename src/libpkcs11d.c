@@ -197,6 +197,7 @@ static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
                 slen = atoi(buffer + 16);
             }
             if(slen <= 0) {
+                goto end;
             }
         } else {
             goto end;

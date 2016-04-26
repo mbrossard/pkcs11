@@ -26,6 +26,10 @@
 #endif
 #endif
 
+#if OPENSSL_VERSION_NUMBER < 0x10100005L
+#define EVP_PKEY_id(pkey) pkey->type
+#endif
+
 #define ENGINE_ID   "pkcs11d"
 #define ENGINE_NAME "pkcs11d"
 
@@ -265,9 +269,9 @@ static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *path,
             BIO_set_md(h, hash);
             s = BIO_push(h, s);
 
-            if(pkey->type == EVP_PKEY_RSA) {
+            if(EVP_PKEY_id(pkey) == EVP_PKEY_RSA) {
                 i2d_RSAPublicKey_bio(s, EVP_PKEY_get1_RSA(pkey));
-            } else if(pkey->type == EVP_PKEY_EC) {
+            } else if(EVP_PKEY_id(pkey) == EVP_PKEY_EC) {
                 i2d_EC_PUBKEY_bio(s, EVP_PKEY_get1_EC_KEY(pkey));
             }
             n = BIO_gets(h, (char*)md, EVP_MAX_MD_SIZE);
@@ -278,7 +282,7 @@ static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *path,
             struct pkcs11d_data *pd = (struct pkcs11d_data *) malloc(sizeof(struct pkcs11d_data));
             memcpy(pd->id, key_id, sizeof(key_id));
             
-            if(pkey->type == EVP_PKEY_RSA) {
+            if(EVP_PKEY_id(pkey) == EVP_PKEY_RSA) {
                 RSA_set_method(EVP_PKEY_get1_RSA(pkey), engine_rsa_method());
                 RSA_set_ex_data(EVP_PKEY_get1_RSA(pkey), pkcs11d_rsa_key_idx, pd);
             }

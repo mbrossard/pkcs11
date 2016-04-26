@@ -322,6 +322,10 @@ static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *path,
             if(EVP_PKEY_id(pkey) == EVP_PKEY_RSA) {
                 RSA_set_method(EVP_PKEY_get1_RSA(pkey), engine_rsa_method());
                 RSA_set_ex_data(EVP_PKEY_get1_RSA(pkey), pkcs11d_rsa_key_idx, pd);
+            } else if(EVP_PKEY_id(pkey) == EVP_PKEY_EC) {
+                ECDSA_set_method(EVP_PKEY_get1_EC_KEY(pkey), engine_ecdsa_method());
+                ECDH_set_method(EVP_PKEY_get1_EC_KEY(pkey), engine_ecdh_method());
+                ECDSA_set_ex_data(EVP_PKEY_get1_EC_KEY(pkey), pkcs11d_ec_key_idx, pd);
             }
         }
         BIO_free(key);

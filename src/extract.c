@@ -160,24 +160,24 @@ int extract(int argc, char **argv)
         
         if(1) {
             CK_BYTE unwrapped[65536];
-            EVP_CIPHER_CTX ctx;
+            EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
             int len, tmp;
 
-            EVP_CIPHER_CTX_init(&ctx);
+            EVP_CIPHER_CTX_init(ctx);
             switch (sizeof(aes)) {
                 case 16:
-                    EVP_DecryptInit (&ctx, EVP_aes_128_cbc (), aes, iv);
+                    EVP_DecryptInit (ctx, EVP_aes_128_cbc (), aes, iv);
                     break;
                 case 24:
-                    EVP_DecryptInit (&ctx, EVP_aes_192_cbc (), aes, iv);
+                    EVP_DecryptInit (ctx, EVP_aes_192_cbc (), aes, iv);
                     break;
                 case 32:
-                    EVP_DecryptInit (&ctx, EVP_aes_256_cbc (), aes, iv);
+                    EVP_DecryptInit (ctx, EVP_aes_256_cbc (), aes, iv);
                     break;
             };
 
-            if(EVP_DecryptUpdate(&ctx, unwrapped, &len, wrapped_key, wl)) {
-                if(EVP_DecryptFinal(&ctx, unwrapped + len, &tmp)) {
+            if(EVP_DecryptUpdate(ctx, unwrapped, &len, wrapped_key, wl)) {
+                if(EVP_DecryptFinal(ctx, unwrapped + len, &tmp)) {
                     char b[256];
                     FILE *f;
                     len += tmp;
@@ -194,7 +194,9 @@ int extract(int argc, char **argv)
                 fprintf(stderr, "Error decrypting\n");
             }
 
-            EVP_CIPHER_CTX_cleanup(&ctx);
+            EVP_CIPHER_CTX_cleanup(ctx);
+            EVP_CIPHER_CTX_free(ctx);
+            ctx = NULL;
         }
     }
 

@@ -23,7 +23,7 @@ struct pkcs11_key_data {
     CK_BYTE type;
 };
 
-static int pkcs11_rsa_key_idx   = -1;
+static int pkcs11_rsa_key_idx = -1;
 
 static int pkcs11_rsa_private_encrypt(int flen, const unsigned char *from,
                                       unsigned char *to, RSA *rsa, int padding)
@@ -79,12 +79,19 @@ static RSA_METHOD *get_pkcs11_rsa_method(void) {
 		pkcs11_rsa_key_idx = RSA_get_ex_new_index(0, NULL, NULL, NULL, 0);
 	}
 	if(pkcs11_rsa_method == NULL) {
+#if OPENSSL_VERSION_NUMBER < 0x10100005L        
 		const RSA_METHOD *def = RSA_get_default_method();
 		pkcs11_rsa_method = calloc(1, sizeof(*pkcs11_rsa_method));
 		memcpy(pkcs11_rsa_method, def, sizeof(*pkcs11_rsa_method));
 		pkcs11_rsa_method->name = "pkcs11";
 		pkcs11_rsa_method->rsa_priv_enc = pkcs11_rsa_private_encrypt;
 		pkcs11_rsa_method->rsa_priv_dec = pkcs11_rsa_private_decrypt;
+#else
+        pkcs11_rsa_method = RSA_meth_dup(RSA_get_default_method());
+        RSA_meth_set1_name(pkcs11_rsa_method, "pkcs11");
+        RSA_meth_set_priv_enc(pkcs11_rsa_method, pkcs11_rsa_private_encrypt);
+        RSA_meth_set_priv_dec(pkcs11_rsa_method, pkcs11_rsa_private_decrypt);
+#endif
 	}
 	return pkcs11_rsa_method;
 }
@@ -205,6 +212,7 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
            ((rsa_attributes[1].pValue = malloc(rsa_attributes[1].ulValueLen)) != NULL) &&
            ((rv = funcs->C_GetAttributeValue(session, key, rsa_attributes, 2)) == CKR_OK) && 
            (rsa != NULL)) {
+#if OPENSSL_VERSION_NUMBER < 0x10100005L
             rsa->n = BN_bin2bn(rsa_attributes[0].pValue,
                                rsa_attributes[0].ulValueLen, NULL);
             rsa->e = BN_bin2bn(rsa_attributes[1].pValue,
@@ -215,7 +223,15 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
             rsa->dmp1 = BN_dup(BN_value_one());
             rsa->dmq1 = BN_dup(BN_value_one());
             rsa->iqmp = BN_dup(BN_value_one());
-
+#else
+            RSA_set0_key(rsa,
+                         BN_bin2bn(rsa_attributes[0].pValue,
+                                   rsa_attributes[0].ulValueLen, NULL),
+                         BN_bin2bn(rsa_attributes[1].pValue,
+                                   rsa_attributes[1].ulValueLen, NULL),
+                         NULL);
+#endif
+            
             if((k = EVP_PKEY_new()) != NULL) {
                 RSA_set_method(rsa, get_pkcs11_rsa_method());
                 RSA_set_ex_data(rsa, pkcs11_rsa_key_idx, pkd);

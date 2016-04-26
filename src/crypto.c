@@ -124,6 +124,7 @@ static ECDSA_SIG *pkcs11_ecdsa_sign(const unsigned char *dgst, int dgst_len,
        ((rv = pkd->funcs->C_SignInit(pkd->session, &mech, pkd->key)) == CKR_OK)) {
 		CK_BYTE_PTR buf = NULL;
         ECDSA_SIG *rval;
+        BIGNUM *r, *s;
         int nlen;
         
         /* Make a call to C_Sign to find out the size of the signature */
@@ -149,8 +150,14 @@ static ECDSA_SIG *pkcs11_ecdsa_sign(const unsigned char *dgst, int dgst_len,
              * ECDSA_SIG for OpenSSL.
              */
             nlen = tlen / 2;
-            BN_bin2bn(&buf[0], nlen, rval->r);
-            BN_bin2bn(&buf[nlen], nlen, rval->s);
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+            ECDSA_SIG_get0(&r, &s, rval);
+#else
+            r = rval->r;
+            s = rval->s;
+#endif
+            BN_bin2bn(&buf[0], nlen, r);
+            BN_bin2bn(&buf[nlen], nlen, s);
         }
         free(buf);
         return rval;

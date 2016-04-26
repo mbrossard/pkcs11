@@ -179,8 +179,14 @@ static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
                                      EC_KEY *ec) {
     struct pkcs11d_data *pkd = NULL;
     ECDSA_SIG *rval = NULL;
-    
-    if(((pkd = ECDSA_get_ex_data(ec, pkcs11d_ec_key_idx)) != NULL)) {
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    pkd = ECDSA_get_ex_data(ec, pkcs11d_ec_key_idx);
+#else
+    pkd = EC_KEY_get_ex_data(ec, pkcs11d_ec_key_idx);
+#endif
+
+    if(pkd != NULL) {
         struct sockaddr_in inetaddr;
         int fd = nw_tcp_client("127.0.0.1", 1234, &inetaddr);
         BIO *b = BIO_new_socket(fd, BIO_NOCLOSE);

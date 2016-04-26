@@ -9,7 +9,18 @@
 #ifdef HAVE_OPENSSL
 #include <string.h>
 #include <openssl/rsa.h>
+
+#ifndef OPENSSL_NO_EC
+#include <openssl/ec.h>
+#ifndef OPENSSL_NO_ECDSA
+#if ((defined(LIBRESSL_VERSION_NUMBER) &&           \
+      (LIBRESSL_VERSION_NUMBER >= 0x20010002L))) || \
+	(defined(ECDSA_F_ECDSA_METHOD_NEW))
 #include <openssl/ecdsa.h>
+#define ENABLE_PKCS11_ECDSA 1
+#endif
+#endif
+#endif
 
 void init_crypto()
 {
@@ -96,12 +107,6 @@ static RSA_METHOD *get_pkcs11_rsa_method(void) {
 	return pkcs11_rsa_method;
 }
 
-#if ((defined(LIBRESSL_VERSION_NUMBER) && \
-	(LIBRESSL_VERSION_NUMBER >= 0x20010002L))) || \
-	(defined(ECDSA_F_ECDSA_METHOD_NEW))
-#define ENABLE_PKCS11_ECDSA 1
-#endif
-
 #ifdef ENABLE_PKCS11_ECDSA
 static int pkcs11_ecdsa_key_idx = -1;
 
@@ -155,6 +160,7 @@ static ECDSA_SIG *pkcs11_ecdsa_sign(const unsigned char *dgst, int dgst_len,
 }
 
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 static ECDSA_METHOD *get_pkcs11_ecdsa_method(void) {
 	static ECDSA_METHOD *pkcs11_ecdsa_method = NULL;
 	if(pkcs11_ecdsa_key_idx == -1) {
@@ -175,6 +181,7 @@ static ECDSA_METHOD *get_pkcs11_ecdsa_method(void) {
 	}
 	return pkcs11_ecdsa_method;
 }
+#endif
 
 #endif
 
@@ -303,8 +310,10 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
 
             if(ecdsa) {
                 if((k = EVP_PKEY_new()) != NULL) {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
                     ECDSA_set_method(ecdsa, get_pkcs11_ecdsa_method());
                     ECDSA_set_ex_data(ecdsa, pkcs11_ecdsa_key_idx, pkd);
+#endif                    
                     EVP_PKEY_set1_EC_KEY(k, ecdsa);
                 }
             }
@@ -328,7 +337,9 @@ void unload_pkcs11_key(EVP_PKEY *k)
             pkd = RSA_get_ex_data(EVP_PKEY_get1_RSA(k), pkcs11_rsa_key_idx);
 #ifdef ENABLE_PKCS11_ECDSA
         } else if(t == EVP_PKEY_EC) {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
             pkd = ECDSA_get_ex_data(EVP_PKEY_get1_EC_KEY(k), pkcs11_ecdsa_key_idx);
+#endif
 #endif
         }
         free(pkd);

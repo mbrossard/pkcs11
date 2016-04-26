@@ -226,7 +226,11 @@ static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
     }
     return rval;
 }
+#endif
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+
+#ifdef ENABLE_PKCS11_ECDSA
 static ECDSA_METHOD *engine_ecdsa_method(void)
 {
     static ECDSA_METHOD *pkcs11d_ecdsa_method = NULL;
@@ -256,7 +260,27 @@ static ECDH_METHOD *engine_ecdh_method(void)
 	return NULL;
 }
 #endif
+
+#else
+
+static EC_KEY_METHOD *engine_ec_method(void)
+{
+    static EC_KEY_METHOD *pkcs11d_ec_method = NULL;
+	if(pkcs11d_ec_key_idx == -1) {
+		pkcs11d_ec_key_idx = EC_KEY_get_ex_new_index(0, NULL, NULL, NULL, 0);
+	}
+	if(pkcs11d_ec_method == NULL) {
+        int (*sig)(int type, const unsigned char *dgst, int dlen, unsigned char *sig,
+                    unsigned int *siglen, const BIGNUM *kinv, const BIGNUM *r, EC_KEY *eckey) = NULL;
+		pkcs11d_ec_method = EC_KEY_METHOD_new(EC_KEY_get_default_method());
+        EC_KEY_METHOD_get_sign(pkcs11d_ec_method, &sig, NULL, NULL);
+		EC_KEY_METHOD_set_sign(pkcs11d_ec_method, sig, NULL, pkcs11d_ecdsa_sign);
+	}
+	return pkcs11d_ec_method;
+}
 #endif
+
+#endif /* OPENSSL_NO_EC */
 
 static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *path,
                                          UI_METHOD * ui_method, void *callback_data)

@@ -151,12 +151,19 @@ static RSA_METHOD *engine_rsa_method(void)
 		pkcs11d_rsa_key_idx = RSA_get_ex_new_index(0, NULL, NULL, NULL, 0);
 	}
 	if(pkcs11d_rsa_method == NULL) {
+#if OPENSSL_VERSION_NUMBER < 0x10100005L        
 		const RSA_METHOD *def = RSA_get_default_method();
 		pkcs11d_rsa_method = calloc(1, sizeof(*pkcs11d_rsa_method));
 		memcpy(pkcs11d_rsa_method, def, sizeof(*pkcs11d_rsa_method));
 		pkcs11d_rsa_method->name = "pkcs11d";
 		pkcs11d_rsa_method->rsa_priv_enc = pkcs11d_rsa_private_encrypt;
 		pkcs11d_rsa_method->rsa_priv_dec = pkcs11d_rsa_private_decrypt;
+#else
+        pkcs11d_rsa_method = RSA_meth_dup(RSA_get_default_method());
+        RSA_meth_set1_name(pkcs11d_rsa_method, "pkcs11d");
+        RSA_meth_set_priv_enc(pkcs11d_rsa_method, pkcs11d_rsa_private_encrypt);
+        RSA_meth_set_priv_dec(pkcs11d_rsa_method, pkcs11d_rsa_private_decrypt);
+#endif
 	}
 	return pkcs11d_rsa_method;
 }

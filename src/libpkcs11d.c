@@ -342,11 +342,15 @@ static int bind_fn(ENGINE * e, const char *id)
         !ENGINE_set_RSA(e, engine_rsa_method()) ||
 #endif
 #ifndef OPENSSL_NO_EC
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 #ifdef ENABLE_PKCS11_ECDSA
         !ENGINE_set_ECDSA(e, engine_ecdsa_method()) ||
 #endif
 #ifndef OPENSSL_NO_ECDH
         !ENGINE_set_ECDH(e, engine_ecdh_method()) ||
+#endif
+#else
+        !ENGINE_set_EC(e, engine_ec_method()) ||
 #endif
 #endif
         !ENGINE_set_load_pubkey_function(e, engine_load_public_key) ||

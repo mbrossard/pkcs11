@@ -14,7 +14,8 @@ MAINTAINERCLEANFILES = \
     $(srcdir)/install-sh \
 	$(srcdir)/ltmain.sh \
 	$(srcdir)/missing \
-    $(srcdir)/src/config.h.in
+    $(srcdir)/src/config.h.in \
+    $(srcdir)/src/libpkcs11d.exports
 
 EXTRA_DIST = \
 		$(srcdir)/include/*.h \
@@ -90,7 +91,7 @@ libpkcs11d_la_CFLAGS = $(AM_CFLAGS) \
 
 libpkcs11d_la_LDFLAGS = \
 	-avoid-version -module --shared -export-dynamic \
-	-export-symbols "$(srcdir)/src/pkcs11d.exports" \
+	-export-symbols "$(srcdir)/src/libpkcs11d.exports" \
 	@OPENSSL_LDFLAGS@
 
 libpkcs11d_la_LIBADD = @OPENSSL_LIBS@

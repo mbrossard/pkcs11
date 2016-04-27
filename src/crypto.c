@@ -195,6 +195,21 @@ static ECDSA_METHOD *get_pkcs11_ecdsa_method(void) {
 	}
 	return pkcs11_ecdsa_method;
 }
+#else
+static EC_KEY_METHOD *get_pkcs11_ec_method(void) {
+	static EC_KEY_METHOD *pkcs11_ec_method = NULL;
+	if(pkcs11_ecdsa_key_idx == -1) {
+		pkcs11_ecdsa_key_idx = EC_KEY_get_ex_new_index(0, NULL, NULL, NULL, 0);
+	}
+	if(pkcs11_ec_method == NULL) {
+        int (*sig)(int type, const unsigned char *dgst, int dlen, unsigned char *sig,
+                    unsigned int *siglen, const BIGNUM *kinv, const BIGNUM *r, EC_KEY *eckey) = NULL;
+		pkcs11_ec_method = EC_KEY_METHOD_new(EC_KEY_get_default_method());
+        EC_KEY_METHOD_get_sign(pkcs11_ec_method, &sig, NULL, NULL);
+		EC_KEY_METHOD_set_sign(pkcs11_ec_method, sig, NULL, pkcs11_ecdsa_sign);
+	}
+	return pkcs11_ec_method;
+}
 #endif
 
 #endif

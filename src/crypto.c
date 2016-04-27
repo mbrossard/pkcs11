@@ -121,8 +121,13 @@ static ECDSA_SIG *pkcs11_ecdsa_sign(const unsigned char *dgst, int dgst_len,
 	};
 	CK_ULONG tlen = 0;
 	CK_RV rv;
-    
-    if(((pkd = ECDSA_get_ex_data(ecdsa, pkcs11_ecdsa_key_idx)) != NULL) &&
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    pkd = ECDSA_get_ex_data(ecdsa, pkcs11_ecdsa_key_idx);
+#else
+    pkd = EC_KEY_get_ex_data(ecdsa, pkcs11_ecdsa_key_idx);
+#endif
+    if((pkd != NULL) &&
        ((rv = pkd->funcs->C_SignInit(pkd->session, &mech, pkd->key)) == CKR_OK)) {
 		CK_BYTE_PTR buf = NULL;
         ECDSA_SIG *rval;

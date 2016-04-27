@@ -371,6 +371,8 @@ void unload_pkcs11_key(EVP_PKEY *k)
         } else if(t == EVP_PKEY_EC) {
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
             pkd = ECDSA_get_ex_data(EVP_PKEY_get1_EC_KEY(k), pkcs11_ecdsa_key_idx);
+#else
+            pkd = EC_KEY_get_ex_data(EVP_PKEY_get1_EC_KEY(k), pkcs11_ecdsa_key_idx);
 #endif
 #endif
         }

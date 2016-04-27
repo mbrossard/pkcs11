@@ -342,6 +342,9 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
                     ECDSA_set_method(ecdsa, get_pkcs11_ecdsa_method());
                     ECDSA_set_ex_data(ecdsa, pkcs11_ecdsa_key_idx, pkd);
+#else
+                    EC_KEY_set_method(ecdsa, get_pkcs11_ec_method());
+                    EC_KEY_set_ex_data(ecdsa, pkcs11_ecdsa_key_idx, pkd);
 #endif                    
                     EVP_PKEY_set1_EC_KEY(k, ecdsa);
                 }

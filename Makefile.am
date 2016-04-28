@@ -109,11 +109,11 @@ test: pkcs11-util pkcs11-token.la
 	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l 3des    -k des3
 	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l aes     -k aes
 	./pkcs11-util request $(MODULE_PIN_SLOT) -l rsa2048 | @OPENSSL_BIN@ req -verify
-	./pkcs11-util certify $(MODULE_PIN_SLOT) -l rsa2048 | @OPENSSL_BIN@ verify
+	./pkcs11-util certify $(MODULE_PIN_SLOT) -l rsa2048 | @OPENSSL_BIN@ x509
 	if [ "@HAVE_OPENSSL_ECC@" = 1 ] ; then \
 	  if ! @OPENSSL_BIN@ pkeyutl &>/dev/null ; then \
 	    ./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ req -verify ; \
-	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ verify ; \
+	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ x509 ; \
 		fi ; \
 	fi
 	./pkcs11-util info            $(MODULE)

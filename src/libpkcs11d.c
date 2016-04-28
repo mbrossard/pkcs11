@@ -14,12 +14,12 @@
 #ifndef OPENSSL_NO_EC
 #include <openssl/ec.h>
 #ifndef OPENSSL_NO_ECDSA
+#include <openssl/ecdsa.h>
 #if ((defined(LIBRESSL_VERSION_NUMBER) &&           \
       (LIBRESSL_VERSION_NUMBER >= 0x20010002L))) || \
 	(defined(ECDSA_F_ECDSA_METHOD_NEW)) ||          \
     ((defined(OPENSSL_VERSION_NUMBER) &&            \
       (OPENSSL_VERSION_NUMBER >= 0x10100000L)))
-#include <openssl/ecdsa.h>
 #define ENABLE_PKCS11_ECDSA 1
 #endif
 #endif

@@ -22,6 +22,9 @@
 #define ENABLE_PKCS11_ECDSA 1
 #endif
 #endif
+#ifndef OPENSSL_NO_ECDH
+#include <openssl/ecdh.h>
+#endif
 #endif
 
 void init_crypto()
@@ -173,6 +176,21 @@ static ECDSA_SIG *pkcs11_ecdsa_sign(const unsigned char *dgst, int dgst_len,
     }
 }
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+static int pkcs11_ecdh_compute_key(unsigned char **out, size_t *outlen,
+                                   const EC_POINT *point, const EC_KEY *key)
+{
+    return 0;
+}
+#else
+static int pkcs11_ecdh_compute_key_kdf(void *out, size_t outlen,
+                                       const EC_POINT *point, EC_KEY *key,
+                                       void *(*KDF)(const void *, size_t, void *, size_t *))
+{
+	int rv = -1;
+    return rv;
+}
+#endif
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 static ECDSA_METHOD *get_pkcs11_ecdsa_method(void) {
@@ -195,6 +213,12 @@ static ECDSA_METHOD *get_pkcs11_ecdsa_method(void) {
 	}
 	return pkcs11_ecdsa_method;
 }
+
+static ECDH_METHOD *get_pkcs11_ecdh_method(void) {
+	static ECDH_METHOD *pkcs11_ecdh_method = NULL;
+	return pkcs11_ecdh_method;
+}
+
 #else
 static EC_KEY_METHOD *get_pkcs11_ec_method(void) {
 	static EC_KEY_METHOD *pkcs11_ec_method = NULL;
@@ -207,6 +231,7 @@ static EC_KEY_METHOD *get_pkcs11_ec_method(void) {
 		pkcs11_ec_method = EC_KEY_METHOD_new(EC_KEY_get_default_method());
         EC_KEY_METHOD_get_sign(pkcs11_ec_method, &sig, NULL, NULL);
 		EC_KEY_METHOD_set_sign(pkcs11_ec_method, sig, NULL, pkcs11_ecdsa_sign);
+        EC_KEY_METHOD_set_compute_key(pkcs11_ec_method, pkcs11_ecdh_compute_key);
 	}
 	return pkcs11_ec_method;
 }
@@ -341,6 +366,7 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
                 if((k = EVP_PKEY_new()) != NULL) {
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
                     ECDSA_set_method(ecdsa, get_pkcs11_ecdsa_method());
+                    ECDH_set_method(ecdsa, get_pkcs11_ecdh_method());
                     ECDSA_set_ex_data(ecdsa, pkcs11_ecdsa_key_idx, pkd);
 #else
                     EC_KEY_set_method(ecdsa, get_pkcs11_ec_method());

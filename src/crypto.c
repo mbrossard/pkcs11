@@ -176,11 +176,59 @@ static ECDSA_SIG *pkcs11_ecdsa_sign(const unsigned char *dgst, int dgst_len,
     }
 }
 
+static int pkcs11_ecdh_compute_key_common(unsigned char **out, size_t *outlen,
+                                          const EC_POINT *point, const EC_KEY *key,
+                                          struct pkcs11_key_data *pkd)
+{
+	int rv = 0;
+
+    if(pkd != NULL) {
+        unsigned char oct[256];
+        const EC_GROUP *group = EC_KEY_get0_group(key);
+        size_t len = EC_POINT_point2oct(group, point, POINT_CONVERSION_UNCOMPRESSED, oct, sizeof(oct), NULL);
+        if(len > 0) {
+            CK_ECDH1_DERIVE_PARAMS params = { CKD_NULL, 0, NULL, len, oct };
+            CK_BBOOL ck_true = TRUE;
+            CK_BBOOL ck_false = FALSE;
+            CK_OBJECT_HANDLE derived = CK_INVALID_HANDLE;
+            CK_OBJECT_CLASS class = CKO_SECRET_KEY;
+            CK_KEY_TYPE type = CKK_GENERIC_SECRET;
+            CK_ATTRIBUTE template[] = {
+                {CKA_TOKEN,    &ck_false, sizeof(ck_false)},
+                {CKA_CLASS,    &class,    sizeof(class)},
+                {CKA_KEY_TYPE, &type,     sizeof(type)},
+                {CKA_ENCRYPT,  &ck_true,  sizeof(ck_true)},
+                {CKA_DECRYPT,  &ck_true,  sizeof(ck_true)}
+            };
+            CK_MECHANISM mech = {
+                CKM_ECDH1_DERIVE, &params, sizeof(params)
+            };
+
+            if(pkd->funcs->C_DeriveKey(pkd->session, &mech, pkd->key, template, 5, &derived) == CKR_OK) {
+                CK_ATTRIBUTE attr = { CKA_VALUE, NULL, 0 };
+                if((pkd->funcs->C_GetAttributeValue(pkd->session, derived, &attr, 1) == CKR_OK)
+                   && (attr.ulValueLen > 0)
+                   && ((attr.pValue = malloc(attr.ulValueLen)) != NULL)) {
+                    if(pkd->funcs->C_GetAttributeValue(pkd->session, derived, &attr, 1) == CKR_OK) {
+                        *out = attr.pValue;
+                        *outlen = attr.ulValueLen;
+                        rv = 1;
+                    } else {
+                        free(attr.pValue);
+                    }
+                }
+                pkd->funcs->C_DestroyObject(pkd->session, derived);
+            }
+        }
+    }
+	return rv;
+}
+
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
 static int pkcs11_ecdh_compute_key(unsigned char **out, size_t *outlen,
                                    const EC_POINT *point, const EC_KEY *key)
 {
-    return 0;
+    return pkcs11_ecdh_compute_key_common(out, outlen, point, key, EC_KEY_get_ex_data(key, pkcs11_ecdsa_key_idx));
 }
 #else
 static int pkcs11_ecdh_compute_key_kdf(void *out, size_t outlen,

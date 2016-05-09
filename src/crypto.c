@@ -235,7 +235,22 @@ static int pkcs11_ecdh_compute_key_kdf(void *out, size_t outlen,
                                        const EC_POINT *point, EC_KEY *key,
                                        void *(*KDF)(const void *, size_t, void *, size_t *))
 {
+	unsigned char *buf = NULL;
+	size_t buflen;
 	int rv = -1;
+    struct pkcs11_key_data *pkd = ECDSA_get_ex_data((EC_KEY *)key, pkcs11_ecdsa_key_idx);
+    if(pkcs11_ecdh_compute_key_common(&buf, &buflen, point, key, pkd)) {
+        if(KDF && KDF(buf, buflen, out, &outlen)) {
+            rv = outlen;
+        } else {
+            if(outlen > buflen) {
+                outlen = buflen;
+            }
+            memcpy(out, buf, outlen);
+            rv = outlen;
+        }
+    }
+    free(buf);
     return rv;
 }
 #endif

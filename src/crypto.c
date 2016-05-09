@@ -277,8 +277,28 @@ static ECDSA_METHOD *get_pkcs11_ecdsa_method(void) {
 	return pkcs11_ecdsa_method;
 }
 
+struct ecdh_method {
+    const char *name;
+    int (*compute_key) (void *key, size_t outlen, const EC_POINT *pub_key,
+                        EC_KEY *ecdh, void *(*KDF) (const void *in,
+                                                    size_t inlen, void *out,
+                                                    size_t *outlen));
+    int flags;
+    char *app_data;
+};
+
 static ECDH_METHOD *get_pkcs11_ecdh_method(void) {
 	static ECDH_METHOD *pkcs11_ecdh_method = NULL;
+	if(pkcs11_ecdsa_key_idx == -1) {
+		pkcs11_ecdsa_key_idx = ECDSA_get_ex_new_index(0, NULL, NULL, NULL, 0);
+	}
+	if(pkcs11_ecdh_method == NULL) {
+		const ECDH_METHOD *def = ECDH_get_default_method();
+		pkcs11_ecdh_method = calloc(1, sizeof(struct ecdh_method));
+		memcpy(pkcs11_ecdh_method, def, sizeof(struct ecdh_method));
+		pkcs11_ecdh_method->name = "pkcs11";
+		pkcs11_ecdh_method->compute_key = pkcs11_ecdh_compute_key_kdf;
+	}
 	return pkcs11_ecdh_method;
 }
 

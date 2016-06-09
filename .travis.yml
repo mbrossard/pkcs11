@@ -7,28 +7,23 @@ branches:
 
 cache: apt
 
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-5
+    - libnss3-dev
+    - libtool
+
 matrix:
   include:
   - os: linux
     compiler: clang
-    addons:
-      apt:
-        packages: [ "libnss3-dev", "libtool" ]
-        sources: &sources
-          - ubuntu-toolchain-r-test
-          - llvm-toolchain-precise
   - os: linux
-    compiler: clang
-    addons:
-      apt:
-        packages: ["clang-3.8", "libnss3-dev", "libtool" ]
-        sources: *sources
+    compiler: gcc
   - os: linux
     compiler: gcc-5
-    addons:
-      apt:
-        packages: ["gcc-5", "libnss3-dev", "libtool" ]
-        sources: *sources
   - os: osx
     compiler: clang
     osx_image: xcode6.1

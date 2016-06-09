@@ -2,7 +2,7 @@
 #define BASE64__H
 
 /*
- * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
+ * Copyright (C) 2016 Mathias Brossard <mathias@brossard.org>
  */
 
 /** @file base64.h

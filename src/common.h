@@ -2,7 +2,7 @@
 #define COMMON_H
 
 /*
- * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
+ * Copyright (C) 2016 Mathias Brossard <mathias@brossard.org>
  */
 
 #if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)

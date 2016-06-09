@@ -2,7 +2,7 @@
 #define PKCS11_DISPLAY_H
 
 /*
- * Copyright (C) 2015 Mathias Brossard <mathias@brossard.org>
+ * Copyright (C) 2016 Mathias Brossard <mathias@brossard.org>
  */
 
 #include "common.h"

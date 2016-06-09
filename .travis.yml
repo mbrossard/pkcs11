@@ -12,6 +12,7 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     packages:
+    - gcc-4.8
     - gcc-5
     - libnss3-dev
     - libtool
@@ -21,7 +22,7 @@ matrix:
   - os: linux
     compiler: clang
   - os: linux
-    compiler: gcc
+    compiler: gcc-4.8
   - os: linux
     compiler: gcc-5
   - os: osx

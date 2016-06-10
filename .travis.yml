@@ -37,6 +37,9 @@ matrix:
   - os: osx
     env: INSTALL=gcc
     compiler: gcc-4.9
+  - os: osx
+    env: INSTALL=gcc5
+    compiler: gcc-5
 
 before_install:
   - if [ $TRAVIS_OS_NAME == osx -a $INSTALL == gcc5 ] ; then brew update ; fi

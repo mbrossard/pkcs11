@@ -51,3 +51,4 @@ script:
   - if [ $TRAVIS_OS_NAME == linux ] ; then ./configure ; fi
   - make V=1
   - make test
+  - make test-clean

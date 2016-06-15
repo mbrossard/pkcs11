@@ -162,7 +162,7 @@ int speed(int argc, char **argv)
     fillAttribute(&(search[1]), CKA_KEY_TYPE, &kt, sizeof(kt));
     if(opt_label) {
         fillAttribute(&(search[2]), CKA_LABEL, opt_label, strlen(opt_label));
-        count = 2;
+        count = 3;
     }
 
     rc = pkcs11_find_object(funcs, stdout, h_session, search,

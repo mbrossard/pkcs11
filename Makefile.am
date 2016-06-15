@@ -31,7 +31,11 @@ AM_CFLAGS = @OPENSSL_INCLUDES@ \
 	-ffunction-sections \
 	-fdata-sections
 
+if HAVE_OPENSSL
 bin_PROGRAMS = pkcs11-util pkcs11d
+else
+bin_PROGRAMS = pkcs11-util
+endif
 
 pkcs11_util_SOURCES = \
 	src/base64.c \
@@ -70,7 +74,11 @@ pkcs11d_SOURCES = \
 pkcs11d_LDFLAGS = @OPENSSL_LDFLAGS@
 pkcs11d_LDADD = @OPENSSL_LIBS@
 
+if HAVE_OPENSSL
 lib_LTLIBRARIES = pkcs11-token.la libpkcs11d.la
+else
+lib_LTLIBRARIES = pkcs11-token.la
+endif
 
 pkcs11_token_la_SOURCES = \
 	src/cryptoki.c \

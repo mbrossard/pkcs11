@@ -122,5 +122,7 @@ test: pkcs11-util pkcs11-token.la
 	./pkcs11-util list-objects    $(MODULE_PIN_SLOT)
 	./pkcs11-util ssh             $(MODULE_PIN_SLOT)
 	./pkcs11-util extract         $(MODULE_PIN_SLOT)
-	./pkcs11-util clean           $(MODULE_PIN_SLOT) -r
 	./pkcs11-util random          $(MODULE) $(SLOT) -l 512 | @OPENSSL_BIN@ base64
+
+test-clean:
+	./pkcs11-util clean           $(MODULE_PIN_SLOT) -r

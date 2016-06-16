@@ -132,6 +132,7 @@ test: pkcs11-util pkcs11-token.la
 	./pkcs11-util extract         $(MODULE_PIN_SLOT)
 	./pkcs11-util random          $(MODULE) $(SLOT) -l 512 | @OPENSSL_BIN@ base64
 	./pkcs11-util speed           $(MODULE_PIN_SLOT) -l rsa2048 -t 2 -o 200
+	./pkcs11-util speed           $(MODULE_PIN_SLOT) -l ec256 -e -t 2 -o 500
 
 test-clean:
 	./pkcs11-util clean           $(MODULE_PIN_SLOT) -r

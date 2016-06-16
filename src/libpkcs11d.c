@@ -2,8 +2,6 @@
 #include <string.h>
 
 #include "config.h"
-#include "network.h"
-#include "network.c"
 
 #include <openssl/ossl_typ.h>
 #include <openssl/engine.h>
@@ -83,13 +81,13 @@ static int pkcs11d_rsa_private_common(const char *op, int flen, const unsigned c
     int rval = -1;
 
     if(((pkd = RSA_get_ex_data(rsa, pkcs11d_rsa_key_idx)) != NULL)) {
-        struct sockaddr_in inetaddr;
-        int fd = nw_tcp_client("127.0.0.1", 1234, &inetaddr);
-        BIO *b = BIO_new_socket(fd, BIO_NOCLOSE);
+        BIO *b = BIO_new_connect("127.0.0.1");
         BIO *buf = BIO_new(BIO_f_buffer());
-        b = BIO_push(buf, b);
         char buffer[4096];
         int l, slen = 0;
+
+        BIO_set_conn_port(b, 1234);
+        b = BIO_push(buf, b);
 
         /* Insert implementation here */
 
@@ -127,8 +125,7 @@ static int pkcs11d_rsa_private_common(const char *op, int flen, const unsigned c
         }
 
     end:
-        BIO_free(b);
-        close(fd);
+        BIO_free_all(b);
     }
 
 	return rval;
@@ -189,14 +186,14 @@ static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
 #endif
 
     if(pkd != NULL) {
-        struct sockaddr_in inetaddr;
-        int fd = nw_tcp_client("127.0.0.1", 1234, &inetaddr);
-        BIO *b = BIO_new_socket(fd, BIO_NOCLOSE);
+        BIO *b = BIO_new_connect("127.0.0.1");
         BIO *buf = BIO_new(BIO_f_buffer());
-        b = BIO_push(buf, b);
         char buffer[4096];
         int l, slen = 0;
 
+        BIO_set_conn_port(b, 1234);
+        b = BIO_push(buf, b);
+        
         BIO_printf(b, "POST /sign/ec/%s HTTP/1.0\r\n", pkd->id);
         BIO_printf(b, "Content-Length: %d\r\n\r\n", dgst_len);
         BIO_write(b, dgst, dgst_len);
@@ -229,8 +226,7 @@ static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
         rval = d2i_ECDSA_SIG(NULL, &ptr, slen);
 
     end:
-        BIO_free(b);
-        close(fd);
+        BIO_free_all(b);
     }
     return rval;
 }

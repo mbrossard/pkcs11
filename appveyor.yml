@@ -66,6 +66,8 @@ build_script:
     - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; CFLAGS=\"-D_GNU_SOURCE -D_cdecl=__cdecl -Doff_t=_off_t -Doff64_t=_off64_t\" ./configure --with-pkcs11-module=\"C:\\Program Files (x86)\\Mozilla Firefox\\softokn3.dll\""'
 
     - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; make V=1"'
+    - cmd: 'echo Tests'
+    - cmd: '%CYG_ROOT%/bin/bash -lc "cd $APPVEYOR_BUILD_FOLDER; make test"'
     - cmd: 'echo Installation'
     - cmd: 'mkdir %APPVEYOR_BUILD_FOLDER%\dist'
     - cmd: '%CYG_ROOT%/bin/bash -lc "export CYGWIN=winsymlinks:native; mount \"$APPVEYOR_BUILD_FOLDER\dist\" /usr/local; cd $APPVEYOR_BUILD_FOLDER; exec 0</dev/null; make install; umount /usr/local"'

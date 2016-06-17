@@ -105,7 +105,7 @@ libpkcs11d_la_LDFLAGS = \
 libpkcs11d_la_LIBADD = @OPENSSL_LIBS@
 
 PIN=Vl0RJlAKiUMf
-MODULE = -m @DEFAULT_PKCS11_MODULE@ -d .
+MODULE = -m "@DEFAULT_PKCS11_MODULE@" -d .
 SLOT = --slot 2
 MODULE_PIN_SLOT = $(MODULE) --pin $(PIN) $(SLOT)
 

@@ -61,7 +61,7 @@ CK_FUNCTION_LIST  *pkcs11_get_function_list(const char *param)
 
     d = LoadLibrary(e);
     if (d == NULL) {
-        fprintf(stdout, "LoadLibrary Failed\n");
+        fprintf(stdout, "LoadLibrary Failed (%s)\n", e);
         return NULL;
     }
 

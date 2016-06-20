@@ -47,12 +47,12 @@ pkcs11_util_SOURCES = \
 	src/info.c \
 	src/init.c \
 	src/key.c \
-	src/keypair.c \
 	src/keygen.c \
+	src/keypair.c \
 	src/mechanisms.c \
 	src/objects.c \
-	src/pkcs11_display.c \
 	src/pkcs11-util.c \
+	src/pkcs11_display.c \
 	src/random.c \
 	src/request.c \
 	src/slots.c \

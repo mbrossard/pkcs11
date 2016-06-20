@@ -23,6 +23,7 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 LT_INIT
 AC_LIBTOOL_WIN32_DLL
 
+AC_CANONICAL_HOST
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_INSTALL
@@ -134,6 +135,7 @@ AC_MSG_RESULT([
         $PACKAGE $VERSION
         =====
 
+        host_os:                ${host_os}
         prefix:                 ${prefix}
         sysconfdir:             ${sysconfdir}
         libdir:                 ${libdir}

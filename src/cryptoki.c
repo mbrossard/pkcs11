@@ -133,11 +133,11 @@ static CK_RV init_module(void)
     if(dic) {
         z = iniparser_getstring(dic, "token:module", NULL);
         if(z) {
-            strdup(z);
+            z = strdup(z);
         }
         data_path = iniparser_getstring(dic, "token:data", NULL);
         if(data_path) {
-            strdup(data_path);
+            data_path = strdup(data_path);
         }
         iniparser_freedict(dic);
     }

@@ -105,7 +105,7 @@
 #endif
 #endif
 
-static char* data_path = NULL;
+static const char* data_path = NULL;
 static CK_FUNCTION_LIST_PTR pkcs11 = NULL;
 static CK_FUNCTION_LIST_PTR nss = NULL;
 static CK_BBOOL pkcs11_initialized = CK_FALSE;
@@ -131,8 +131,14 @@ static CK_RV init_module(void)
     }
 
     if(dic) {
-        z = strdup(iniparser_getstring(dic, "token:module", NULL));
-        data_path = strdup(iniparser_getstring(dic, "token:data", NULL));
+        z = iniparser_getstring(dic, "token:module", NULL);
+        if(z) {
+            strdup(z);
+        }
+        data_path = iniparser_getstring(dic, "token:data", NULL);
+        if(data_path) {
+            strdup(data_path);
+        }
         iniparser_freedict(dic);
     }
 
@@ -279,7 +285,7 @@ CK_RV DLL_EXPORTED C_Initialize(CK_VOID_PTR pInitArgs)
         ia.flags = CKF_OS_LOCKING_OK;
         ia.LibraryParameters = (CK_CHAR_PTR)buffer;
         ia.pReserved = NULL_PTR;
- 
+
         if(data_path) {
             snprintf(buffer, 256, nss_init_string, data_path);
         } else {

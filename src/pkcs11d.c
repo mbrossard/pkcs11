@@ -219,7 +219,7 @@ int main(int argc, char **argv)
         BIO *b = BIO_new_socket(s, BIO_NOCLOSE);
         BIO *buf = BIO_new(BIO_f_buffer());
         b = BIO_push(buf, b);
-        char buffer[4096], sig[4096], keyid[KEY_ID_SIZE + 1];
+        char buffer[4096], output[4096], keyid[KEY_ID_SIZE + 1];
         int l, slen = 0, plen = 0;
         CK_KEY_TYPE type;
         CK_ATTRIBUTE_TYPE operation;
@@ -290,16 +290,16 @@ int main(int argc, char **argv)
             if(verbose) {
                 fprintf(stderr, "RSA signature operation requested\n");
             }
-            l = RSA_private_encrypt(plen, (unsigned char *)buffer, (unsigned char *)sig,
+            l = RSA_private_encrypt(plen, (unsigned char *)buffer, (unsigned char *)output,
                                     EVP_PKEY_get1_RSA(pkey), RSA_PKCS1_PADDING);
         } else if(type == CKK_RSA && operation == CKA_DECRYPT) {
             if(verbose) {
                 fprintf(stderr, "RSA decryption operation requested\n");
             }
-            l = RSA_private_decrypt(plen, (unsigned char *)buffer, (unsigned char *)sig,
+            l = RSA_private_decrypt(plen, (unsigned char *)buffer, (unsigned char *)output,
                                     EVP_PKEY_get1_RSA(pkey), RSA_PKCS1_PADDING);
         } else if (type == CKK_EC && operation == CKA_SIGN) {
-            unsigned char *ptr = (unsigned char *)sig;
+            unsigned char *ptr = (unsigned char *)output;
             ECDSA_SIG *s = ECDSA_do_sign((unsigned char *)buffer, plen, EVP_PKEY_get1_EC_KEY(pkey));
             l = i2d_ECDSA_SIG(s, &ptr);
             ECDSA_SIG_free(s);
@@ -323,7 +323,7 @@ int main(int argc, char **argv)
         BIO_printf(b, "200 Ok\r\n");
         BIO_printf(b, "Content-Length: %d\r\n\r\n", slen);
 
-        l = BIO_write(b, sig, slen);
+        l = BIO_write(b, output, slen);
         BIO_flush(b);
 
         i= 0;

@@ -243,6 +243,10 @@ int main(int argc, char **argv)
             memcpy(keyid, buffer + 14, KEY_ID_SIZE - 1);
             type = CKK_EC;
             operation = CKA_SIGN;
+        } else if(strncmp(buffer, "POST /decrypt/ec/", 17) == 0) {
+            memcpy(keyid, buffer + 17, KEY_ID_SIZE - 1);
+            type = CKK_EC;
+            operation = CKA_DECRYPT;
         } else {
             goto end;
         }

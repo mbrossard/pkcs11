@@ -233,6 +233,14 @@ static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
 #endif
 
 #ifndef OPENSSL_NO_ECDH
+static int pkcs11d_ecdh_derive(unsigned char *out, size_t outlen,
+                               const EC_POINT *peer_point, const EC_KEY *ecdh)
+{
+    int rval = -1;
+
+    return rval;
+}
+
 #if OPENSSL_VERSION_NUMBER >= 0x10100004L
 static int pkcs11d_compute_key(unsigned char **out, size_t *outlen,
                                const EC_POINT *point, const EC_KEY *ec_key)

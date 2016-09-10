@@ -86,7 +86,7 @@ static int pkcs11d_rsa_private_common(const char *op, int flen, const unsigned c
         char buffer[4096];
         int l, slen = 0;
 
-        BIO_set_conn_port(b, 1234);
+        BIO_set_conn_port(b, "1234");
         b = BIO_push(buf, b);
 
         /* Insert implementation here */
@@ -191,7 +191,7 @@ static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
         char buffer[4096];
         int l, slen = 0;
 
-        BIO_set_conn_port(b, 1234);
+        BIO_set_conn_port(b, "1234");
         b = BIO_push(buf, b);
         
         BIO_printf(b, "POST /sign/ec/%s HTTP/1.0\r\n", pkd->id);

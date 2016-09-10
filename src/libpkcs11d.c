@@ -233,11 +233,18 @@ static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
 #endif
 
 #ifndef OPENSSL_NO_ECDH
+
 static int pkcs11d_ecdh_derive(unsigned char *out, size_t outlen,
                                const EC_POINT *peer_point, const EC_KEY *ecdh)
 {
+    struct pkcs11d_data *pkd = NULL;
     int rval = -1;
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    pkd = ECDH_get_ex_data((EC_KEY *)ecdh, pkcs11d_ec_key_idx);
+#else
+    pkd = EC_KEY_get_ex_data(ecdh, pkcs11d_ec_key_idx);
+#endif
     return rval;
 }
 

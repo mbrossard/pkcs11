@@ -245,6 +245,45 @@ static int pkcs11d_ecdh_derive(unsigned char *out, size_t outlen,
 #else
     pkd = EC_KEY_get_ex_data(ecdh, pkcs11d_ec_key_idx);
 #endif
+
+    if(pkd != NULL) {
+        BIO *b = BIO_new_connect("127.0.0.1");
+        BIO *buf = BIO_new(BIO_f_buffer());
+        char buffer[4096];
+        int l, slen = 0;
+        BIO_set_conn_port(b, "1234");
+        b = BIO_push(buf, b);
+
+        BIO_printf(b, "POST /decrypt/ec/%s HTTP/1.0\r\n", pkd->id);
+        BIO_printf(b, "Content-Length: %d\r\n\r\n", slen);
+        BIO_write(b, buffer, slen);
+        BIO_flush(b);
+
+        l = BIO_gets(b, buffer, sizeof(buffer));
+        if(l <= 0) {
+            goto end;
+        }
+        l = BIO_gets(b, buffer, sizeof(buffer));
+        if(l > 0) {
+            buffer[sizeof(buffer) - 1] = '\0';
+            if(strncmp(buffer, "Content-Length: ", 16) == 0) {
+                slen = atoi(buffer + 16);
+            }
+        } else {
+            goto end;
+        }
+
+        l = BIO_gets(b, buffer, sizeof(buffer));
+        l = BIO_read(b, buffer, slen);
+
+        if(l > 0) {
+            memcpy(out, buffer, l);
+            rval = l;
+        }
+
+    end:
+        BIO_free_all(b);
+    }
     return rval;
 }
 

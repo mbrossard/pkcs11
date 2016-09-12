@@ -251,6 +251,8 @@ static int pkcs11d_ecdh_derive(unsigned char *out, size_t outlen,
         BIO *buf = BIO_new(BIO_f_buffer());
         char buffer[4096];
         int l, slen = 0;
+
+        const EC_GROUP *group = EC_KEY_get0_group(ecdh);        
         BIO_set_conn_port(b, "1234");
         b = BIO_push(buf, b);
 

@@ -280,7 +280,7 @@ int main(int argc, char **argv)
             }
         }
         if(pkey == NULL) {
-            fprintf(stderr, "Key not found\n");
+            fprintf(stderr, "Key '%s' not found\n", keyid);
             goto end;
         } else if(verbose) {
             fprintf(stderr, "Key '%s'found\n", keyid);

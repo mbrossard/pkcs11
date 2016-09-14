@@ -253,6 +253,9 @@ static int pkcs11d_ecdh_derive(unsigned char *out, size_t outlen,
         int l, slen = 0;
 
         const EC_GROUP *group = EC_KEY_get0_group(ecdh);        
+        slen = EC_POINT_point2oct(group, peer_point, POINT_CONVERSION_UNCOMPRESSED,
+                                  (unsigned char *) buffer, sizeof(buffer), NULL);
+
         BIO_set_conn_port(b, "1234");
         b = BIO_push(buf, b);
 

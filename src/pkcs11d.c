@@ -139,14 +139,14 @@ int main(int argc, char **argv)
     char *opt_module = NULL, *opt_dir = NULL, *opt_unix = NULL;
     struct sockaddr_un sockaddr;
     int long_optind = 0;
-    int fd, verbose = 0;
+    int fd, verbose = 0, opt_port = 1234;
     key_id_t *rsa_keys, *ec_keys;
     CK_ULONG rsa_len = 0, ec_len = 0, i;
 
     init_crypto();
 
     while (1) {
-        char c = getopt_long(argc, argv, "d:hp:s:m:vU:",
+        char c = getopt_long(argc, argv, "d:hp:s:m:vP:U:",
                              options, &long_optind);
         if (c == -1)
             break;
@@ -168,6 +168,9 @@ int main(int argc, char **argv)
                 break;
             case 'v':
                 verbose = 1;
+                break;
+            case 'P':
+                opt_port = atoi(optarg);
                 break;
             case 'U':
                 opt_unix = optarg;
@@ -213,7 +216,7 @@ int main(int argc, char **argv)
     if(opt_unix) {
         fd = nw_unix_server("pkcs11d.sock", &sockaddr, 0, 0, 0, 64);
     } else {
-        fd = nw_tcp_server(1234, 0, 64);
+        fd = nw_tcp_server(opt_port, 0, 64);
     }
 
     do {

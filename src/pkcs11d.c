@@ -136,8 +136,8 @@ int main(int argc, char **argv)
     CK_RV             rc;
     CK_ULONG          opt_slot = -1;
     CK_SESSION_HANDLE h_session;
-    char *opt_module = NULL, *opt_dir = NULL;
-    /* struct sockaddr_un sockaddr; */
+    char *opt_module = NULL, *opt_dir = NULL, *opt_unix = NULL;
+    struct sockaddr_un sockaddr;
     int long_optind = 0;
     int fd, verbose = 0;
     key_id_t *rsa_keys, *ec_keys;
@@ -146,7 +146,7 @@ int main(int argc, char **argv)
     init_crypto();
 
     while (1) {
-        char c = getopt_long(argc, argv, "d:hp:s:m:v",
+        char c = getopt_long(argc, argv, "d:hp:s:m:vU:",
                              options, &long_optind);
         if (c == -1)
             break;
@@ -168,6 +168,9 @@ int main(int argc, char **argv)
                 break;
             case 'v':
                 verbose = 1;
+                break;
+            case 'U':
+                opt_unix = optarg;
                 break;
             case 'h':
             default:
@@ -207,11 +210,12 @@ int main(int argc, char **argv)
     load_keys(funcs, h_session, CKK_RSA, &rsa_keys, &rsa_len);
     load_keys(funcs, h_session, CKK_EC,  &ec_keys,  &ec_len);
 
+    if(opt_unix) {
+        fd = nw_unix_server("pkcs11d.sock", &sockaddr, 0, 0, 0, 64);
+    } else {
+        fd = nw_tcp_server(1234, 0, 64);
+    }
 
-    /* fd = nw_unix_server("pkcs11d.sock", &sockaddr, 0, 0, 0, 64); */
-    /* close(fd); */
-    fd = nw_tcp_server(1234, 0, 64);
-    
     do {
         struct sockaddr address;
         socklen_t a_len = sizeof(address);

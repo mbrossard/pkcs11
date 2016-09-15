@@ -296,7 +296,14 @@ static int pkcs11d_ecdh_derive(unsigned char *out, size_t outlen,
 static int pkcs11d_compute_key(unsigned char **out, size_t *outlen,
                                const EC_POINT *point, const EC_KEY *ec_key)
 {
-    return 0;
+    unsigned char buffer[4096];
+    int l = pkcs11d_ecdh_derive(buffer, sizeof(buffer), point, ec_key);
+    if((*out = (unsigned char *)malloc(l)) == NULL) {
+        return 0;
+    }
+    memcpy(*out, buffer, l);
+    *outlen = l;
+    return 1;
 }
 
 #else

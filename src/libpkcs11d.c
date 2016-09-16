@@ -298,6 +298,11 @@ static int pkcs11d_compute_key(unsigned char **out, size_t *outlen,
 {
     unsigned char buffer[4096];
     int l = pkcs11d_ecdh_derive(buffer, sizeof(buffer), point, ec_key);
+
+    if(l <= 0) {
+        return 0;
+    }
+
     if((*out = (unsigned char *)malloc(l)) == NULL) {
         return 0;
     }

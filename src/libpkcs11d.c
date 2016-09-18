@@ -274,6 +274,9 @@ static int pkcs11d_ecdh_derive(unsigned char *out, size_t outlen,
             if(strncmp(buffer, "Content-Length: ", 16) == 0) {
                 slen = atoi(buffer + 16);
             }
+            if(slen <= 0) {
+                goto end;
+            }
         } else {
             goto end;
         }

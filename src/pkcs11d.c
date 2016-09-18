@@ -300,11 +300,11 @@ int main(int argc, char **argv)
                 fprintf(stderr, "RSA signature operation with key '%s'\n", keyid);
             }
         } else if(type == CKK_RSA && operation == CKA_DECRYPT) {
-            if(verbose) {
-                fprintf(stderr, "RSA decryption operation requested\n");
-            }
             l = RSA_private_decrypt(plen, (unsigned char *)buffer, (unsigned char *)output,
                                     EVP_PKEY_get1_RSA(pkey), RSA_PKCS1_PADDING);
+            if(verbose) {
+                fprintf(stderr, "RSA decryption operation with key '%s'\n", keyid);
+            }
         } else if (type == CKK_EC && operation == CKA_SIGN) {
             unsigned char *ptr = (unsigned char *)output;
             ECDSA_SIG *s = ECDSA_do_sign((unsigned char *)buffer, plen, EVP_PKEY_get1_EC_KEY(pkey));

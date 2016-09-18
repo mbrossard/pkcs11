@@ -270,6 +270,7 @@ static int pkcs11d_ecdh_derive(unsigned char *out, size_t outlen,
         }
         l = BIO_gets(b, buffer, sizeof(buffer));
         if(l > 0) {
+            slen = 0;
             buffer[sizeof(buffer) - 1] = '\0';
             if(strncmp(buffer, "Content-Length: ", 16) == 0) {
                 slen = atoi(buffer + 16);

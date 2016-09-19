@@ -325,10 +325,17 @@ static int pkcs11d_compute_key(void *out, size_t outlen,
     unsigned char buffer[4096];
     int l = pkcs11d_ecdh_derive(buffer, sizeof(buffer), point, ec_key);
 
-    if (outlen > l) { 
-        outlen = l;
-    }
-    memcpy(out, buffer, outlen);
+
+	if (KDF) {
+		if (KDF(buffer, l, out, &outlen) == NULL) {
+			return -1;
+		}
+	} else {
+		if (outlen > l) { 
+			outlen = l;
+        }
+		memcpy(out, buffer, outlen);
+	}
 
     return outlen;
 }

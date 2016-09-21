@@ -10,10 +10,6 @@
 #include <memory.h>
 
 #if !(defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__)
-#ifdef __APPLE__
-#include <Carbon/Carbon.h>
-#endif
-
 #include <sys/types.h>
 #include <dlfcn.h>
 #include <stdlib.h>

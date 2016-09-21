@@ -369,6 +369,18 @@ static ECDSA_METHOD *engine_ecdsa_method(void)
 #endif
 
 #ifndef OPENSSL_NO_ECDH
+
+/* This struct is private */
+struct ecdh_method {
+    const char *name;
+    int (*compute_key) (void *key, size_t outlen, const EC_POINT *pub_key,
+                        const EC_KEY *ecdh, void *(*KDF) (const void *in,
+                                                          size_t inlen, void *out,
+                                                          size_t *outlen));
+    int flags;
+    char *app_data;
+};
+
 static ECDH_METHOD *engine_ecdh_method(void)
 {
 	return NULL;

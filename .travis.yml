@@ -49,6 +49,7 @@ before_install:
     fi
 
 script:
+  - $(CC) --version
   - autoreconf -i
   - if [ $TRAVIS_OS_NAME == osx ] ; then ./configure --with-openssl=/usr/local/Cellar/openssl/* ; fi
   - if [ $TRAVIS_OS_NAME == linux ] ; then ./configure ; fi

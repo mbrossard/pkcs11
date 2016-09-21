@@ -383,8 +383,17 @@ struct ecdh_method {
 
 static ECDH_METHOD *engine_ecdh_method(void)
 {
-	return NULL;
+    static ECDH_METHOD *pkcs11d_ecdh_method = NULL;
+	if(pkcs11d_ecdh_method == NULL) {
+		const ECDH_METHOD *def = ECDH_get_default_method();
+		pkcs11d_ecdh_method = calloc(1, sizeof(ECDH_METHOD));
+		memcpy(pkcs11d_ecdh_method, def, sizeof(ECDH_METHOD));
+		pkcs11d_ecdh_method->name = "pkcs11d";
+		pkcs11d_ecdh_method->compute_key = pkcs11d_compute_key;
+	}
+	return pkcs11d_ecdh_method;
 }
+
 #endif
 
 #else

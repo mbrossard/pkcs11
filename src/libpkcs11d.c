@@ -410,6 +410,7 @@ static EC_KEY_METHOD *engine_ec_method(void)
 		pkcs11d_ec_method = EC_KEY_METHOD_new(EC_KEY_get_default_method());
         EC_KEY_METHOD_get_sign(pkcs11d_ec_method, &sig, NULL, NULL);
 		EC_KEY_METHOD_set_sign(pkcs11d_ec_method, sig, NULL, pkcs11d_ecdsa_sign);
+        EC_KEY_METHOD_set_compute_key(pkcs11d_ec_method, pkcs11d_compute_key);
 	}
 	return pkcs11d_ec_method;
 }

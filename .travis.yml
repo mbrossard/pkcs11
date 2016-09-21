@@ -39,7 +39,7 @@ matrix:
     osx_image: xcode8
   - os: osx
     env: INSTALL=gcc
-    compiler: gcc-4.9
+    compiler: gcc-6.2
     osx_image: xcode8
 
 before_install:

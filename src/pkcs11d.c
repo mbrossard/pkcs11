@@ -310,11 +310,17 @@ int main(int argc, char **argv)
             ECDSA_SIG *s = ECDSA_do_sign((unsigned char *)buffer, plen, EVP_PKEY_get1_EC_KEY(pkey));
             l = i2d_ECDSA_SIG(s, &ptr);
             ECDSA_SIG_free(s);
+            if(verbose) {
+                fprintf(stderr, "ECDSA signature operation with key '%s'\n", keyid);
+            }
         } else if(type == CKK_EC && operation == CKA_DECRYPT) {
             const EC_GROUP *group = EC_KEY_get0_group(EVP_PKEY_get1_EC_KEY(pkey));
             EC_POINT *p = EC_POINT_new(group);
             EC_POINT_oct2point(group, p, (unsigned char *)buffer, plen, NULL);
             l = ECDH_compute_key((void *)output, sizeof(output), p, EVP_PKEY_get1_EC_KEY(pkey), 0);
+            if(verbose) {
+                fprintf(stderr, "ECDH decryption operation with keyid '%s'\n", keyid);
+            }
         } else {
             if(verbose) {
                 fprintf(stderr, "Invalid operation requested\n");

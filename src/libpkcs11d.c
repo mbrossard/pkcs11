@@ -384,6 +384,9 @@ struct ecdh_method {
 static ECDH_METHOD *engine_ecdh_method(void)
 {
     static ECDH_METHOD *pkcs11d_ecdh_method = NULL;
+	if(pkcs11d_ec_key_idx == -1) {
+		pkcs11d_ec_key_idx = ECDH_get_ex_new_index(0, NULL, NULL, NULL, 0);
+	}
 	if(pkcs11d_ecdh_method == NULL) {
 		const ECDH_METHOD *def = ECDH_get_default_method();
 		pkcs11d_ecdh_method = calloc(1, sizeof(ECDH_METHOD));

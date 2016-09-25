@@ -70,13 +70,7 @@ int load_keys(CK_FUNCTION_LIST *funcs,
             BIO *h = BIO_new(BIO_f_md());
             BIO_set_md(h, hash);
             s = BIO_push(h, s);
-            if(type == CKK_RSA) {
-                i2d_RSAPublicKey_bio(s, EVP_PKEY_get1_RSA(keys[j].key));
-                PEM_write_bio_RSAPrivateKey(bio, EVP_PKEY_get1_RSA(keys[j].key), NULL, NULL, 0, NULL, NULL);
-            } if(type == CKK_EC) {
-                i2d_EC_PUBKEY_bio(s, EVP_PKEY_get1_EC_KEY(keys[j].key));
-                PEM_write_bio_ECPrivateKey(bio, EVP_PKEY_get1_EC_KEY(keys[j].key), NULL, NULL, 0, NULL, NULL);
-            }
+            PEM_write_bio_PrivateKey(bio, keys[j].key, NULL, NULL, 0, NULL, NULL);
             n = BIO_gets(h, (char*)md, EVP_MAX_MD_SIZE);
             for(k = 0, l = 0; k < n; k++) {
                 l += sprintf(key_id + l, "%02X", md[k]);

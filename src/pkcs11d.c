@@ -2,6 +2,7 @@
  * Copyright (C) 2016 Mathias Brossard <mathias@brossard.org>
  */
 
+#include "config.h"
 #include "common.h"
 #include "crypto.h"
 #include "network.h"

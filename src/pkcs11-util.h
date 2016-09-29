@@ -24,6 +24,7 @@ int ssh(int argc, char **argv);
 #ifdef HAVE_OPENSSL
 int certify(int argc, char **argv);
 int extract(int argc, char **argv);
+int import(int argc, char **argv);
 int request(int argc, char **argv);
 #ifdef HAVE_PTHREAD
 int speed(int argc, char **argv);

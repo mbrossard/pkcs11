@@ -69,6 +69,8 @@ int main(int argc, char **argv)
         r = certify(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "extract")) {
         r = extract(argc - 1, argv + 1);
+    } else if(!strcmp(argv[1], "import")) {
+        r = import(argc - 1, argv + 1);
     } else if(!strcmp(argv[1], "request")) {
         r = request(argc - 1, argv + 1);
 #ifdef HAVE_PTHREAD

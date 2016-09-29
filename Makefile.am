@@ -44,6 +44,7 @@ pkcs11_util_SOURCES = \
 	src/common.c \
 	src/crypto.c \
 	src/extract.c \
+	src/import.c \
 	src/info.c \
 	src/init.c \
 	src/key.c \

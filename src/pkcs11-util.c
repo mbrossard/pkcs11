@@ -15,6 +15,7 @@ void usage()
            " * clean: delete objects\n"
 #ifdef HAVE_OPENSSL
            " * extract: extract keys\n"
+           " * import: import objects\n"
 #endif
            " * info: show module information\n"
            " * init: initialize token\n"

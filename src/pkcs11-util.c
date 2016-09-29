@@ -27,9 +27,9 @@ void usage()
            " * random: get random string\n"
 #ifdef HAVE_OPENSSL
            " * request: create a certificate request\n"
-#endif
 #ifdef HAVE_PTHREAD
            " * speed: performance testing\n"
+#endif
 #endif
            " * ssh: list SSH keys\n"
            "\n");

@@ -7,6 +7,7 @@
 #ifdef HAVE_OPENSSL
 
 #include "common.h"
+#include <stdlib.h>
 #include <string.h>
 
 static const char *app_name = "pkcs11-util import";

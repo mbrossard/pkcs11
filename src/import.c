@@ -103,6 +103,8 @@ int import(int argc, char **argv)
     if (rc != CKR_OK) {
         return rc;
     }
+
+    rc = pkcs11_close(stdout, funcs, h_session);
     return rc;
 }
 

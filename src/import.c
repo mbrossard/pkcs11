@@ -31,6 +31,7 @@ static const char *option_help[] = {
 
 int import(int argc, char **argv)
 {
+    CK_FUNCTION_LIST  *funcs = NULL;
     CK_UTF8CHAR_PTR   opt_pin = NULL;
     CK_ULONG          opt_pin_len = 0;
     CK_ULONG          opt_slot = -1;
@@ -68,6 +69,11 @@ int import(int argc, char **argv)
 
     if(!opt_module) {
         print_usage_and_die(app_name, options, option_help);
+    }
+
+    rc = pkcs11_load_init(opt_module, opt_dir, stdout, &funcs);
+    if (rc != CKR_OK) {
+        return rc;
     }
 
     return rc;

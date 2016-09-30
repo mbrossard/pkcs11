@@ -34,6 +34,7 @@ int import(int argc, char **argv)
     CK_ULONG          nslots;
     CK_SLOT_ID        *pslots = NULL;
     CK_FUNCTION_LIST  *funcs = NULL;
+    CK_SESSION_HANDLE h_session;
     CK_UTF8CHAR_PTR   opt_pin = NULL;
     CK_ULONG          opt_pin_len = 0;
     CK_ULONG          opt_slot = -1;
@@ -96,6 +97,12 @@ int import(int argc, char **argv)
         }
     }
 
+    rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
+                              CK_TRUE, CKU_USER, opt_pin, opt_pin_len);
+    free(opt_pin);
+    if (rc != CKR_OK) {
+        return rc;
+    }
     return rc;
 }
 

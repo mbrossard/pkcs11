@@ -66,7 +66,9 @@ int import(int argc, char **argv)
         }
     }
 
-    print_usage_and_die(app_name, options, option_help);
+    if(!opt_module) {
+        print_usage_and_die(app_name, options, option_help);
+    }
 
     return rc;
 }

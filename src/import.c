@@ -7,6 +7,7 @@
 #ifdef HAVE_OPENSSL
 
 #include "common.h"
+#include "crypto.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -42,6 +43,8 @@ int import(int argc, char **argv)
     char *opt_module = NULL, *opt_dir = NULL;
     int long_optind = 0;
     char c;
+
+    init_crypto();
 
     while (1) {
         c = getopt_long(argc, argv, "d:h:p:s:m:",

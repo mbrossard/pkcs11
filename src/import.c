@@ -19,6 +19,7 @@ static const struct option options[] = {
     { "slot",               1, 0,           's' },
     { "module",             1, 0,           'm' },
     { "directory",          1, 0,           'd' },
+    { "label",              1, 0,           'l' },
     { 0, 0, 0, 0 }
 };
 
@@ -28,6 +29,7 @@ static const char *option_help[] = {
     "Specify number of the slot to use",
     "Specify the module to load",
     "Specify the directory for NSS database",
+    "Label to set",
 };
 
 int import(int argc, char **argv)
@@ -36,6 +38,7 @@ int import(int argc, char **argv)
     CK_SLOT_ID        *pslots = NULL;
     CK_FUNCTION_LIST  *funcs = NULL;
     CK_SESSION_HANDLE h_session;
+    CK_BYTE_PTR       opt_label = NULL;
     CK_UTF8CHAR_PTR   opt_pin = NULL;
     CK_ULONG          opt_pin_len = 0;
     CK_ULONG          opt_slot = -1;
@@ -47,13 +50,16 @@ int import(int argc, char **argv)
     init_crypto();
 
     while (1) {
-        c = getopt_long(argc, argv, "d:h:p:s:m:",
+        c = getopt_long(argc, argv, "d:hl:p:s:m:",
                         options, &long_optind);
         if (c == -1)
             break;
         switch (c) {
             case 'd':
                 opt_dir = optarg;
+                break;
+            case 'l':
+                opt_label = (CK_BYTE_PTR)optarg;
                 break;
             case 'p':
                 opt_pin = (CK_UTF8CHAR_PTR) strdup(optarg);

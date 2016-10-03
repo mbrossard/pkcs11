@@ -10,6 +10,9 @@
 #include "crypto.h"
 #include <stdlib.h>
 #include <string.h>
+#include <openssl/bio.h>
+#include <openssl/pem.h>
+#include <openssl/x509.h>
 
 static const char *app_name = "pkcs11-util import";
 
@@ -47,6 +50,7 @@ int import(int argc, char **argv)
     CK_RV             rc = 0;
     char *opt_module = NULL, *opt_dir = NULL;
     char *opt_crt = NULL;
+    X509 *crt = NULL;
     int long_optind = 0;
     char c;
 
@@ -87,6 +91,11 @@ int import(int argc, char **argv)
 
     if(!opt_module) {
         print_usage_and_die(app_name, options, option_help);
+    }
+
+    if (opt_crt) {
+        BIO *crt_bio = BIO_new_file(opt_crt, "r");
+        crt = PEM_read_bio_X509_AUX(crt_bio, NULL, NULL, NULL);
     }
 
     rc = pkcs11_load_init(opt_module, opt_dir, stdout, &funcs);

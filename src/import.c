@@ -95,6 +95,10 @@ int import(int argc, char **argv)
 
     if (opt_crt) {
         BIO *crt_bio = BIO_new_file(opt_crt, "r");
+        if(!crt_bio) {
+            fprintf(stderr, "Error loading certificate '%s'\n", opt_crt);
+            return -1;
+        }
         crt = PEM_read_bio_X509_AUX(crt_bio, NULL, NULL, NULL);
     }
 

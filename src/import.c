@@ -101,6 +101,10 @@ int import(int argc, char **argv)
         }
         crt = PEM_read_bio_X509_AUX(crt_bio, NULL, NULL, NULL);
         if(!crt) {
+            BIO_reset(crt_bio);
+            crt = d2i_X509_bio(crt_bio, NULL);
+        }
+        if(!crt) {
             fprintf(stderr, "Error parsing certificate '%s'\n", opt_crt);
             return -1;
         }

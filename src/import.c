@@ -19,6 +19,7 @@ static const struct option options[] = {
     { "slot",               1, 0,           's' },
     { "module",             1, 0,           'm' },
     { "directory",          1, 0,           'd' },
+    { "certificate",        1, 0,           'c' },
     { "label",              1, 0,           'l' },
     { 0, 0, 0, 0 }
 };
@@ -29,6 +30,7 @@ static const char *option_help[] = {
     "Specify number of the slot to use",
     "Specify the module to load",
     "Specify the directory for NSS database",
+    "Path of certificate to import",
     "Label to set",
 };
 
@@ -44,6 +46,7 @@ int import(int argc, char **argv)
     CK_ULONG          opt_slot = -1;
     CK_RV             rc = 0;
     char *opt_module = NULL, *opt_dir = NULL;
+    char *opt_crt = NULL;
     int long_optind = 0;
     char c;
 
@@ -55,6 +58,9 @@ int import(int argc, char **argv)
         if (c == -1)
             break;
         switch (c) {
+            case 'c':
+                opt_crt = optarg;
+                break;
             case 'd':
                 opt_dir = optarg;
                 break;

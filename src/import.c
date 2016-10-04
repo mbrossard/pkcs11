@@ -145,6 +145,36 @@ int import(int argc, char **argv)
         return rc;
     }
 
+    if (crt) {
+        X509_NAME *subject = X509_get_subject_name(crt);
+        size_t cl = i2d_X509(crt, NULL), sl = i2d_X509_NAME(subject, NULL);
+        unsigned char *cbuf = NULL, *sbuf = NULL, *ptr = NULL;
+
+        if((cbuf = malloc(cl)) && (sbuf = malloc(sl))) {
+            CK_BBOOL true = CK_TRUE;
+            CK_OBJECT_CLASS cls = CKO_CERTIFICATE;
+            CK_CERTIFICATE_TYPE type = CKC_X_509;
+            CK_OBJECT_HANDLE c_handle;
+            CK_ATTRIBUTE crt_template[] = {
+                { CKA_CERTIFICATE_TYPE,   &type, sizeof(type) },
+                { CKA_SUBJECT,            sbuf,  sl           },
+                { CKA_VALUE,              cbuf,  cl           },
+                { CKA_TOKEN,              &true, sizeof(true) },
+                { CKA_CLASS,              &cls,  sizeof(cls)  }
+            };
+
+            ptr = cbuf;
+            i2d_X509(crt, &ptr);
+            ptr = sbuf;
+            i2d_X509_NAME(subject, &ptr);
+            rc = funcs->C_CreateObject(h_session, crt_template, 5, &c_handle);
+            if (rc != CKR_OK) {
+                show_error(stdout, "C_CreateObject", rc);
+                return rc;
+            }
+        }
+    }
+
     rc = pkcs11_close(stdout, funcs, h_session);
     return rc;
 }

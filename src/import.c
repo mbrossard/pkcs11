@@ -180,6 +180,10 @@ int import(int argc, char **argv)
                 return rc;
             }
         }
+
+        free(cbuf);
+        free(sbuf);
+        free(ibuf);
     }
 
     rc = pkcs11_close(stdout, funcs, h_session);

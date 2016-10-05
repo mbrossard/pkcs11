@@ -148,18 +148,21 @@ int import(int argc, char **argv)
     if (crt) {
         X509_NAME *subject = X509_get_subject_name(crt),
             *issuer = X509_get_issuer_name(crt);
+        ASN1_INTEGER *serial = X509_get_serialNumber(crt);
         size_t cl = i2d_X509(crt, NULL), sl = i2d_X509_NAME(subject, NULL),
-            il = i2d_X509_NAME(issuer, NULL);
-        unsigned char *cbuf = NULL, *sbuf = NULL, *ibuf = NULL, *ptr = NULL;
+            il = i2d_X509_NAME(issuer, NULL), snl = i2d_ASN1_INTEGER(serial, NULL);
+        unsigned char *cbuf = NULL, *sbuf = NULL, *ibuf = NULL,
+            *snbuf = NULL, *ptr = NULL;
 
         if((cbuf = malloc(cl)) && (sbuf = malloc(sl)) &&
-           (ibuf = malloc(il))) {
+           (ibuf = malloc(il)) && (snbuf = malloc(snl))) {
             CK_BBOOL true = CK_TRUE;
             CK_OBJECT_CLASS cls = CKO_CERTIFICATE;
             CK_CERTIFICATE_TYPE type = CKC_X_509;
             CK_OBJECT_HANDLE c_handle;
             CK_ATTRIBUTE crt_template[] = {
                 { CKA_CERTIFICATE_TYPE,   &type,   sizeof(type) },
+                { CKA_SERIAL_NUMBER,      snbuf,   snl          },
                 { CKA_SUBJECT,            sbuf,    sl           },
                 { CKA_ISSUER,             ibuf,    il           },
                 { CKA_VALUE,              cbuf,    cl           },
@@ -173,8 +176,10 @@ int import(int argc, char **argv)
             i2d_X509_NAME(subject, &ptr);
             ptr = ibuf;
             i2d_X509_NAME(issuer, &ptr);
+            ptr = snbuf;
+            i2d_ASN1_INTEGER(serial, &ptr);
 
-            rc = funcs->C_CreateObject(h_session, crt_template, 6, &c_handle);
+            rc = funcs->C_CreateObject(h_session, crt_template, 7, &c_handle);
             if (rc != CKR_OK) {
                 show_error(stdout, "C_CreateObject", rc);
                 return rc;
@@ -184,6 +189,7 @@ int import(int argc, char **argv)
         free(cbuf);
         free(sbuf);
         free(ibuf);
+        free(snbuf);
     }
 
     rc = pkcs11_close(stdout, funcs, h_session);

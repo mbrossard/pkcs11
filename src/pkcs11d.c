@@ -187,11 +187,11 @@ int main(int argc, char **argv)
     }
 
     if(opt_slot == -1) {
-        if(nslots < 1) {
-            /* No slots */
-            return -1;
-        } else {
+        if(nslots == 1) {
             opt_slot = pslots[0];
+        } else {
+            fprintf(stdout, "Found %ld slots, use --slot parameter to choose.\n", nslots);
+            exit(-1);
         }
     } else {
         CK_ULONG i = 0;

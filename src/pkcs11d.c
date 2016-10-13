@@ -194,7 +194,14 @@ int main(int argc, char **argv)
             opt_slot = pslots[0];
         }
     } else {
-        /* Check selected slot is in pslots */
+        CK_ULONG i = 0;
+        while (i < nslots && pslots[i] != opt_slot) {
+            i++;
+        }
+        if (i == nslots) {
+            fprintf(stderr, "Unknown slot '%lu'\n", opt_slot);
+            return -1;            
+        }
     }
 
     fprintf(stderr, "Slot: %ld\n", opt_slot);

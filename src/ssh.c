@@ -348,6 +348,15 @@ int ssh(int argc, char **argv)
     }
     
     if(opt_slot != -1) {
+        CK_ULONG i = 0;
+        while (i < nslots && pslots[i] != opt_slot) {
+            i++;
+        }
+        if (i == nslots) {
+            fprintf(stderr, "Unknown slot '%lu'\n", opt_slot);
+            return -1;            
+        }
+
         pslots[0] = opt_slot;
         nslots = 1;
     }

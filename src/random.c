@@ -34,6 +34,8 @@ int random_p11(int argc, char **argv)
     CK_ULONG          nslots, opt_length = 0;
     CK_SLOT_ID        *pslots = NULL, opt_slot;
     CK_FUNCTION_LIST  *funcs = NULL;
+    CK_SESSION_HANDLE h_session;
+    CK_FLAGS          flags = CKF_SERIAL_SESSION;
     CK_RV             rc;
     char *opt_module = NULL, *opt_dir = NULL, *opt_out = NULL;
     int long_optind = 0;
@@ -94,36 +96,31 @@ int random_p11(int argc, char **argv)
         }
     }
 
-    if(nslots == 1) {
-        CK_SESSION_HANDLE h_session;
-        CK_FLAGS flags = CKF_SERIAL_SESSION;
-
-        if(opt_out) {
-            out = fopen(opt_out, "wb");
-            if(out == NULL) {
-                fprintf(stderr, "Error opening '%s'\n", opt_out);
-                return -1;
-            }
+    if(opt_out) {
+        out = fopen(opt_out, "wb");
+        if(out == NULL) {
+            fprintf(stderr, "Error opening '%s'\n", opt_out);
+            return -1;
         }
+    }
+    
+    rc = funcs->C_OpenSession(pslots[0], flags, NULL, NULL, &h_session);
+    if (rc != CKR_OK) {
+        show_error(stderr, "C_OpenSession", rc);
+        return rc;
+    }
 
-        rc = funcs->C_OpenSession(pslots[0], flags, NULL, NULL, &h_session);
-        if (rc != CKR_OK) {
-            show_error(stderr, "C_OpenSession", rc);
-            return rc;
-        }
-
-        do {
-            CK_BYTE buffer[256];
-            CK_ULONG l = opt_length;
-            l = (l > sizeof(buffer) ? sizeof(buffer) : l);
-            rc = funcs->C_GenerateRandom(h_session, buffer, l);
-            fwrite(buffer, l, 1, out);
-            opt_length -= l;
-        } while (opt_length);
-
-        if(opt_out) {
-            fclose(out);
-        }
+    do {
+        CK_BYTE buffer[256];
+        CK_ULONG l = opt_length;
+        l = (l > sizeof(buffer) ? sizeof(buffer) : l);
+        rc = funcs->C_GenerateRandom(h_session, buffer, l);
+        fwrite(buffer, l, 1, out);
+        opt_length -= l;
+    } while (opt_length);
+    
+    if(opt_out) {
+        fclose(out);
     }
 
     rc = funcs->C_Finalize(NULL);

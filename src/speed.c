@@ -90,6 +90,8 @@ void *do_sign(void *arg)
 
 int speed(int argc, char **argv)
 {
+    CK_ULONG          nslots;
+    CK_SLOT_ID        *pslots = NULL;
     CK_UTF8CHAR_PTR   opt_pin = NULL;
     char             *opt_label = NULL;
     CK_ULONG          opt_pin_len = 0;
@@ -147,6 +149,11 @@ int speed(int argc, char **argv)
     }
 
     rc = pkcs11_load_init(opt_module, opt_dir, stdout, &funcs);
+    if (rc != CKR_OK) {
+        return rc;
+    }
+
+    rc = pkcs11_get_slots(funcs, stdout, &pslots, &nslots);
     if (rc != CKR_OK) {
         return rc;
     }

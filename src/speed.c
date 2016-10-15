@@ -158,6 +158,24 @@ int speed(int argc, char **argv)
         return rc;
     }
 
+    if(opt_slot != -1) {
+        CK_ULONG i = 0;
+        while (i < nslots && pslots[i] != opt_slot) {
+            i++;
+        }
+        if (i == nslots) {
+            fprintf(stderr, "Unknown slot '%lu'\n", opt_slot);
+            return -1;            
+        }
+    } else {
+        if(nslots == 1) {
+            opt_slot = pslots[0];
+        } else {
+            fprintf(stdout, "Found %ld slots, use --slot parameter to choose.\n", nslots);
+            exit(-1);
+        }
+    }
+    
     rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
                               CK_FALSE, CKU_USER, opt_pin, opt_pin_len);
     free(opt_pin);

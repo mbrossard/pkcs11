@@ -103,7 +103,7 @@ int certify(int argc, char **argv)
         return rc;
     }
 
-    if(opt_slot != -1) {
+    if (opt_slot != -1) {
         CK_ULONG i = 0;
         while (i < nslots && pslots[i] != opt_slot) {
             i++;
@@ -113,7 +113,7 @@ int certify(int argc, char **argv)
             return -1;            
         }
     } else {
-        if(nslots == 1) {
+        if (nslots == 1) {
             opt_slot = pslots[0];
         } else {
             fprintf(stdout, "Found %ld slots, use --slot parameter to choose.\n", nslots);

@@ -346,8 +346,8 @@ int ssh(int argc, char **argv)
     if (rc != CKR_OK) {
         return rc;
     }
-    
-    if(opt_slot != -1) {
+
+    if (opt_slot != -1) {
         CK_ULONG i = 0;
         while (i < nslots && pslots[i] != opt_slot) {
             i++;

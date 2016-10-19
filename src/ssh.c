@@ -303,6 +303,7 @@ int ssh(int argc, char **argv)
     CK_ULONG          opt_pin_len = 0;
     CK_RV             rc;
     CK_ULONG          opt_slot = -1;
+    CK_SESSION_HANDLE h_session;
     char *opt_module = NULL, *opt_dir = NULL;
     int long_optind = 0;
 
@@ -365,35 +366,25 @@ int ssh(int argc, char **argv)
         }
     }
 
-    for (islot = 0; islot < nslots; islot++) {
-        CK_SESSION_HANDLE h_session;
-        fprintf(stdout, "Slot ID: %lx\n", pslots[islot]);
+    rc = pkcs11_login_session(funcs, stdout, opt_slot, &h_session,
+                              CK_FALSE, CKU_USER, opt_pin, opt_pin_len);
+    free(opt_pin);
+    if (rc != CKR_OK) {
+        return rc;
+    }
 
-        rc = pkcs11_login_session(funcs, stdout, pslots[islot], &h_session,
-                                  CK_FALSE, CKU_USER, opt_pin, opt_pin_len);
-        if (rc != CKR_OK) {
-            continue;
-        }
+    do_list_rsa_ssh_keys(funcs, h_session);
+    do_list_ecdsa_ssh_keys(funcs, h_session);
 
-        do_list_rsa_ssh_keys(funcs, h_session);
-        do_list_ecdsa_ssh_keys(funcs, h_session);
-
-        if(opt_pin) {
-            rc = funcs->C_Logout(h_session);
-            if (rc != CKR_OK) {
-                show_error(stdout, "C_Logout", rc);
-                continue;
-            }
-        }
-    
-        rc = funcs->C_CloseSession(h_session);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_CloseSession", rc);
-            continue;
-        }
+    rc = funcs->C_Logout(h_session);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_Logout", rc);
     }
     
-    free(opt_pin);
+    rc = funcs->C_CloseSession(h_session);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_CloseSession", rc);
+    }
 
     rc = funcs->C_Finalize(NULL);
     if (rc != CKR_OK) {

@@ -376,20 +376,6 @@ int ssh(int argc, char **argv)
     do_list_rsa_ssh_keys(funcs, h_session);
     do_list_ecdsa_ssh_keys(funcs, h_session);
 
-    rc = funcs->C_Logout(h_session);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_Logout", rc);
-    }
-    
-    rc = funcs->C_CloseSession(h_session);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_CloseSession", rc);
-    }
-
-    rc = funcs->C_Finalize(NULL);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_Finalize", rc);
-    }
-
+    rc = pkcs11_close(stdout, funcs, h_session);
     return rc;
 }

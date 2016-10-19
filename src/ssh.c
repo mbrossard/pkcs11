@@ -356,9 +356,13 @@ int ssh(int argc, char **argv)
             fprintf(stderr, "Unknown slot '%lu'\n", opt_slot);
             return -1;            
         }
-
-        pslots[0] = opt_slot;
-        nslots = 1;
+    } else {
+        if (nslots == 1) {
+            opt_slot = pslots[0];
+        } else {
+            fprintf(stdout, "Found %ld slots, use --slot parameter to choose.\n", nslots);
+            exit(-1);
+        }
     }
 
     for (islot = 0; islot < nslots; islot++) {

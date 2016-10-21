@@ -8,6 +8,7 @@
 
 #include "common.h"
 #include "crypto.h"
+#include "pkcs11_display.h"
 #include <stdlib.h>
 #include <string.h>
 #include <openssl/bio.h>

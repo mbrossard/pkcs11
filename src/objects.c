@@ -181,7 +181,7 @@ int objects(int argc, char **argv)
             return -1;            
         }
 
-        pslots = &opt_slot;
+        pslots[0] = opt_slot;
         nslots = 1;
     }
 

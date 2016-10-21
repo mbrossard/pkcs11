@@ -159,23 +159,6 @@ int init_p11(int argc, char **argv)
     }
     free(opt_pin);
 
-    rc = funcs->C_Logout(h_session);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_Logout", rc);
-        return rc;
-    }
-
-    rc = funcs->C_CloseSession(h_session);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_CloseSession", rc);
-        return rc;
-    }
-
-    rc = funcs->C_Finalize(NULL);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_Finalize", rc);
-        return rc;
-    }
-
+    rc = pkcs11_close(stdout, funcs, h_session);
     return rc;
 }

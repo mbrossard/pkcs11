@@ -24,6 +24,7 @@ static const struct option options[] = {
     { "module",             1, 0,           'm' },
     { "directory",          1, 0,           'd' },
     { "certificate",        1, 0,           'c' },
+    { "key",                1, 0,           'k' },
     { "label",              1, 0,           'l' },
     { 0, 0, 0, 0 }
 };
@@ -35,6 +36,7 @@ static const char *option_help[] = {
     "Specify the module to load",
     "Specify the directory for NSS database",
     "Path of certificate to import",
+    "Path of key to import",
     "Label to set",
 };
 
@@ -50,7 +52,7 @@ int import(int argc, char **argv)
     CK_ULONG          opt_slot = -1;
     CK_RV             rc = 0;
     char *opt_module = NULL, *opt_dir = NULL;
-    char *opt_crt = NULL;
+    char *opt_crt = NULL, *opt_key = NULL;
     X509 *crt = NULL;
     int long_optind = 0;
     char c;
@@ -68,6 +70,9 @@ int import(int argc, char **argv)
                 break;
             case 'd':
                 opt_dir = optarg;
+                break;
+            case 'k':
+                opt_key = optarg;
                 break;
             case 'l':
                 opt_label = (CK_BYTE_PTR)optarg;

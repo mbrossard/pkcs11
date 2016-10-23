@@ -102,7 +102,7 @@ int import(int argc, char **argv)
     if (opt_crt) {
         BIO *crt_bio = BIO_new_file(opt_crt, "r");
         if(!crt_bio) {
-            fprintf(stderr, "Error loading certificate '%s'\n", opt_crt);
+            fprintf(stderr, "Error loading certificate file '%s'\n", opt_crt);
             return -1;
         }
         crt = PEM_read_bio_X509_AUX(crt_bio, NULL, NULL, NULL);
@@ -111,7 +111,7 @@ int import(int argc, char **argv)
             crt = d2i_X509_bio(crt_bio, NULL);
         }
         if(!crt) {
-            fprintf(stderr, "Error parsing certificate '%s'\n", opt_crt);
+            fprintf(stderr, "Error parsing certificate file '%s'\n", opt_crt);
             return -1;
         }
     }

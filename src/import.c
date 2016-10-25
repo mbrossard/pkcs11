@@ -54,6 +54,7 @@ int import(int argc, char **argv)
     char *opt_module = NULL, *opt_dir = NULL;
     char *opt_crt = NULL, *opt_key = NULL;
     X509 *crt = NULL;
+    EVP_PKEY *pkey = NULL;
     int long_optind = 0;
     char c;
 
@@ -112,6 +113,24 @@ int import(int argc, char **argv)
         }
         if(!crt) {
             fprintf(stderr, "Error parsing certificate file '%s'\n", opt_crt);
+            return -1;
+        }
+    }
+
+    if (opt_key) {
+        BIO *key_bio = BIO_new_file(opt_key, "r");
+        if(!key_bio) {
+            fprintf(stderr, "Error loading key file '%s'\n", opt_key);
+            return -1;
+        }
+
+        pkey = PEM_read_bio_PrivateKey(key_bio, NULL, NULL, NULL);
+        if(!pkey) {
+            BIO_reset(key_bio);
+            pkey = d2i_PrivateKey_bio(key_bio, NULL);
+        }
+        if(!pkey) {
+            fprintf(stderr, "Error parsing key file '%s'\n", opt_key);
             return -1;
         }
     }

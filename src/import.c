@@ -216,9 +216,6 @@ int import(int argc, char **argv)
         free(ibuf);
         free(snbuf);
         X509_free(crt);
-        X509_NAME_free(issuer);
-        X509_NAME_free(subject);
-        ASN1_INTEGER_free(serial);
     }
 
     rc = pkcs11_close(stdout, funcs, h_session);

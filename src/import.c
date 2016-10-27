@@ -231,6 +231,7 @@ int import(int argc, char **argv)
 
         BIO_free(mem);
         EVP_PKEY_free(pkey);
+        PKCS8_PRIV_KEY_INFO_free(pkcs8);
     }
 
     rc = pkcs11_close(stdout, funcs, h_session);

@@ -220,11 +220,16 @@ int import(int argc, char **argv)
 
     if(pkey) {
         PKCS8_PRIV_KEY_INFO *pkcs8 = NULL;
-        if ((pkcs8 = EVP_PKEY2PKCS8(pkey))) {
-            BIO *mem = BIO_new(BIO_s_mem());
-            i2d_PKCS8_PRIV_KEY_INFO_bio(mem, pkcs8);
+        BIO *mem = BIO_new(BIO_s_mem());
+
+        if (!(pkcs8 = EVP_PKEY2PKCS8(pkey))) {
+            fprintf(stdout, "Error converting key to PKCS#8\n");
+            return rc;
         }
 
+        i2d_PKCS8_PRIV_KEY_INFO_bio(mem, pkcs8);
+
+        BIO_free(mem);
         EVP_PKEY_free(pkey);
     }
 

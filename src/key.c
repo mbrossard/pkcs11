@@ -36,7 +36,7 @@ CK_RV generateKey(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
 
     if((rv = p11->C_GenerateKey(session, &mechanism, keyTemplate,
                                 size ? 9 : 8, &hKey)) != CKR_OK) {
-        show_error(stdout, "C_GenerateKeyPair", rv);
+        show_error(stdout, "C_GenerateKey", rv);
         goto done;
     }
 

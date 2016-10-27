@@ -228,6 +228,10 @@ int import(int argc, char **argv)
         }
 
         i2d_PKCS8_PRIV_KEY_INFO_bio(mem, pkcs8);
+        pl = BIO_get_mem_data(mem, &ptr);
+
+        buffer = malloc(pl + 16);
+        cl = pl + 16;
 
         BIO_free(mem);
         EVP_PKEY_free(pkey);

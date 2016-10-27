@@ -218,6 +218,10 @@ int import(int argc, char **argv)
         X509_free(crt);
     }
 
+    if(pkey) {
+        EVP_PKEY_free(pkey);
+    }
+
     rc = pkcs11_close(stdout, funcs, h_session);
     return rc;
 }

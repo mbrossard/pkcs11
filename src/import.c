@@ -220,6 +220,8 @@ int import(int argc, char **argv)
 
     if(pkey) {
         PKCS8_PRIV_KEY_INFO *pkcs8 = NULL;
+        CK_BYTE *ptr = NULL;
+        CK_ULONG pl = 0;
         BIO *mem = BIO_new(BIO_s_mem());
 
         if (!(pkcs8 = EVP_PKEY2PKCS8(pkey))) {

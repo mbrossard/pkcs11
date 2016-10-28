@@ -50,3 +50,37 @@ CK_RV generateKey(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
  done:
 	return rv;
 }
+
+CK_RV generateSessionKey(CK_FUNCTION_LIST_PTR p11, CK_SESSION_HANDLE session,
+                         CK_KEY_TYPE type, CK_ULONG mech, CK_ULONG size,
+                         CK_OBJECT_HANDLE_PTR phKey)
+{
+	CK_RV rv = CKR_HOST_MEMORY;
+    CK_MECHANISM mechanism = { mech, NULL_PTR, 0 };
+    CK_BBOOL t = CK_TRUE, f = CK_FALSE;
+    CK_OBJECT_CLASS	class = CKO_SECRET_KEY;
+    CK_ATTRIBUTE keyTemplate[9] = {
+        { CKA_CLASS ,          &class,    sizeof(class)    },
+        { CKA_KEY_TYPE,        &type,     sizeof(type)     },
+        { CKA_TOKEN,           &f,        sizeof(CK_BBOOL) },
+        { CKA_ENCRYPT,         &t,        sizeof(CK_BBOOL) },
+        { CKA_SIGN,            &f,        sizeof(CK_BBOOL) },
+        { CKA_VERIFY,          &f,        sizeof(CK_BBOOL) },
+        { CKA_WRAP,            &t,        sizeof(CK_BBOOL) },
+        { CKA_UNWRAP,          &t,        sizeof(CK_BBOOL) },
+        { CKA_VALUE_LEN,       &size,     sizeof(size)     },
+    };
+
+	if(!p11 || !phKey) {
+        goto done;
+    }
+
+    if((rv = p11->C_GenerateKey(session, &mechanism, keyTemplate,
+                                size ? 9 : 8, phKey)) != CKR_OK) {
+        show_error(stdout, "C_GenerateKey", rv);
+        goto done;
+    }
+
+ done:
+	return rv;
+}

@@ -221,6 +221,7 @@ int import(int argc, char **argv)
 
     if(pkey) {
         PKCS8_PRIV_KEY_INFO *pkcs8 = NULL;
+        CK_OBJECT_HANDLE hKey = CK_INVALID_HANDLE;
         CK_BYTE *ptr = NULL, *buffer = NULL;
         CK_ULONG pl = 0, cl = 0;
         BIO *mem = BIO_new(BIO_s_mem());

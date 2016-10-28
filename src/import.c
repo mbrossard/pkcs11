@@ -233,6 +233,12 @@ int import(int argc, char **argv)
         i2d_PKCS8_PRIV_KEY_INFO_bio(mem, pkcs8);
         pl = BIO_get_mem_data(mem, &ptr);
 
+        rc = generateSessionKey(funcs, h_session, CKK_AES, CKM_AES_KEY_GEN, 128 / 8, &hKey);
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_GenerateKey", rc);
+            return rc;
+        }
+
         buffer = malloc(pl + 16);
         cl = pl + 16;
 

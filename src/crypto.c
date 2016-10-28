@@ -430,7 +430,7 @@ EVP_PKEY *load_pkcs11_key(CK_FUNCTION_LIST *funcs, CK_SESSION_HANDLE session, CK
                 len2 = point->length;
             } else {
                 /* No OCTET STRING */
-                ptr2 = ecdsa_attributes[2].pValue;
+                ptr2 = ecdsa_attributes[1].pValue;
             }
 
             if((d2i_ECParameters(&ecdsa, &ptr1, len1) == NULL) ||

@@ -6,6 +6,7 @@
 
 #ifdef HAVE_OPENSSL
 
+#include "key.h"
 #include "common.h"
 #include "crypto.h"
 #include "pkcs11_display.h"

@@ -224,6 +224,7 @@ int import(int argc, char **argv)
         CK_OBJECT_HANDLE hKey = CK_INVALID_HANDLE;
         CK_BYTE *ptr = NULL, *buffer = NULL;
         CK_ULONG pl = 0, cl = 0;
+        CK_BYTE iv[16];
         BIO *mem = BIO_new(BIO_s_mem());
 
         if (!(pkcs8 = EVP_PKEY2PKCS8(pkey))) {
@@ -242,6 +243,12 @@ int import(int argc, char **argv)
 
         buffer = malloc(pl + 16);
         cl = pl + 16;
+
+        rc = funcs->C_GenerateRandom(h_session, iv, sizeof(iv));
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_GenerateRandom", rc);
+            return rc;
+        }
 
         BIO_free(mem);
         EVP_PKEY_free(pkey);

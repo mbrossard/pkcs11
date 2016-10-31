@@ -285,6 +285,7 @@ int import(int argc, char **argv)
             return rc;
         }
 
+        free(buffer);
         BIO_free(mem);
         EVP_PKEY_free(pkey);
         PKCS8_PRIV_KEY_INFO_free(pkcs8);

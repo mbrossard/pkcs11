@@ -280,6 +280,11 @@ int import(int argc, char **argv)
 
         rc = funcs->C_UnwrapKey(h_session, &mechanism, hKey, buffer,
                                 cl, template, 8, &hpKey);
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_UnwrapKey", rc);
+            return rc;
+        }
+
         BIO_free(mem);
         EVP_PKEY_free(pkey);
         PKCS8_PRIV_KEY_INFO_free(pkcs8);

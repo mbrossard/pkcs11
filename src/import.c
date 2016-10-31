@@ -278,6 +278,8 @@ int import(int argc, char **argv)
             return rc;
         }
 
+        rc = funcs->C_UnwrapKey(h_session, &mechanism, hKey, buffer,
+                                cl, template, 8, &hpKey);
         BIO_free(mem);
         EVP_PKEY_free(pkey);
         PKCS8_PRIV_KEY_INFO_free(pkcs8);

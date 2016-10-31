@@ -221,11 +221,26 @@ int import(int argc, char **argv)
 
     if(pkey) {
         PKCS8_PRIV_KEY_INFO *pkcs8 = NULL;
-        CK_OBJECT_HANDLE hKey = CK_INVALID_HANDLE;
+        CK_OBJECT_HANDLE hKey = CK_INVALID_HANDLE, hpKey = CK_INVALID_HANDLE;
         CK_BYTE *ptr = NULL, *buffer = NULL;
         CK_ULONG pl = 0, cl = 0;
         CK_BYTE iv[16];
         CK_MECHANISM mechanism = { CKM_AES_CBC_PAD, iv, sizeof(iv) };
+        CK_BBOOL true = CK_TRUE, false = CK_FALSE;
+        CK_KEY_TYPE kt = CKK_RSA;
+        CK_OBJECT_CLASS cls = CKO_PRIVATE_KEY;
+        CK_ATTRIBUTE template[10] = {
+            { CKA_CLASS,       &cls,      sizeof(cls)   },
+            { CKA_KEY_TYPE,    &kt,       sizeof(kt)    },
+            { CKA_TOKEN,       &true,     sizeof(true)  },
+            { CKA_PRIVATE,     &true,     sizeof(true)  },
+            { CKA_SENSITIVE,   &true,     sizeof(true)  },
+            { CKA_EXTRACTABLE, &false,    sizeof(false) },
+            { CKA_SIGN,        &true,     sizeof(true)  },
+            { CKA_DECRYPT,     &true,     sizeof(true)  },
+            { CKA_LABEL,       NULL_PTR, 0 },
+            { CKA_ID,          NULL_PTR, 0 },
+        };
         BIO *mem = BIO_new(BIO_s_mem());
 
         if (!(pkcs8 = EVP_PKEY2PKCS8(pkey))) {

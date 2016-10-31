@@ -225,6 +225,7 @@ int import(int argc, char **argv)
         CK_BYTE *ptr = NULL, *buffer = NULL;
         CK_ULONG pl = 0, cl = 0;
         CK_BYTE iv[16];
+        CK_MECHANISM mechanism = { CKM_AES_CBC_PAD, iv, sizeof(iv) };
         BIO *mem = BIO_new(BIO_s_mem());
 
         if (!(pkcs8 = EVP_PKEY2PKCS8(pkey))) {
@@ -247,6 +248,12 @@ int import(int argc, char **argv)
         rc = funcs->C_GenerateRandom(h_session, iv, sizeof(iv));
         if (rc != CKR_OK) {
             show_error(stdout, "C_GenerateRandom", rc);
+            return rc;
+        }
+
+        rc = funcs->C_EncryptInit(h_session, &mechanism, hKey);
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_EncryptInit", rc);
             return rc;
         }
 

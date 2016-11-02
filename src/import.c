@@ -243,6 +243,13 @@ int import(int argc, char **argv)
         };
         BIO *mem = BIO_new(BIO_s_mem());
 
+        if (EVP_PKEY_id(pkey) == EVP_PKEY_RSA) {
+            kt = CKK_RSA;
+        } else {
+            fprintf(stdout, "Error: unsupported key type\n");
+            return rc;
+        }
+
         if (!(pkcs8 = EVP_PKEY2PKCS8(pkey))) {
             fprintf(stdout, "Error converting key to PKCS#8\n");
             return rc;

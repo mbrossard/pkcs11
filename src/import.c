@@ -226,16 +226,15 @@ int import(int argc, char **argv)
         CK_ULONG pl = 0, cl = 0;
         CK_BYTE iv[16];
         CK_MECHANISM mechanism = { CKM_AES_CBC_PAD, iv, sizeof(iv) };
-        CK_BBOOL true = CK_TRUE, false = CK_FALSE;
+        CK_BBOOL true = CK_TRUE;
         CK_KEY_TYPE kt = CKK_RSA;
         CK_OBJECT_CLASS cls = CKO_PRIVATE_KEY;
-        CK_ATTRIBUTE template[10] = {
+        CK_ATTRIBUTE template[9] = {
             { CKA_CLASS,       &cls,      sizeof(cls)   },
             { CKA_KEY_TYPE,    &kt,       sizeof(kt)    },
             { CKA_TOKEN,       &true,     sizeof(true)  },
             { CKA_PRIVATE,     &true,     sizeof(true)  },
             { CKA_SENSITIVE,   &true,     sizeof(true)  },
-            { CKA_EXTRACTABLE, &false,    sizeof(false) },
             { CKA_SIGN,        &true,     sizeof(true)  },
             { CKA_DECRYPT,     &true,     sizeof(true)  },
             { CKA_LABEL,       NULL_PTR, 0 },
@@ -286,7 +285,7 @@ int import(int argc, char **argv)
         }
 
         rc = funcs->C_UnwrapKey(h_session, &mechanism, hKey, buffer,
-                                cl, template, 8, &hpKey);
+                                cl, template, 7, &hpKey);
         if (rc != CKR_OK) {
             show_error(stdout, "C_UnwrapKey", rc);
             return rc;

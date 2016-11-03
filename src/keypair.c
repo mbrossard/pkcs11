@@ -99,8 +99,8 @@ CK_RV generateRsaKeyPair(CK_FUNCTION_LIST_PTR p11,
         goto done;
     }
 
-    fillAttribute(&attrs[0], CKA_PUBLIC_EXPONENT, NULL, 0);
-    fillAttribute(&attrs[1], CKA_MODULUS,         NULL, 0);
+    fillAttribute(&attrs[0], CKA_MODULUS,         NULL, 0);
+    fillAttribute(&attrs[1], CKA_PUBLIC_EXPONENT, NULL, 0);
 
     if ((rv = p11->C_GetAttributeValue
          (session, hPublicKey, attrs, 2)) != CKR_OK) {

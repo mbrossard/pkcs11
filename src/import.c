@@ -48,6 +48,7 @@ int import(int argc, char **argv)
     CK_FUNCTION_LIST  *funcs = NULL;
     CK_SESSION_HANDLE h_session;
     CK_BYTE_PTR       opt_label = NULL;
+    CK_ULONG          opt_label_len = 0;
     CK_UTF8CHAR_PTR   opt_pin = NULL;
     CK_ULONG          opt_pin_len = 0;
     CK_ULONG          opt_slot = -1;
@@ -78,6 +79,9 @@ int import(int argc, char **argv)
                 break;
             case 'l':
                 opt_label = (CK_BYTE_PTR)optarg;
+                if(opt_label_len) {
+                    opt_label_len = strlen(optarg);
+                }
                 break;
             case 'p':
                 opt_pin = (CK_UTF8CHAR_PTR) strdup(optarg);

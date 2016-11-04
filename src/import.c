@@ -27,6 +27,7 @@ static const struct option options[] = {
     { "certificate",        1, 0,           'c' },
     { "key",                1, 0,           'k' },
     { "label",              1, 0,           'l' },
+    { "label",              1, 0,           'l' },
     { 0, 0, 0, 0 }
 };
 

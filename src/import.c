@@ -190,6 +190,7 @@ int import(int argc, char **argv)
             CK_OBJECT_CLASS cls = CKO_CERTIFICATE;
             CK_CERTIFICATE_TYPE type = CKC_X_509;
             CK_OBJECT_HANDLE c_handle;
+            CK_ULONG att_count = 7;
             CK_ATTRIBUTE crt_template[] = {
                 { CKA_CERTIFICATE_TYPE,   &type,   sizeof(type) },
                 { CKA_SERIAL_NUMBER,      snbuf,   snl          },
@@ -197,8 +198,15 @@ int import(int argc, char **argv)
                 { CKA_ISSUER,             ibuf,    il           },
                 { CKA_VALUE,              cbuf,    cl           },
                 { CKA_TOKEN,              &true,   sizeof(true) },
-                { CKA_CLASS,              &cls,    sizeof(cls)  }
+                { CKA_CLASS,              &cls,    sizeof(cls)  },
+                { CKA_LABEL,              NULL,    0            }
             };
+
+            if(opt_label) {
+                crt_template[att_count].pValue     = opt_label;
+                crt_template[att_count].ulValueLen = opt_label_len;
+                att_count += 1;
+            }
 
             ptr = cbuf;
             i2d_X509(crt, &ptr);
@@ -209,7 +217,7 @@ int import(int argc, char **argv)
             ptr = snbuf;
             i2d_ASN1_INTEGER(serial, &ptr);
 
-            rc = funcs->C_CreateObject(h_session, crt_template, 7, &c_handle);
+            rc = funcs->C_CreateObject(h_session, crt_template, att_count, &c_handle);
             if (rc != CKR_OK) {
                 show_error(stdout, "C_CreateObject", rc);
                 return rc;

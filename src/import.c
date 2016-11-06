@@ -242,6 +242,7 @@ int import(int argc, char **argv)
         CK_BBOOL true = CK_TRUE;
         CK_KEY_TYPE kt = CKK_RSA;
         CK_OBJECT_CLASS cls = CKO_PRIVATE_KEY;
+        CK_ULONG att_count = 7;
         CK_ATTRIBUTE template[9] = {
             { CKA_CLASS,       &cls,      sizeof(cls)   },
             { CKA_KEY_TYPE,    &kt,       sizeof(kt)    },
@@ -251,12 +252,21 @@ int import(int argc, char **argv)
             { CKA_SIGN,        &true,     sizeof(true)  },
             { CKA_DECRYPT,     &true,     sizeof(true)  },
             { CKA_LABEL,       NULL_PTR, 0 },
-            { CKA_ID,          NULL_PTR, 0 },
+            { CKA_ID,          NULL_PTR, 0 }
         };
         BIO *mem = BIO_new(BIO_s_mem());
 
+        if(opt_label) {
+            template[att_count].pValue     = opt_label;
+            template[att_count].ulValueLen = opt_label_len;
+            att_count += 1;
+        }
+
         if (EVP_PKEY_id(pkey) == EVP_PKEY_RSA) {
             kt = CKK_RSA;
+        } else if (EVP_PKEY_id(pkey) == EVP_PKEY_EC) { 
+            kt = CKK_EC;
+            template[7].type = CKA_DERIVE;
         } else {
             fprintf(stdout, "Error: unsupported key type\n");
             return rc;
@@ -298,7 +308,7 @@ int import(int argc, char **argv)
         }
 
         rc = funcs->C_UnwrapKey(h_session, &mechanism, hKey, buffer,
-                                cl, template, 7, &hpKey);
+                                cl, template, att_count, &hpKey);
         if (rc != CKR_OK) {
             show_error(stdout, "C_UnwrapKey", rc);
             return rc;

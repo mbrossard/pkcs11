@@ -248,19 +248,20 @@ int import(int argc, char **argv)
         CK_OBJECT_CLASS cls = CKO_PRIVATE_KEY;
         CK_ULONG att_count = 7;
         CK_ATTRIBUTE template[9] = {
-            { CKA_CLASS,       &cls,      sizeof(cls)   },
-            { CKA_KEY_TYPE,    &kt,       sizeof(kt)    },
-            { CKA_TOKEN,       &true,     sizeof(true)  },
-            { CKA_PRIVATE,     &true,     sizeof(true)  },
-            { CKA_SENSITIVE,   &true,     sizeof(true)  },
-            { CKA_SIGN,        &true,     sizeof(true)  },
-            { CKA_DECRYPT,     &true,     sizeof(true)  },
-            { CKA_LABEL,       NULL_PTR, 0 },
-            { CKA_ID,          NULL_PTR, 0 }
+            { CKA_CLASS,     &cls,      sizeof(cls)   },
+            { CKA_KEY_TYPE,  &kt,       sizeof(kt)    },
+            { CKA_TOKEN,     &true,     sizeof(true)  },
+            { CKA_PRIVATE,   &true,     sizeof(true)  },
+            { CKA_SENSITIVE, &true,     sizeof(true)  },
+            { CKA_SIGN,      &true,     sizeof(true)  },
+            { CKA_DECRYPT,   &true,     sizeof(true)  },
+            { 0,             NULL_PTR, 0 },
+            { 0,             NULL_PTR, 0 }
         };
         BIO *mem = BIO_new(BIO_s_mem());
 
         if(opt_label) {
+            template[att_count].type       = CKA_LABEL;
             template[att_count].pValue     = opt_label;
             template[att_count].ulValueLen = opt_label_len;
             att_count += 1;

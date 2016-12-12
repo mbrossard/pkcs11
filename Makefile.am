@@ -121,6 +121,7 @@ test: pkcs11-util pkcs11-token.la
 	./pkcs11-util certify $(MODULE_PIN_SLOT) -l rsa2048 | @OPENSSL_BIN@ x509 | tee rsa.crt
 	./pkcs11-util import $(MODULE_PIN_SLOT) --certificate rsa.crt
 	@OPENSSL_BIN@ genrsa 2048 -nodes > rsa.key
+	./pkcs11-util import $(MODULE_PIN_SLOT) --key rsa.key --label RSA --id RSA
 	if [ "@HAVE_OPENSSL_ECC@" = 1 ] ; then \
 	  if ! @OPENSSL_BIN@ pkeyutl &>/dev/null ; then \
 	    ./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ req -verify ; \

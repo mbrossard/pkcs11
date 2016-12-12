@@ -212,6 +212,12 @@ int import(int argc, char **argv)
                 crt_template[att_count].ulValueLen = opt_label_len;
                 att_count += 1;
             }
+            if(opt_id) {
+                crt_template[att_count].type       = CKA_ID;
+                crt_template[att_count].pValue     = opt_id;
+                crt_template[att_count].ulValueLen = opt_id_len;
+                att_count += 1;
+            }
 
             ptr = cbuf;
             i2d_X509(crt, &ptr);

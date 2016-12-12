@@ -79,8 +79,7 @@ int import(int argc, char **argv)
                 opt_key = optarg;
                 break;
             case 'l':
-                opt_label = (CK_BYTE_PTR)optarg;
-                if(opt_label_len) {
+                if((opt_label = (CK_BYTE_PTR)optarg)) {
                     opt_label_len = strlen(optarg);
                 }
                 break;

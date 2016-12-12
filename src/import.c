@@ -86,6 +86,11 @@ int import(int argc, char **argv)
                     opt_label_len = strlen(optarg);
                 }
                 break;
+            case 'i':
+                if((opt_id = (CK_BYTE_PTR)optarg)) {
+                    opt_id_len = strlen(optarg);
+                }
+                break;
             case 'p':
                 opt_pin = (CK_UTF8CHAR_PTR) strdup(optarg);
                 if(opt_pin) {

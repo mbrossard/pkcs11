@@ -27,7 +27,7 @@ static const struct option options[] = {
     { "certificate",        1, 0,           'c' },
     { "key",                1, 0,           'k' },
     { "label",              1, 0,           'l' },
-    { "label",              1, 0,           'l' },
+    { "id",                 1, 0,           'i' },
     { 0, 0, 0, 0 }
 };
 
@@ -50,6 +50,8 @@ int import(int argc, char **argv)
     CK_SESSION_HANDLE h_session;
     CK_BYTE_PTR       opt_label = NULL;
     CK_ULONG          opt_label_len = 0;
+    CK_BYTE_PTR       opt_id = NULL;
+    CK_ULONG          opt_id_len = 0;
     CK_UTF8CHAR_PTR   opt_pin = NULL;
     CK_ULONG          opt_pin_len = 0;
     CK_ULONG          opt_slot = -1;

@@ -272,6 +272,12 @@ int import(int argc, char **argv)
             template[att_count].ulValueLen = opt_label_len;
             att_count += 1;
         }
+        if(opt_id) {
+            template[att_count].type       = CKA_ID;
+            template[att_count].pValue     = opt_id;
+            template[att_count].ulValueLen = opt_id_len;
+            att_count += 1;
+        }
 
         if (EVP_PKEY_id(pkey) == EVP_PKEY_RSA) {
             kt = CKK_RSA;

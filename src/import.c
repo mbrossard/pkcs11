@@ -40,6 +40,7 @@ static const char *option_help[] = {
     "Path of certificate to import",
     "Path of key to import",
     "Label to set",
+    "Identifier to set",
 };
 
 int import(int argc, char **argv)

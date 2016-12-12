@@ -195,17 +195,19 @@ int import(int argc, char **argv)
             CK_OBJECT_HANDLE c_handle;
             CK_ULONG att_count = 7;
             CK_ATTRIBUTE crt_template[] = {
-                { CKA_CERTIFICATE_TYPE,   &type,   sizeof(type) },
-                { CKA_SERIAL_NUMBER,      snbuf,   snl          },
-                { CKA_SUBJECT,            sbuf,    sl           },
-                { CKA_ISSUER,             ibuf,    il           },
-                { CKA_VALUE,              cbuf,    cl           },
-                { CKA_TOKEN,              &true,   sizeof(true) },
-                { CKA_CLASS,              &cls,    sizeof(cls)  },
-                { CKA_LABEL,              NULL,    0            }
+                { CKA_CERTIFICATE_TYPE, &type,   sizeof(type) },
+                { CKA_SERIAL_NUMBER,    snbuf,   snl          },
+                { CKA_SUBJECT,          sbuf,    sl           },
+                { CKA_ISSUER,           ibuf,    il           },
+                { CKA_VALUE,            cbuf,    cl           },
+                { CKA_TOKEN,            &true,   sizeof(true) },
+                { CKA_CLASS,            &cls,    sizeof(cls)  },
+                { 0,                    NULL,    0            },
+                { 0,                    NULL,    0            }
             };
 
             if(opt_label) {
+                crt_template[att_count].type       = CKA_LABEL;
                 crt_template[att_count].pValue     = opt_label;
                 crt_template[att_count].ulValueLen = opt_label_len;
                 att_count += 1;

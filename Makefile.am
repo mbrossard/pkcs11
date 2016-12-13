@@ -111,7 +111,7 @@ SLOT = --slot 2
 MODULE_PIN_SLOT = $(MODULE) --pin $(PIN) $(SLOT)
 
 test: pkcs11-util pkcs11-token.la
-	@rm -f cert8.db key3.db rsa.crt rsa.key
+	@rm -f cert8.db key3.db rsa.crt rsa.key ec.crt
 	./pkcs11-util init    $(MODULE_PIN_SLOT)
 	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l rsa2048 -k 2048
 	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l ec256   -k prime256v1

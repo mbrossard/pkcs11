@@ -126,6 +126,7 @@ test: pkcs11-util pkcs11-token.la
 	  if ! @OPENSSL_BIN@ pkeyutl &>/dev/null ; then \
 	    ./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ req -verify ; \
 	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ x509 | tee ec.crt ; \
+	    ./pkcs11-util import $(MODULE_PIN_SLOT) --certificate ec.crt ; \
 	  fi ; \
 	fi
 	./pkcs11-util info            $(MODULE)

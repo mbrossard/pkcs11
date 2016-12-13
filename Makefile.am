@@ -125,8 +125,8 @@ test: pkcs11-util pkcs11-token.la
 	if [ "@HAVE_OPENSSL_ECC@" = 1 ] ; then \
 	  if ! @OPENSSL_BIN@ pkeyutl &>/dev/null ; then \
 	    ./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ req -verify ; \
-	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ x509 ; \
-		fi ; \
+	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ x509 | tee ec.crt ; \
+	  fi ; \
 	fi
 	./pkcs11-util info            $(MODULE)
 	./pkcs11-util list-mechanisms $(MODULE)

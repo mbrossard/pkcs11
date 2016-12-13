@@ -127,6 +127,7 @@ test: pkcs11-util pkcs11-token.la
 	    ./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ req -verify ; \
 	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ x509 | tee ec.crt ; \
 	    ./pkcs11-util import $(MODULE_PIN_SLOT) --certificate ec.crt ; \
+		@OPENSSL_BIN@ ecparam -name secp256r1 -genkey | openssl ec > p256.key ; \
 	  fi ; \
 	fi
 	./pkcs11-util info            $(MODULE)

@@ -15,6 +15,7 @@
 #include <openssl/bio.h>
 #include <openssl/pem.h>
 #include <openssl/x509.h>
+#include <openssl/pkcs12.h>
 
 static const char *app_name = "pkcs11-util import";
 
@@ -159,6 +160,23 @@ int import(int argc, char **argv)
         }
     }
 
+    if(opt_pkcs12) {
+        PKCS12 *p12;
+        FILE *fp = NULL;
+        if (!(fp = fopen(opt_pkcs12, "rb"))) {
+            return -1;
+        }
+
+        p12 = d2i_PKCS12_fp(fp, NULL);
+        if (!p12) {
+            return -1;
+        }
+
+        if (!PKCS12_parse(p12, opt_password, &pkey, &crt, NULL)) {
+            return -1;
+        }
+    }
+    
     rc = pkcs11_load_init(opt_module, opt_dir, stdout, &funcs);
     if (rc != CKR_OK) {
         return rc;

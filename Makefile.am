@@ -125,12 +125,14 @@ test: pkcs11-util pkcs11-token.la
 	@OPENSSL_BIN@ genrsa 2048 -nodes > rsa2.key
 	@OPENSSL_BIN@ req -new -x509 -key rsa2.key -out rsa2.crt -subj /CN=Foo
 	cat rsa2.key rsa2.crt | @OPENSSL_BIN@ pkcs12 -export -out rsa.p12 -passout pass:$(PIN)
+	./pkcs11-util import $(MODULE_PIN_SLOT) --pkcs12 rsa.p12 --password $(PIN) --label P12 --id P12
 	if [ "@HAVE_OPENSSL_ECC@" = 1 ] ; then \
 	  if ! @OPENSSL_BIN@ pkeyutl &>/dev/null ; then \
 	    ./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ req -verify ; \
 	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ x509 | tee ec.crt ; \
 	    ./pkcs11-util import $(MODULE_PIN_SLOT) --certificate ec.crt ; \
 		@OPENSSL_BIN@ ecparam -name secp256r1 -genkey | openssl ec > p256.key ; \
+		./pkcs11-util import $(MODULE_PIN_SLOT) --key p256.key --label EC-P256 --id EC-P256 ; \
 	  fi ; \
 	fi
 	./pkcs11-util info            $(MODULE)

@@ -111,7 +111,7 @@ SLOT = --slot 2
 MODULE_PIN_SLOT = $(MODULE) --pin $(PIN) $(SLOT)
 
 test: pkcs11-util pkcs11-token.la
-	@rm -f cert8.db key3.db rsa.crt rsa.key rsa2.crt rsa2.key ec.crt
+	@rm -f cert8.db key3.db rsa.crt rsa.key rsa2.crt rsa2.key rsa.p12 ec.crt
 	./pkcs11-util init    $(MODULE_PIN_SLOT)
 	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l rsa2048 -k 2048
 	./pkcs11-util keygen  $(MODULE_PIN_SLOT) -l ec256   -k prime256v1
@@ -124,6 +124,7 @@ test: pkcs11-util pkcs11-token.la
 	./pkcs11-util import $(MODULE_PIN_SLOT) --key rsa.key --label RSA --id RSA
 	@OPENSSL_BIN@ genrsa 2048 -nodes > rsa2.key
 	@OPENSSL_BIN@ req -new -x509 -key rsa2.key -out rsa2.crt -subj /CN=Foo
+	cat rsa2.key rsa2.crt | @OPENSSL_BIN@ pkcs12 -export -out rsa.p12 -passout pass:$(PIN)
 	if [ "@HAVE_OPENSSL_ECC@" = 1 ] ; then \
 	  if ! @OPENSSL_BIN@ pkeyutl &>/dev/null ; then \
 	    ./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ req -verify ; \

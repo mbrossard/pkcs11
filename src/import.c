@@ -63,6 +63,7 @@ int import(int argc, char **argv)
     CK_RV             rc = 0;
     char *opt_module = NULL, *opt_dir = NULL;
     char *opt_crt = NULL, *opt_key = NULL;
+    char *opt_pkcs12 = NULL, *opt_password = NULL;
     X509 *crt = NULL;
     EVP_PKEY *pkey = NULL;
     int long_optind = 0;
@@ -101,11 +102,17 @@ int import(int argc, char **argv)
                     opt_pin_len = strlen(optarg);
                 }
                 break;
+            case 'P':
+                opt_password = optarg;
+                break;
             case 's':
                 opt_slot = (CK_SLOT_ID) atoi(optarg);
                 break;
             case 'm':
                 opt_module = optarg;
+                break;
+            case 'x':
+                opt_pkcs12 = optarg;
                 break;
             case 'h':
             default:

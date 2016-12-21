@@ -26,6 +26,8 @@ static const struct option options[] = {
     { "directory",          1, 0,           'd' },
     { "certificate",        1, 0,           'c' },
     { "key",                1, 0,           'k' },
+    { "pkcs12",             1, 0,           'x' },
+    { "password",           1, 0,           'P' },
     { "label",              1, 0,           'l' },
     { "id",                 1, 0,           'i' },
     { 0, 0, 0, 0 }
@@ -39,6 +41,8 @@ static const char *option_help[] = {
     "Specify the directory for NSS database",
     "Path of certificate to import",
     "Path of key to import",
+    "Path of PKCS#12 file to import",
+    "Password for key or PKCS#12",
     "Label to set",
     "Identifier to set",
 };

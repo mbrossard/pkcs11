@@ -164,15 +164,18 @@ int import(int argc, char **argv)
         PKCS12 *p12;
         FILE *fp = NULL;
         if (!(fp = fopen(opt_pkcs12, "rb"))) {
+            fprintf(stderr, "Error opening file %s\n", opt_pkcs12);
             return -1;
         }
 
         p12 = d2i_PKCS12_fp(fp, NULL);
         if (!p12) {
+            fprintf(stderr, "Error loading PKCS#12 file\n");
             return -1;
         }
 
         if (!PKCS12_parse(p12, opt_password, &pkey, &crt, NULL)) {
+            fprintf(stderr, "Error parsing PKCS#12 file\n");
             return -1;
         }
     }

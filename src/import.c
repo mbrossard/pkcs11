@@ -163,6 +163,12 @@ int import(int argc, char **argv)
     if(opt_pkcs12) {
         PKCS12 *p12;
         FILE *fp = NULL;
+
+        if(!opt_password) {
+            fprintf(stderr, "Missing --password argument with --pkcs12\n");
+            return -1;
+        }
+
         if (!(fp = fopen(opt_pkcs12, "rb"))) {
             fprintf(stderr, "Error opening file %s\n", opt_pkcs12);
             return -1;

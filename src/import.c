@@ -164,6 +164,15 @@ int import(int argc, char **argv)
         PKCS12 *p12;
         FILE *fp = NULL;
 
+        if(opt_key) {
+            fprintf(stderr, "Incompatible argument --key with --pkcs12\n");
+            return -1;
+        }
+        if(opt_key) {
+            fprintf(stderr, "Incompatible argument --crt with --pkcs12\n");
+            return -1;
+        }
+
         if(!opt_password) {
             fprintf(stderr, "Missing --password argument with --pkcs12\n");
             return -1;

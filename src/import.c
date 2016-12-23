@@ -53,6 +53,11 @@ CK_RV import_rsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY
                  CK_BYTE_PTR opt_id, CK_ULONG opt_id_len)
 {
 }
+
+CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY *pkey)
+{
+}
+
 int import(int argc, char **argv)
 {
     CK_ULONG          nslots;

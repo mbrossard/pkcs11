@@ -52,10 +52,14 @@ CK_RV import_rsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY
                  CK_BYTE_PTR opt_label, CK_ULONG opt_label_len,
                  CK_BYTE_PTR opt_id, CK_ULONG opt_id_len)
 {
+    CK_RV rc = CKR_OK;
+    return rc;
 }
 
 CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY *pkey)
 {
+    CK_RV rc = CKR_OK;
+    return rc;
 }
 
 int import(int argc, char **argv)

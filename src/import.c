@@ -63,6 +63,23 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
                    CK_BYTE_PTR opt_id, CK_ULONG opt_id_len)
 {
     CK_RV rc = CKR_OK;
+    CK_BBOOL true = CK_TRUE;
+    CK_KEY_TYPE kt = CKK_EC;
+    CK_OBJECT_CLASS cls1 = CKO_PRIVATE_KEY;
+    CK_ULONG att_private = 7;
+    CK_ATTRIBUTE private_template[11] = {
+        { CKA_CLASS,        &cls1,    sizeof(cls1)  },
+        { CKA_KEY_TYPE,     &kt,      sizeof(kt)    },
+        { CKA_TOKEN,        &true,    sizeof(true)  },
+        { CKA_PRIVATE,      &true,    sizeof(true)  },
+        { CKA_SENSITIVE,    &true,    sizeof(true)  },
+        { CKA_SIGN,         &true,    sizeof(true)  },
+        { CKA_DERIVE,       &true,    sizeof(true)  },
+        { CKA_ECDSA_PARAMS, NULL_PTR, 0 },
+        { CKA_VALUE,        NULL_PTR, 0 },
+        { 0,                NULL_PTR, 0 },
+        { 0,                NULL_PTR, 0 }
+    };
     return rc;
 }
 

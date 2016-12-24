@@ -214,6 +214,8 @@ int import(int argc, char **argv)
             ERR_print_errors_fp(stderr);
             return -1;
         }
+
+        PKCS12_free(p12);
     }
     
     rc = pkcs11_load_init(opt_module, opt_dir, stdout, &funcs);

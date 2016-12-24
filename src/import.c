@@ -188,8 +188,7 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     CK_BYTE_PTR ptr = NULL;
     EC_KEY *ec = EVP_PKEY_get1_EC_KEY(pkey);
 
-    ec_params_len = i2d_ECParameters(ec, NULL);
-    if(ec_params_len > sizeof(ec_params)) {
+    if(i2d_ECParameters(ec, NULL) > sizeof(ec_params)) {
         fprintf(stdout, "Error: EC parameters too large\n");
         return CKR_BUFFER_TOO_SMALL;
     }
@@ -203,8 +202,7 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     public_template[att_public].ulValueLen = ec_params_len;
     att_public += 1;
 
-    ec_point_len = i2o_ECPublicKey(ec, NULL);
-    if(ec_point_len > sizeof(ec_point)) {
+    if(i2o_ECPublicKey(ec, NULL) > sizeof(ec_point)) {
         fprintf(stdout, "Error: EC point too large\n");
         return CKR_BUFFER_TOO_SMALL;
     }
@@ -216,8 +214,7 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     att_public += 1;
 
     bn = EC_KEY_get0_private_key(ec);
-    ec_value_len = BN_num_bytes(bn);
-    if(ec_value_len > sizeof(ec_value)) {
+    if(BN_num_bytes(bn) > sizeof(ec_value)) {
         fprintf(stdout, "Error: EC value too large\n");
         return CKR_BUFFER_TOO_SMALL;
     }

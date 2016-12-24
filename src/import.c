@@ -202,6 +202,7 @@ int import(int argc, char **argv)
         }
 
         p12 = d2i_PKCS12_fp(fp, NULL);
+        fclose (fp);
         if (!p12) {
             fprintf(stderr, "Error loading PKCS#12 file\n");
             ERR_print_errors_fp(stderr);

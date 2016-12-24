@@ -182,8 +182,9 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
         { 0,                NULL_PTR,  0 },
         { 0,                NULL_PTR,  0 }
     };
-    CK_BYTE ec_params[256], ec_point[256];
-    CK_ULONG ec_params_len, ec_point_len;
+    CK_BYTE ec_params[256], ec_point[256], ec_value[256];
+    CK_ULONG ec_params_len, ec_point_len, ec_value_len;
+    const BIGNUM *bn = NULL;
     CK_BYTE_PTR ptr = NULL;
     EC_KEY *ec = EVP_PKEY_get1_EC_KEY(pkey);
 
@@ -213,6 +214,14 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     public_template[att_public].pValue     = ec_point;
     public_template[att_public].ulValueLen = ec_point_len;
     att_public += 1;
+
+    bn = EC_KEY_get0_private_key(ec);
+    ec_value_len = BN_num_bytes(bn);
+    if(ec_value_len > sizeof(ec_value)) {
+        fprintf(stdout, "Error: EC value too large\n");
+        return CKR_BUFFER_TOO_SMALL;
+    }
+    ec_value_len = BN_bn2bin(bn, ec_value);
 
     return rc;
 }

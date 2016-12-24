@@ -131,6 +131,19 @@ CK_RV import_rsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY
         { 0,             NULL_PTR, 0 }
     };
 
+    if(opt_label) {
+        template[att_count].type       = CKA_LABEL;
+        template[att_count].pValue     = opt_label;
+        template[att_count].ulValueLen = opt_label_len;
+        att_count += 1;
+    }
+    if(opt_id) {
+        template[att_count].type       = CKA_ID;
+        template[att_count].pValue     = opt_id;
+        template[att_count].ulValueLen = opt_id_len;
+        att_count += 1;
+    }
+
     return import_key_wrap(funcs, h_session, pkey, template, att_count);
 }
 

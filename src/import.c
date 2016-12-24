@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <openssl/bio.h>
+#include <openssl/err.h>
 #include <openssl/pem.h>
 #include <openssl/x509.h>
 #include <openssl/pkcs12.h>
@@ -203,11 +204,13 @@ int import(int argc, char **argv)
         p12 = d2i_PKCS12_fp(fp, NULL);
         if (!p12) {
             fprintf(stderr, "Error loading PKCS#12 file\n");
+            ERR_print_errors_fp(stderr);
             return -1;
         }
 
         if (!PKCS12_parse(p12, opt_password, &pkey, &crt, NULL)) {
             fprintf(stderr, "Error parsing PKCS#12 file\n");
+            ERR_print_errors_fp(stderr);
             return -1;
         }
     }

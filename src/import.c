@@ -210,6 +210,10 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     ptr = ec_point;
     ec_point_len = i2o_ECPublicKey(ec, &ptr);
 
+    public_template[att_public].pValue     = ec_point;
+    public_template[att_public].ulValueLen = ec_point_len;
+    att_public += 1;
+
     return rc;
 }
 

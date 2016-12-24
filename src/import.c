@@ -49,14 +49,35 @@ static const char *option_help[] = {
     "Identifier to set",
 };
 
-CK_RV import_rsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY *pkey,
-                 CK_BYTE_PTR opt_label, CK_ULONG opt_label_len,
-                 CK_BYTE_PTR opt_id, CK_ULONG opt_id_len)
+CK_RV import_key_wrap(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY *pkey,
+                      CK_ATTRIBUTE_PTR template, CK_ULONG att_count)
 {
     CK_RV rc = CKR_OK;
     return rc;
 }
 
+CK_RV import_rsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY *pkey,
+                 CK_BYTE_PTR opt_label, CK_ULONG opt_label_len,
+                 CK_BYTE_PTR opt_id, CK_ULONG opt_id_len)
+{
+    CK_BBOOL true = CK_TRUE;
+    CK_KEY_TYPE kt = CKK_RSA;
+    CK_OBJECT_CLASS cls = CKO_PRIVATE_KEY;
+    CK_ULONG att_count = 7;
+    CK_ATTRIBUTE template[9] = {
+        { CKA_CLASS,     &cls,      sizeof(cls)   },
+        { CKA_KEY_TYPE,  &kt,       sizeof(kt)    },
+        { CKA_TOKEN,     &true,     sizeof(true)  },
+        { CKA_PRIVATE,   &true,     sizeof(true)  },
+        { CKA_SENSITIVE, &true,     sizeof(true)  },
+        { CKA_SIGN,      &true,     sizeof(true)  },
+        { CKA_DECRYPT,   &true,     sizeof(true)  },
+        { 0,             NULL_PTR, 0 },
+        { 0,             NULL_PTR, 0 }
+    };
+
+    return import_key_wrap(funcs, h_session, pkey, template, att_count);
+}
 
 CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY *pkey,
                    CK_BYTE_PTR opt_label, CK_ULONG opt_label_len,

@@ -195,6 +195,13 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     ptr = ec_params;
     ec_params_len = i2d_ECParameters(ec, &ptr);
 
+    private_template[att_private].pValue     = ec_params;
+    private_template[att_private].ulValueLen = ec_params_len;
+    att_private += 1;
+    public_template[att_public].pValue     = ec_params;
+    public_template[att_public].ulValueLen = ec_params_len;
+    att_public += 1;
+
     return rc;
 }
 

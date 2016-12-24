@@ -12,6 +12,7 @@
 #include "pkcs11_display.h"
 #include <stdlib.h>
 #include <string.h>
+#include <openssl/bn.h>
 #include <openssl/bio.h>
 #include <openssl/err.h>
 #include <openssl/pem.h>

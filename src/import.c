@@ -182,6 +182,19 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
         { 0,                NULL_PTR,  0 },
         { 0,                NULL_PTR,  0 }
     };
+    CK_BYTE ec_params[256];
+    CK_ULONG ec_params_len;
+    CK_BYTE_PTR ptr = NULL;
+    EC_KEY *ec = EVP_PKEY_get1_EC_KEY(pkey);
+
+    ec_params_len = i2d_ECParameters(ec, NULL);
+    if(ec_params_len > sizeof(ec_params)) {
+        fprintf(stdout, "Error: EC parameters too large\n");
+        return CKR_BUFFER_TOO_SMALL;
+    }
+    ptr = ec_params;
+    ec_params_len = i2d_ECParameters(ec, &ptr);
+
     return rc;
 }
 

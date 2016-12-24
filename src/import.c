@@ -424,98 +424,15 @@ int import(int argc, char **argv)
     }
 
     if(pkey) {
-        PKCS8_PRIV_KEY_INFO *pkcs8 = NULL;
-        CK_OBJECT_HANDLE hKey = CK_INVALID_HANDLE, hpKey = CK_INVALID_HANDLE;
-        CK_BYTE *ptr = NULL, *buffer = NULL;
-        CK_ULONG pl = 0, cl = 0;
-        CK_BYTE iv[16];
-        CK_MECHANISM mechanism = { CKM_AES_CBC_PAD, iv, sizeof(iv) };
-        CK_BBOOL true = CK_TRUE;
-        CK_KEY_TYPE kt = CKK_RSA;
-        CK_OBJECT_CLASS cls = CKO_PRIVATE_KEY;
-        CK_ULONG att_count = 7;
-        CK_ATTRIBUTE template[9] = {
-            { CKA_CLASS,     &cls,      sizeof(cls)   },
-            { CKA_KEY_TYPE,  &kt,       sizeof(kt)    },
-            { CKA_TOKEN,     &true,     sizeof(true)  },
-            { CKA_PRIVATE,   &true,     sizeof(true)  },
-            { CKA_SENSITIVE, &true,     sizeof(true)  },
-            { CKA_SIGN,      &true,     sizeof(true)  },
-            { CKA_DECRYPT,   &true,     sizeof(true)  },
-            { 0,             NULL_PTR, 0 },
-            { 0,             NULL_PTR, 0 }
-        };
-        BIO *mem = BIO_new(BIO_s_mem());
-
-        if(opt_label) {
-            template[att_count].type       = CKA_LABEL;
-            template[att_count].pValue     = opt_label;
-            template[att_count].ulValueLen = opt_label_len;
-            att_count += 1;
-        }
-        if(opt_id) {
-            template[att_count].type       = CKA_ID;
-            template[att_count].pValue     = opt_id;
-            template[att_count].ulValueLen = opt_id_len;
-            att_count += 1;
-        }
-
         if (EVP_PKEY_id(pkey) == EVP_PKEY_RSA) {
-            kt = CKK_RSA;
-        } else if (EVP_PKEY_id(pkey) == EVP_PKEY_EC) { 
-            kt = CKK_EC;
-            template[7].type = CKA_DERIVE;
+            import_rsa(funcs, h_session, pkey, opt_label, opt_label_len,
+                       opt_id, opt_id_len);
+        } else if (EVP_PKEY_id(pkey) == EVP_PKEY_EC) {
+            import_ecdsa(funcs, h_session, pkey, opt_label, opt_label_len,
+                         opt_id, opt_id_len);
         } else {
             fprintf(stdout, "Error: unsupported key type\n");
-            return rc;
         }
-
-        if (!(pkcs8 = EVP_PKEY2PKCS8(pkey))) {
-            fprintf(stdout, "Error converting key to PKCS#8\n");
-            return rc;
-        }
-
-        i2d_PKCS8_PRIV_KEY_INFO_bio(mem, pkcs8);
-        pl = BIO_get_mem_data(mem, &ptr);
-
-        rc = generateSessionKey(funcs, h_session, CKK_AES, CKM_AES_KEY_GEN, 128 / 8, &hKey);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_GenerateKey", rc);
-            return rc;
-        }
-
-        buffer = malloc(pl + 16);
-        cl = pl + 16;
-
-        rc = funcs->C_GenerateRandom(h_session, iv, sizeof(iv));
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_GenerateRandom", rc);
-            return rc;
-        }
-
-        rc = funcs->C_EncryptInit(h_session, &mechanism, hKey);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_EncryptInit", rc);
-            return rc;
-        }
-
-        rc = funcs->C_Encrypt(h_session, ptr, pl, buffer, &cl);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_Encrypt", rc);
-            return rc;
-        }
-
-        rc = funcs->C_UnwrapKey(h_session, &mechanism, hKey, buffer,
-                                cl, template, att_count, &hpKey);
-        if (rc != CKR_OK) {
-            show_error(stdout, "C_UnwrapKey", rc);
-            return rc;
-        }
-
-        free(buffer);
-        BIO_free(mem);
-        EVP_PKEY_free(pkey);
-        PKCS8_PRIV_KEY_INFO_free(pkcs8);
     }
 
     rc = pkcs11_close(stdout, funcs, h_session);

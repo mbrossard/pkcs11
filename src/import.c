@@ -169,6 +169,19 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
         { 0,                NULL_PTR, 0 },
         { 0,                NULL_PTR, 0 }
     };
+    CK_OBJECT_CLASS cls2 = CKO_PUBLIC_KEY;
+    CK_ULONG att_public = 5;
+    CK_ATTRIBUTE public_template[9] = {
+        { CKA_CLASS,        &cls2,     sizeof(cls2)  },
+        { CKA_KEY_TYPE,     &kt,       sizeof(kt)    },
+        { CKA_TOKEN,        &true,     sizeof(true)  },
+        { CKA_SIGN,         &true,     sizeof(true)  },
+        { CKA_DECRYPT,      &true,     sizeof(true)  },
+        { CKA_ECDSA_PARAMS, NULL_PTR,  0 },
+        { CKA_EC_POINT,     NULL_PTR,  0 },
+        { 0,                NULL_PTR,  0 },
+        { 0,                NULL_PTR,  0 }
+    };
     return rc;
 }
 

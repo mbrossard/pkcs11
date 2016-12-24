@@ -53,6 +53,61 @@ CK_RV import_key_wrap(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP
                       CK_ATTRIBUTE_PTR template, CK_ULONG att_count)
 {
     CK_RV rc = CKR_OK;
+    CK_BYTE iv[16];
+    CK_MECHANISM mechanism = { CKM_AES_CBC_PAD, iv, sizeof(iv) };
+    PKCS8_PRIV_KEY_INFO *pkcs8 = NULL;
+    CK_OBJECT_HANDLE hKey = CK_INVALID_HANDLE, hpKey = CK_INVALID_HANDLE;
+    CK_BYTE *ptr = NULL, *buffer = NULL;
+    CK_ULONG pl = 0, cl = 0;
+    BIO *mem = BIO_new(BIO_s_mem());
+
+    if (!(pkcs8 = EVP_PKEY2PKCS8(pkey))) {
+        fprintf(stdout, "Error converting key to PKCS#8\n");
+        return rc;
+    }
+
+    i2d_PKCS8_PRIV_KEY_INFO_bio(mem, pkcs8);
+    pl = BIO_get_mem_data(mem, &ptr);
+
+    rc = generateSessionKey(funcs, h_session, CKK_AES, CKM_AES_KEY_GEN, 128 / 8, &hKey);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_GenerateKey", rc);
+        return rc;
+    }
+
+    buffer = malloc(pl + 16);
+    cl = pl + 16;
+
+    rc = funcs->C_GenerateRandom(h_session, iv, sizeof(iv));
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_GenerateRandom", rc);
+        return rc;
+    }
+
+    rc = funcs->C_EncryptInit(h_session, &mechanism, hKey);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_EncryptInit", rc);
+        return rc;
+    }
+
+    rc = funcs->C_Encrypt(h_session, ptr, pl, buffer, &cl);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_Encrypt", rc);
+        return rc;
+    }
+
+    rc = funcs->C_UnwrapKey(h_session, &mechanism, hKey, buffer,
+                            cl, template, att_count, &hpKey);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_UnwrapKey", rc);
+        return rc;
+    }
+
+    free(buffer);
+    BIO_free(mem);
+    EVP_PKEY_free(pkey);
+    PKCS8_PRIV_KEY_INFO_free(pkcs8);
+
     return rc;
 }
 

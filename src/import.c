@@ -225,6 +225,17 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     private_template[att_private].ulValueLen = ec_value_len;
     att_private += 1;
 
+    if(opt_label) {
+        private_template[att_private].type       = CKA_LABEL;
+        private_template[att_private].pValue     = opt_label;
+        private_template[att_private].ulValueLen = opt_label_len;
+        att_private += 1;
+        public_template[att_public].type       = CKA_LABEL;
+        public_template[att_public].pValue     = opt_label;
+        public_template[att_public].ulValueLen = opt_label_len;
+        att_public += 1;
+    }
+
     return rc;
 }
 

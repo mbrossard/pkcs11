@@ -165,7 +165,7 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
         { CKA_SENSITIVE,    &true,    sizeof(true)  },
         { CKA_SIGN,         &true,    sizeof(true)  },
         { CKA_DERIVE,       &true,    sizeof(true)  },
-        { CKA_ECDSA_PARAMS, NULL_PTR, 0 },
+        { 0,                NULL_PTR, 0 },
         { CKA_VALUE,        NULL_PTR, 0 },
         { 0,                NULL_PTR, 0 },
         { 0,                NULL_PTR, 0 }
@@ -196,6 +196,7 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     ptr = ec_params;
     ec_params_len = i2d_ECParameters(ec, &ptr);
 
+    private_template[att_private].type       = CKA_ECDSA_PARAMS;
     private_template[att_private].pValue     = ec_params;
     private_template[att_private].ulValueLen = ec_params_len;
     att_private += 1;

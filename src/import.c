@@ -176,10 +176,10 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
         { CKA_CLASS,        &cls2,     sizeof(cls2)  },
         { CKA_KEY_TYPE,     &kt,       sizeof(kt)    },
         { CKA_TOKEN,        &true,     sizeof(true)  },
-        { CKA_ECDSA_PARAMS, NULL_PTR,  0 },
         { CKA_EC_POINT,     NULL_PTR,  0 },
         { CKA_VERIFY,       &true,     sizeof(true)  },
         { CKA_DERIVE,       &true,     sizeof(true)  },
+        { 0,                NULL_PTR,  0 },
         { 0,                NULL_PTR,  0 },
         { 0,                NULL_PTR,  0 }
     };
@@ -200,6 +200,7 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     private_template[att_private].pValue     = ec_params;
     private_template[att_private].ulValueLen = ec_params_len;
     att_private += 1;
+    public_template[att_public].type       = CKA_ECDSA_PARAMS;
     public_template[att_public].pValue     = ec_params;
     public_template[att_public].ulValueLen = ec_params_len;
     att_public += 1;

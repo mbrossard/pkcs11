@@ -166,7 +166,7 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
         { CKA_SIGN,         &true,    sizeof(true)  },
         { CKA_DERIVE,       &true,    sizeof(true)  },
         { 0,                NULL_PTR, 0 },
-        { CKA_VALUE,        NULL_PTR, 0 },
+        { 0,                NULL_PTR, 0 },
         { 0,                NULL_PTR, 0 },
         { 0,                NULL_PTR, 0 }
     };
@@ -224,6 +224,7 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     }
     ec_value_len = BN_bn2bin(bn, ec_value);
 
+    private_template[att_private].type       = CKA_VALUE;
     private_template[att_private].pValue     = ec_value;
     private_template[att_private].ulValueLen = ec_value_len;
     att_private += 1;

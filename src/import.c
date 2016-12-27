@@ -176,9 +176,9 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
         { CKA_CLASS,        &cls2,     sizeof(cls2)  },
         { CKA_KEY_TYPE,     &kt,       sizeof(kt)    },
         { CKA_TOKEN,        &true,     sizeof(true)  },
-        { CKA_EC_POINT,     NULL_PTR,  0 },
         { CKA_VERIFY,       &true,     sizeof(true)  },
         { CKA_DERIVE,       &true,     sizeof(true)  },
+        { 0,                NULL_PTR,  0 },
         { 0,                NULL_PTR,  0 },
         { 0,                NULL_PTR,  0 },
         { 0,                NULL_PTR,  0 }
@@ -212,6 +212,7 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     ptr = ec_point;
     ec_point_len = i2o_ECPublicKey(ec, &ptr);
 
+    public_template[att_public].type       = CKA_EC_POINT;
     public_template[att_public].pValue     = ec_point;
     public_template[att_public].ulValueLen = ec_point_len;
     att_public += 1;

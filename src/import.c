@@ -214,11 +214,6 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     ptr = ec_point;
     ec_point_len = i2o_ECPublicKey(ec, &ptr);
 
-    public_template[att_public].type       = CKA_EC_POINT;
-    public_template[att_public].pValue     = ec_point;
-    public_template[att_public].ulValueLen = ec_point_len;
-    att_public += 1;
-
     bn = EC_KEY_get0_private_key(ec);
     if(BN_num_bytes(bn) > sizeof(ec_value)) {
         fprintf(stdout, "Error: EC value too large\n");
@@ -239,6 +234,11 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     public_template[att_public].type       = CKA_ECDSA_PARAMS;
     public_template[att_public].pValue     = ec_params;
     public_template[att_public].ulValueLen = ec_params_len;
+    att_public += 1;
+
+    public_template[att_public].type       = CKA_EC_POINT;
+    public_template[att_public].pValue     = ec_point;
+    public_template[att_public].ulValueLen = ec_point_len;
     att_public += 1;
 
     return rc;

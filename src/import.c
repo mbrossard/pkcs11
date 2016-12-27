@@ -207,10 +207,6 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     ptr = ec_params;
     ec_params_len = i2d_ECParameters(ec, &ptr);
 
-    private_template[att_private].type       = CKA_ECDSA_PARAMS;
-    private_template[att_private].pValue     = ec_params;
-    private_template[att_private].ulValueLen = ec_params_len;
-    att_private += 1;
     public_template[att_public].type       = CKA_ECDSA_PARAMS;
     public_template[att_public].pValue     = ec_params;
     public_template[att_public].ulValueLen = ec_params_len;
@@ -234,6 +230,11 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
         return CKR_BUFFER_TOO_SMALL;
     }
     ec_value_len = BN_bn2bin(bn, ec_value);
+    
+    private_template[att_private].type       = CKA_ECDSA_PARAMS;
+    private_template[att_private].pValue     = ec_params;
+    private_template[att_private].ulValueLen = ec_params_len;
+    att_private += 1;
 
     private_template[att_private].type       = CKA_VALUE;
     private_template[att_private].pValue     = ec_value;

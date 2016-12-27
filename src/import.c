@@ -189,6 +189,17 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     CK_BYTE_PTR ptr = NULL;
     EC_KEY *ec = EVP_PKEY_get1_EC_KEY(pkey);
 
+    if(opt_label) {
+        private_template[att_private].type       = CKA_LABEL;
+        private_template[att_private].pValue     = opt_label;
+        private_template[att_private].ulValueLen = opt_label_len;
+        att_private += 1;
+        public_template[att_public].type       = CKA_LABEL;
+        public_template[att_public].pValue     = opt_label;
+        public_template[att_public].ulValueLen = opt_label_len;
+        att_public += 1;
+    }
+
     if(i2d_ECParameters(ec, NULL) > sizeof(ec_params)) {
         fprintf(stdout, "Error: EC parameters too large\n");
         return CKR_BUFFER_TOO_SMALL;
@@ -228,17 +239,6 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     private_template[att_private].pValue     = ec_value;
     private_template[att_private].ulValueLen = ec_value_len;
     att_private += 1;
-
-    if(opt_label) {
-        private_template[att_private].type       = CKA_LABEL;
-        private_template[att_private].pValue     = opt_label;
-        private_template[att_private].ulValueLen = opt_label_len;
-        att_private += 1;
-        public_template[att_public].type       = CKA_LABEL;
-        public_template[att_public].pValue     = opt_label;
-        public_template[att_public].ulValueLen = opt_label_len;
-        att_public += 1;
-    }
 
     return rc;
 }

@@ -207,11 +207,6 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     ptr = ec_params;
     ec_params_len = i2d_ECParameters(ec, &ptr);
 
-    public_template[att_public].type       = CKA_ECDSA_PARAMS;
-    public_template[att_public].pValue     = ec_params;
-    public_template[att_public].ulValueLen = ec_params_len;
-    att_public += 1;
-
     if(i2o_ECPublicKey(ec, NULL) > sizeof(ec_point)) {
         fprintf(stdout, "Error: EC point too large\n");
         return CKR_BUFFER_TOO_SMALL;
@@ -240,6 +235,11 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     private_template[att_private].pValue     = ec_value;
     private_template[att_private].ulValueLen = ec_value_len;
     att_private += 1;
+
+    public_template[att_public].type       = CKA_ECDSA_PARAMS;
+    public_template[att_public].pValue     = ec_params;
+    public_template[att_public].ulValueLen = ec_params_len;
+    att_public += 1;
 
     return rc;
 }

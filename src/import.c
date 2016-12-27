@@ -176,10 +176,10 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
         { CKA_CLASS,        &cls2,     sizeof(cls2)  },
         { CKA_KEY_TYPE,     &kt,       sizeof(kt)    },
         { CKA_TOKEN,        &true,     sizeof(true)  },
-        { CKA_SIGN,         &true,     sizeof(true)  },
-        { CKA_DECRYPT,      &true,     sizeof(true)  },
         { CKA_ECDSA_PARAMS, NULL_PTR,  0 },
         { CKA_EC_POINT,     NULL_PTR,  0 },
+        { CKA_VERIFY,       &true,     sizeof(true)  },
+        { CKA_DERIVE,       &true,     sizeof(true)  },
         { 0,                NULL_PTR,  0 },
         { 0,                NULL_PTR,  0 }
     };

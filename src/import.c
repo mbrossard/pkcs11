@@ -241,6 +241,12 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     public_template[att_public].ulValueLen = ec_point_len;
     att_public += 1;
 
+    rc = funcs->C_CreateObject(h_session, private_template, att_private, &hpKey1);
+    if (rc != CKR_OK) {
+        show_error(stdout, "C_CreateObject", rc);
+        return rc;
+    }
+
     return rc;
 }
 

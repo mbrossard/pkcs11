@@ -152,6 +152,7 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
                    CK_BYTE_PTR opt_label, CK_ULONG opt_label_len,
                    CK_BYTE_PTR opt_id, CK_ULONG opt_id_len)
 {
+    CK_OBJECT_HANDLE hpKey1 = CK_INVALID_HANDLE, hpKey2 = CK_INVALID_HANDLE;
     CK_RV rc = CKR_OK;
     CK_BBOOL true = CK_TRUE;
     CK_KEY_TYPE kt = CKK_EC;

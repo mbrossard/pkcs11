@@ -252,6 +252,10 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     if (rc != CKR_OK) {
         show_error(stdout, "C_CreateObject", rc);
         rc = funcs->C_DestroyObject(h_session, hpKey1);
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_DestroyObject", rc);
+            return rc;
+        }
         return rc;
     }
 

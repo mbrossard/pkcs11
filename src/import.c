@@ -86,6 +86,8 @@ CK_RV import_key_wrap(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP
         }
         mechanism.mechanism = CKM_DES3_CBC_PAD;
         il = 8;
+    } else {
+        return CKR_ARGUMENTS_BAD;
     }
     mechanism.pParameter = iv;
     mechanism.ulParameterLen = il;

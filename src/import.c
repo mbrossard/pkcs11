@@ -206,6 +206,17 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     CK_BYTE_PTR ptr = NULL;
     EC_KEY *ec = EVP_PKEY_get1_EC_KEY(pkey);
 
+    if(opt_id) {
+        private_template[att_private].type       = CKA_ID;
+        private_template[att_private].pValue     = opt_id;
+        private_template[att_private].ulValueLen = opt_id_len;
+        att_private += 1;
+        public_template[att_public].type       = CKA_ID;
+        public_template[att_public].pValue     = opt_id;
+        public_template[att_public].ulValueLen = opt_id_len;
+        att_public += 1;
+    }
+
     if(opt_label) {
         private_template[att_private].type       = CKA_LABEL;
         private_template[att_private].pValue     = opt_label;

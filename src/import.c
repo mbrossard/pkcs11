@@ -51,15 +51,15 @@ static const char *option_help[] = {
 };
 
 CK_RV import_key_wrap(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY *pkey,
-                      CK_ATTRIBUTE_PTR template, CK_ULONG att_count)
+                      CK_ATTRIBUTE_PTR template, CK_ULONG att_count, CK_KEY_TYPE type)
 {
     CK_RV rc = CKR_OK;
     CK_BYTE iv[16];
-    CK_MECHANISM mechanism = { CKM_AES_CBC_PAD, iv, sizeof(iv) };
+    CK_MECHANISM mechanism;
     PKCS8_PRIV_KEY_INFO *pkcs8 = NULL;
     CK_OBJECT_HANDLE hKey = CK_INVALID_HANDLE, hpKey = CK_INVALID_HANDLE;
     CK_BYTE *ptr = NULL, *buffer = NULL;
-    CK_ULONG pl = 0, cl = 0;
+    CK_ULONG pl = 0, cl = 0, il;
     BIO *mem = BIO_new(BIO_s_mem());
 
     if (!(pkcs8 = EVP_PKEY2PKCS8(pkey))) {
@@ -70,16 +70,22 @@ CK_RV import_key_wrap(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP
     i2d_PKCS8_PRIV_KEY_INFO_bio(mem, pkcs8);
     pl = BIO_get_mem_data(mem, &ptr);
 
-    rc = generateSessionKey(funcs, h_session, CKK_AES, CKM_AES_KEY_GEN, 128 / 8, &hKey);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_GenerateKey", rc);
-        return rc;
+    if (type == CKK_AES) {
+        rc = generateSessionKey(funcs, h_session, CKK_AES, CKM_AES_KEY_GEN, 128 / 8, &hKey);
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_GenerateKey", rc);
+            return rc;
+        }
+        mechanism.mechanism = CKM_AES_CBC_PAD;
+        il = 16;
     }
+    mechanism.pParameter = iv;
+    mechanism.ulParameterLen = il;
 
     buffer = malloc(pl + 16);
     cl = pl + 16;
 
-    rc = funcs->C_GenerateRandom(h_session, iv, sizeof(iv));
+    rc = funcs->C_GenerateRandom(h_session, iv, il);
     if (rc != CKR_OK) {
         show_error(stdout, "C_GenerateRandom", rc);
         return rc;
@@ -145,7 +151,7 @@ CK_RV import_rsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY
         att_count += 1;
     }
 
-    return import_key_wrap(funcs, h_session, pkey, template, att_count);
+    return import_key_wrap(funcs, h_session, pkey, template, att_count, CKK_AES);
 }
 
 CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY *pkey,

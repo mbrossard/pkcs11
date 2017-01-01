@@ -131,10 +131,10 @@ test: pkcs11-util pkcs11-token.la
 	    ./pkcs11-util request $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ req -verify ; \
 	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ x509 | tee ec.crt ; \
 	    ./pkcs11-util import $(MODULE_PIN_SLOT) --certificate ec.crt --label ec256 --id ec256 ; \
-		@OPENSSL_BIN@ ecparam -name prime256v1 -genkey | openssl ec > p256.key ; \
+	    @OPENSSL_BIN@ ecparam -name prime256v1 -genkey | openssl ec > p256.key ; \
 		./pkcs11-util import $(MODULE_PIN_SLOT) --key p256.key --label EC-P256 --id EC-P256 ; \
-		@OPENSSL_BIN@ req -new -x509 -key p256.key -out p256.crt -subj /CN=Foo ; \
-		cat p256.key p256.crt | @OPENSSL_BIN@ pkcs12 -export -out p256.p12 -passout pass:$(PIN) ; \
+	    @OPENSSL_BIN@ req -new -x509 -key p256.key -out p256.crt -subj /CN=Foo ; \
+	    cat p256.key p256.crt | @OPENSSL_BIN@ pkcs12 -export -out p256.p12 -passout pass:$(PIN) ; \
 	  fi ; \
 	fi
 	./pkcs11-util info            $(MODULE)

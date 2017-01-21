@@ -32,7 +32,7 @@ static const char *option_help[] = {
 int random_p11(int argc, char **argv)
 {
     CK_ULONG          nslots, opt_length = 0;
-    CK_SLOT_ID        *pslots = NULL, opt_slot;
+    CK_SLOT_ID        *pslots = NULL, opt_slot = -1;
     CK_FUNCTION_LIST  *funcs = NULL;
     CK_SESSION_HANDLE h_session;
     CK_FLAGS          flags = CKF_SERIAL_SESSION;

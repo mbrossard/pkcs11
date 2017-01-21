@@ -457,7 +457,9 @@ static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *path,
                 RSA_set_ex_data(EVP_PKEY_get1_RSA(pkey), pkcs11d_rsa_key_idx, pd);
             } else if(EVP_PKEY_id(pkey) == EVP_PKEY_EC) {
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
+#ifdef ENABLE_PKCS11_ECDSA
                 ECDSA_set_method(EVP_PKEY_get1_EC_KEY(pkey), engine_ecdsa_method());
+#endif
                 ECDH_set_method(EVP_PKEY_get1_EC_KEY(pkey), engine_ecdh_method());
                 ECDSA_set_ex_data(EVP_PKEY_get1_EC_KEY(pkey), pkcs11d_ec_key_idx, pd);
 #else

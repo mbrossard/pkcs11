@@ -33,6 +33,7 @@ static const struct option options[] = {
     { "password",           1, 0,           'P' },
     { "label",              1, 0,           'l' },
     { "id",                 1, 0,           'i' },
+    { "verbose",            0, 0,           'v' },
     { 0, 0, 0, 0 }
 };
 
@@ -48,6 +49,7 @@ static const char *option_help[] = {
     "Password for key or PKCS#12",
     "Label to set",
     "Identifier to set",
+    "Verbose output",
 };
 
 CK_RV import_key_wrap(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY *pkey,
@@ -308,7 +310,7 @@ int import(int argc, char **argv)
     char *opt_pkcs12 = NULL, *opt_password = NULL;
     X509 *crt = NULL;
     EVP_PKEY *pkey = NULL;
-    int long_optind = 0;
+    int long_optind = 0, int_verbose = 0;
     char c;
 
     init_crypto();
@@ -352,6 +354,9 @@ int import(int argc, char **argv)
                 break;
             case 'm':
                 opt_module = optarg;
+                break;
+            case 'v':
+                opt_verbose = 1;
                 break;
             case 'x':
                 opt_pkcs12 = optarg;

@@ -310,7 +310,7 @@ int import(int argc, char **argv)
     char *opt_pkcs12 = NULL, *opt_password = NULL;
     X509 *crt = NULL;
     EVP_PKEY *pkey = NULL;
-    int long_optind = 0, int_verbose = 0;
+    int long_optind = 0, opt_verbose = 0;
     char c;
 
     init_crypto();

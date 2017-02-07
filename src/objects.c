@@ -74,11 +74,6 @@ int do_list_token_objects(CK_FUNCTION_LIST *funcs,
                 } else if(rc == CKR_ATTRIBUTE_SENSITIVE) {
                     fprintf(stdout, "(%02ld) %s is sensitive\n", l++,
                            ck_attribute_specs[k].name);
-                } else if((rc != CKR_ATTRIBUTE_TYPE_INVALID) &&
-                          (rc != CKR_TEMPLATE_INCONSISTENT)) {
-                    show_error(stdout, "C_GetAttributeValue", rc);
-                    rc = FALSE;
-                    goto done;
                 }
             }
         }

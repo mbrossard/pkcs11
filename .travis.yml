@@ -4,6 +4,7 @@ sudo: false
 branches:
   only:
     - master
+    - Circle-CI-Support
 
 cache: apt
 
@@ -17,6 +18,9 @@ addons:
     - gcc-6
     - libnss3-dev
     - libtool
+
+env:
+  - MATRIX_EVAL="true"
 
 matrix:
   include:
@@ -38,21 +42,30 @@ matrix:
     compiler: clang
     osx_image: xcode8
   - os: osx
-    env: INSTALL=gcc
     compiler: gcc-6
+    env:
+      - MATRIX_EVAL="brew install gcc6 && CC=gcc-6 && CXX=g++-6"
     osx_image: xcode8
+  - os: osx
+    compiler: clang
+    osx_image: xcode9
 
 before_install:
   - if [ $TRAVIS_OS_NAME == osx ] ; then
+       eval "${MATRIX_EVAL}" ;
        brew uninstall libtool ;
        brew install nss openssl automake autoconf libtool $INSTALL || true ;
     fi
 
-script:
+before_script:
   - $CC --version
+
+script:
   - autoreconf -i
   - if [ $TRAVIS_OS_NAME == osx ] ; then ./configure --with-openssl=/usr/local/Cellar/openssl/* ; fi
   - if [ $TRAVIS_OS_NAME == linux ] ; then ./configure ; fi
   - make V=1
   - make test
+
+after_script:
   - make test-clean

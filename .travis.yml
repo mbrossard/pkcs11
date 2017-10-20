@@ -51,8 +51,9 @@ matrix:
 
 before_install:
   - if [ $TRAVIS_OS_NAME == osx ] ; then
+       brew update ;
+       brew upgrade ;
        eval "${MATRIX_EVAL}" ;
-       brew uninstall libtool automake ;
        brew install nss openssl automake autoconf libtool pkg-config $INSTALL || true ;
     fi
 

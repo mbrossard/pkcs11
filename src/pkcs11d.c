@@ -9,7 +9,9 @@
 #include "pkcs11_display.h"
 
 #include <string.h>
+#include <openssl/opensslconf.h>
 #include <openssl/bio.h>
+#include <openssl/err.h>
 #include <openssl/pem.h>
 
 #define KEY_ID_SIZE 64 /* 256 * 2 / 8 */
@@ -71,6 +73,15 @@ int load_keys(CK_FUNCTION_LIST *funcs,
             BIO *h = BIO_new(BIO_f_md());
             BIO_set_md(h, hash);
             s = BIO_push(h, s);
+            /*
+            if(type == CKK_RSA) {
+                i2d_RSAPublicKey_bio(s, EVP_PKEY_get1_RSA(keys[j].key));
+                PEM_write_bio_RSAPrivateKey(bio, EVP_PKEY_get1_RSA(keys[j].key), NULL, NULL, 0, NULL, NULL);
+            } if(type == CKK_EC) {
+                i2d_EC_PUBKEY_bio(s, EVP_PKEY_get1_EC_KEY(keys[j].key));
+                PEM_write_bio_ECPrivateKey(bio, EVP_PKEY_get1_EC_KEY(keys[j].key), NULL, NULL, 0, NULL, NULL);
+            }
+            */
             PEM_write_bio_PrivateKey(bio, keys[j].key, NULL, NULL, 0, NULL, NULL);
             n = BIO_gets(h, (char*)md, EVP_MAX_MD_SIZE);
             for(k = 0, l = 0; k < n; k++) {
@@ -257,9 +268,11 @@ int main(int argc, char **argv)
             type = CKK_EC;
             operation = CKA_DECRYPT;
         } else {
+            fprintf(stderr, "Invalid query line = %s\n", buffer);
             goto end;
         }
         keyid[KEY_ID_SIZE] = '\0';
+        fprintf(stderr, "Key ID = %s\n", keyid);
 
         l = BIO_gets(b, buffer, sizeof(buffer));
         if((l <= 0) || strncmp(buffer, "Content-Length: ", 16) != 0) {
@@ -267,13 +280,17 @@ int main(int argc, char **argv)
             goto end;
         }
         plen = atoi(buffer + 16);
+        fprintf(stderr, "Payload size = %d\n", plen);
+
         l = BIO_gets(b, buffer, sizeof(buffer));
+        /* TODO: add check */
+
         l = BIO_read(b, buffer, plen);
         if(l < plen) {
             fprintf(stderr, "Error reading payload\n");
             goto end;
         }
-
+        fprintf(stderr, "Read payload size = %d (%d)\n", l, plen);
 
         if(type == CKK_RSA) {
             for(i = 0; (i < rsa_len) && (pkey == NULL); i++) {
@@ -318,7 +335,17 @@ int main(int argc, char **argv)
         } else if(type == CKK_EC && operation == CKA_DECRYPT) {
             const EC_GROUP *group = EC_KEY_get0_group(EVP_PKEY_get1_EC_KEY(pkey));
             EC_POINT *p = EC_POINT_new(group);
+            /*
+            int EC_POINT_oct2point(const EC_GROUP *group, EC_POINT *p,
+                                   const unsigned char *buf, size_t len, BN_CTX *ctx);
+            */
             EC_POINT_oct2point(group, p, (unsigned char *)buffer, plen, NULL);
+            
+            /*
+            l = ECDH_compute_key(void *out, size_t outlen, const EC_POINT *pub_key,
+                                 EC_KEY *ecdh, void *(*KDF) (const void *in, size_t inlen,
+                                 void *out, size_t *outlen));
+            */
             l = ECDH_compute_key((void *)output, sizeof(output), p, EVP_PKEY_get1_EC_KEY(pkey), 0);
             if(verbose) {
                 fprintf(stderr, "ECDH decryption operation with keyid '%s'\n", keyid);
@@ -339,11 +366,18 @@ int main(int argc, char **argv)
         } else if(verbose) {
             fprintf(stderr, "Operation successful\n");
         }
+        fprintf(stderr, "Response size = %d\n", l);
 
         BIO_printf(b, "200 Ok\r\n");
         BIO_printf(b, "Content-Length: %d\r\n\r\n", slen);
 
         l = BIO_write(b, output, slen);
+        if(l > 0) {
+            fprintf(stderr, "Write size = %d\n", l);
+        } else {
+            fprintf(stderr, "Oups\n");
+        }
+
         BIO_flush(b);
 
         i= 0;
@@ -360,6 +394,7 @@ int main(int argc, char **argv)
         }
         */
 
+        sleep(1);
 
     end:
         close(s);

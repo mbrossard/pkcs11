@@ -132,20 +132,21 @@ test: pkcs11-util pkcs11-token.la
 	    ./pkcs11-util certify $(MODULE_PIN_SLOT) -l ec256 | @OPENSSL_BIN@ x509 | tee ec.crt ; \
 	    ./pkcs11-util import $(MODULE_PIN_SLOT) --certificate ec.crt --label ec256 --id ec256 ; \
 	    @OPENSSL_BIN@ ecparam -name prime256v1 -genkey | openssl ec > p256.key ; \
-		./pkcs11-util import $(MODULE_PIN_SLOT) --key p256.key --label EC-P256 --id EC-P256 ; \
 	    @OPENSSL_BIN@ req -new -x509 -key p256.key -out p256.crt -subj /CN=Foo ; \
 	    cat p256.key p256.crt | @OPENSSL_BIN@ pkcs12 -export -out p256.p12 -passout pass:$(PIN) ; \
+	    ./pkcs11-util import $(MODULE_PIN_SLOT) --pkcs12 p256.p12 --password $(PIN) \
+	       --label EC-P256 --id EC-P256 ; \
 	  fi ; \
 	fi
-	./pkcs11-util info            $(MODULE)
-	./pkcs11-util list-mechanisms $(MODULE)
-	./pkcs11-util list-slots      $(MODULE)
-	./pkcs11-util list-objects    $(MODULE_PIN_SLOT)
-	./pkcs11-util ssh             $(MODULE_PIN_SLOT)
-	./pkcs11-util extract         $(MODULE_PIN_SLOT)
-	./pkcs11-util random          $(MODULE) $(SLOT) -l 512 | @OPENSSL_BIN@ base64
-	./pkcs11-util speed           $(MODULE_PIN_SLOT) -l rsa2048 -t 2 -o 200
-	./pkcs11-util speed           $(MODULE_PIN_SLOT) -l ec256 -e -t 2 -o 500
+#	./pkcs11-util info            $(MODULE)
+#	./pkcs11-util list-mechanisms $(MODULE)
+#	./pkcs11-util list-slots      $(MODULE)
+#	./pkcs11-util list-objects    $(MODULE_PIN_SLOT)
+#	./pkcs11-util ssh             $(MODULE_PIN_SLOT)
+#	./pkcs11-util extract         $(MODULE_PIN_SLOT)
+#	./pkcs11-util random          $(MODULE) $(SLOT) -l 512 | @OPENSSL_BIN@ base64
+#	./pkcs11-util speed           $(MODULE_PIN_SLOT) -l rsa2048 -t 2 -o 200
+#	./pkcs11-util speed           $(MODULE_PIN_SLOT) -l ec256 -e -t 2 -o 500
 
 test-clean:
 	./pkcs11-util clean           $(MODULE_PIN_SLOT) -r

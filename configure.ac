@@ -24,6 +24,14 @@ LT_INIT
 AC_LIBTOOL_WIN32_DLL
 
 AC_CANONICAL_HOST
+
+have_windows="no"
+case "$host_os" in
+   mingw*)
+      have_windows="yes"
+   ;;
+esac
+
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_INSTALL

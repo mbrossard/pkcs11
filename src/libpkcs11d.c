@@ -86,10 +86,19 @@ static int pkcs11d_rsa_private_common(const char *op, int flen, const unsigned c
         char buffer[4096];
         int l, slen = 0;
 
+        if(!b) {
+            fprintf(stderr, "Error creating BIO\n");
+        } else {
+            fprintf(stderr, "BIO created fine\n");
+        }
+
         BIO_set_conn_port(b, "1234");
         b = BIO_push(buf, b);
 
         /* Insert implementation here */
+
+        fprintf(stderr, "POST /%s/rsa/%s HTTP/1.0\n", op, pkd->id);
+        fprintf(stderr, "Content-Length: %d\n\n", flen);
 
         BIO_printf(b, "POST /%s/rsa/%s HTTP/1.0\r\n", op, pkd->id);
         BIO_printf(b, "Content-Length: %d\r\n\r\n", flen);
@@ -98,21 +107,28 @@ static int pkcs11d_rsa_private_common(const char *op, int flen, const unsigned c
 
         l = BIO_gets(b, buffer, sizeof(buffer));
         if(l <= 0) {
+            fprintf(stderr, "Error reading response\n");
             goto end;
         } else {
             /* TODO: Check error code */
+            fprintf(stdout, "Line size = %ld\n", strlen(buffer));
+            fprintf(stdout, "Key Response = %s\n", buffer);
         }
 
         l = BIO_gets(b, buffer, sizeof(buffer));
         if(l > 0) {
             buffer[sizeof(buffer) - 1] = '\0';
+            fprintf(stdout, "Line size = %ld\n", strlen(buffer));
             if(strncmp(buffer, "Content-Length: ", 16) == 0) {
                 slen = atoi(buffer + 16);
+                fprintf(stdout, "Payload size = %d\n", slen);
             }
             if(slen <= 0) {
+                fprintf(stderr, "Error parsing content size header\n");
                 goto end;
             }
         } else {
+            fprintf(stderr, "Error reading content size header\n");
             goto end;
         }
 
@@ -122,6 +138,9 @@ static int pkcs11d_rsa_private_common(const char *op, int flen, const unsigned c
         if(l > 0) {
             memcpy(to, buffer, l);
             rval = l;
+            fprintf(stdout, "Read payload size = %d (%d)\n", l, slen);
+        } else {
+            fprintf(stdout, "Oups\n");
         }
 
     end:
@@ -194,6 +213,9 @@ static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
         BIO_set_conn_port(b, "1234");
         b = BIO_push(buf, b);
         
+        fprintf(stderr, "POST /sign/ec/%s HTTP/1.0\n", pkd->id);
+        fprintf(stderr, "Content-Length: %d\n\n", dgst_len);
+
         BIO_printf(b, "POST /sign/ec/%s HTTP/1.0\r\n", pkd->id);
         BIO_printf(b, "Content-Length: %d\r\n\r\n", dgst_len);
         BIO_write(b, dgst, dgst_len);
@@ -201,21 +223,28 @@ static ECDSA_SIG *pkcs11d_ecdsa_sign(const unsigned char *dgst, int dgst_len,
 
         l = BIO_gets(b, buffer, sizeof(buffer));
         if(l <= 0) {
+            fprintf(stderr, "Error reading response\n");
             goto end;
         } else {
             /* TODO: Check error code */
+            fprintf(stdout, "Line size = %ld\n", strlen(buffer));
+            fprintf(stdout, "Key Response = %s\n", buffer);
         }
 
         l = BIO_gets(b, buffer, sizeof(buffer));
         if(l > 0) {
             buffer[sizeof(buffer) - 1] = '\0';
+            fprintf(stdout, "Line size = %ld\n", strlen(buffer));
             if(strncmp(buffer, "Content-Length: ", 16) == 0) {
                 slen = atoi(buffer + 16);
+                fprintf(stdout, "Payload size = %d\n", slen);
             }
             if(slen <= 0) {
+                fprintf(stderr, "Error parsing content size header\n");
                 goto end;
             }
         } else {
+            fprintf(stderr, "Error reading content size header\n");
             goto end;
         }
 
@@ -253,11 +282,19 @@ static int pkcs11d_ecdh_derive(unsigned char *out, size_t outlen,
         int l, slen = 0;
 
         const EC_GROUP *group = EC_KEY_get0_group(ecdh);        
+        /*
+        size_t EC_POINT_point2oct(const EC_GROUP *group, const EC_POINT *p,
+                                  point_conversion_form_t form,
+                                  unsigned char *buf, size_t len, BN_CTX *ctx);
+        */
         slen = EC_POINT_point2oct(group, peer_point, POINT_CONVERSION_UNCOMPRESSED,
                                   (unsigned char *) buffer, sizeof(buffer), NULL);
 
         BIO_set_conn_port(b, "1234");
         b = BIO_push(buf, b);
+
+        fprintf(stderr, "POST /decrypt/ec/%s HTTP/1.0\n", pkd->id);
+        fprintf(stderr, "Content-Length: %d\n\n", slen);
 
         BIO_printf(b, "POST /decrypt/ec/%s HTTP/1.0\r\n", pkd->id);
         BIO_printf(b, "Content-Length: %d\r\n\r\n", slen);
@@ -266,19 +303,29 @@ static int pkcs11d_ecdh_derive(unsigned char *out, size_t outlen,
 
         l = BIO_gets(b, buffer, sizeof(buffer));
         if(l <= 0) {
+            fprintf(stderr, "Error reading response\n");
             goto end;
+        } else {
+            /* TODO: Check error code */
+            fprintf(stdout, "Line size = %ld\n", strlen(buffer));
+            fprintf(stdout, "Key Response = %s\n", buffer);
         }
+
         l = BIO_gets(b, buffer, sizeof(buffer));
         if(l > 0) {
             slen = 0;
             buffer[sizeof(buffer) - 1] = '\0';
+            fprintf(stdout, "Line size = %ld\n", strlen(buffer));
             if(strncmp(buffer, "Content-Length: ", 16) == 0) {
                 slen = atoi(buffer + 16);
+                fprintf(stdout, "Payload size = %d\n", slen);
             }
             if(slen <= 0) {
+                fprintf(stderr, "Error parsing content size header\n");
                 goto end;
             }
         } else {
+            fprintf(stderr, "Error reading content size header\n");
             goto end;
         }
 
@@ -288,6 +335,9 @@ static int pkcs11d_ecdh_derive(unsigned char *out, size_t outlen,
         if(l > 0) {
             memcpy(out, buffer, l);
             rval = l;
+            fprintf(stdout, "Read payload size = %d (%d)\n", l, slen);
+        } else {
+            fprintf(stdout, "Oups\n");
         }
 
     end:
@@ -325,7 +375,6 @@ static int pkcs11d_compute_key(void *out, size_t outlen,
     unsigned char buffer[4096];
     int l = pkcs11d_ecdh_derive(buffer, sizeof(buffer), point, ec_key);
 
-
 	if (KDF) {
 		if (KDF(buffer, l, out, &outlen) == NULL) {
 			return -1;
@@ -341,6 +390,7 @@ static int pkcs11d_compute_key(void *out, size_t outlen,
 }
 #endif
 #endif
+
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 
@@ -426,6 +476,7 @@ static EVP_PKEY *engine_load_private_key(ENGINE * e, const char *path,
 {
     EVP_PKEY *pkey = NULL;
     BIO *key = BIO_new_file(path, "r");
+    fprintf(stderr, "Loading %s\n", path);
     if(key) {
         pkey = PEM_read_bio_PrivateKey(key, NULL, NULL, NULL);
 

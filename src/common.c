@@ -107,6 +107,17 @@ CK_RV pkcs11_initialize_nss(CK_FUNCTION_LIST_PTR funcs, const char *path)
     if(funcs) {
         rc = funcs->C_Initialize(NULL);
     }
+    
+    if(funcs && (rc == CKR_GENERAL_ERROR)) {
+        CK_C_INITIALIZE_ARGS ia;
+        ia.flags = CKF_OS_LOCKING_OK;
+        ia.CreateMutex = NULL;
+        ia.DestroyMutex = NULL;
+        ia.LockMutex = NULL;
+        ia.UnlockMutex = NULL;
+        ia.pReserved = NULL;
+        rc = funcs->C_Initialize((CK_VOID_PTR) &ia);
+    }
 
     if(funcs && (rc == CKR_ARGUMENTS_BAD)) {
         static const char *nss_init_string = "configdir='%s' certPrefix='' keyPrefix='' secmod='secmod.db'";

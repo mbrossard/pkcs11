@@ -10,11 +10,13 @@
 #include "common.h"
 #include "crypto.h"
 #include "pkcs11_display.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <openssl/bn.h>
 #include <openssl/bio.h>
 #include <openssl/err.h>
+#include <openssl/evp.h>
 #include <openssl/pem.h>
 #include <openssl/x509.h>
 #include <openssl/pkcs12.h>
@@ -34,6 +36,7 @@ static const struct option options[] = {
     { "label",              1, 0,           'l' },
     { "id",                 1, 0,           'i' },
     { "verbose",            0, 0,           'v' },
+    { "check",              0, 0,           'C' },
     { 0, 0, 0, 0 }
 };
 
@@ -50,6 +53,7 @@ static const char *option_help[] = {
     "Label to set",
     "Identifier to set",
     "Verbose output",
+    "Check key after import",
 };
 
 CK_RV import_key_wrap(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PKEY *pkey,
@@ -202,7 +206,7 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
         { 0,                NULL_PTR,  0 },
         { 0,                NULL_PTR,  0 }
     };
-    CK_BYTE ec_params[256], ec_point[256], ec_value[256];
+    CK_BYTE ec_params[256], ec_point[256], ec_value[256], id[20];
     CK_ULONG ec_params_len, ec_point_len, ec_value_len;
     const BIGNUM *bn = NULL;
     CK_BYTE_PTR ptr = NULL;
@@ -242,7 +246,12 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
         return CKR_BUFFER_TOO_SMALL;
     }
     ptr = ec_point;
+    //ptr += 2;
     ec_point_len = i2o_ECPublicKey(ec, &ptr);
+    //ec_point[0] = 0x04;
+    //ec_point[1] = 0x41;
+    //ec_point_len += 2;
+    fprintf(stdout, "EC point %ld\n", ec_point_len);
 
     bn = EC_KEY_get0_private_key(ec);
     if(BN_num_bytes(bn) > sizeof(ec_value)) {
@@ -250,16 +259,59 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
         return CKR_BUFFER_TOO_SMALL;
     }
     ec_value_len = BN_bn2bin(bn, ec_value);
+    fprintf(stdout, "EC value %ld\n", ec_value_len);
+    /* TODO: BN_free */
+    
+#ifdef HAVE_OPENSSL
+    if(!opt_id) {
+        SHA1(ec_point, ec_point_len, id);
+        private_template[att_private].type       = CKA_ID;
+        private_template[att_private].pValue     = id;
+        private_template[att_private].ulValueLen = sizeof(id);
+        att_private += 1;
+
+        public_template[att_public].type       = CKA_ID;
+        public_template[att_public].pValue     = id;
+        public_template[att_public].ulValueLen = sizeof(id);
+        att_public += 1;
+    }
+#endif
     
     private_template[att_private].type       = CKA_ECDSA_PARAMS;
     private_template[att_private].pValue     = ec_params;
     private_template[att_private].ulValueLen = ec_params_len;
     att_private += 1;
 
+    private_template[att_private].type       = CKA_EC_POINT;
+    private_template[att_private].pValue     = ec_point;
+    private_template[att_private].ulValueLen = ec_point_len;
+    att_private += 1;
+
+    rc = import_key_wrap(funcs, h_session, pkey, private_template, att_private, CKK_DES3);
+    if (rc != CKR_OK) {
+        show_error(stdout, "DES3-wrapped Key Import ", rc);
+    }
+
+    if (rc != CKR_OK) {
+        rc = import_key_wrap(funcs, h_session, pkey, private_template, att_private, CKK_AES);
+        if (rc != CKR_OK) {
+            show_error(stdout, "AES-wrapped Key Import", rc);
+        }
+    }
+    
     private_template[att_private].type       = CKA_VALUE;
     private_template[att_private].pValue     = ec_value;
     private_template[att_private].ulValueLen = ec_value_len;
     att_private += 1;
+
+    if (rc != CKR_OK) {
+        rc = funcs->C_CreateObject(h_session, private_template, att_private, &hpKey1);
+        /* TODO: OPENSSL_cleanse ec_value */
+        if (rc != CKR_OK) {
+            show_error(stdout, "C_CreateObject", rc);
+            return rc;
+        }
+    }
 
     public_template[att_public].type       = CKA_ECDSA_PARAMS;
     public_template[att_public].pValue     = ec_params;
@@ -270,12 +322,6 @@ CK_RV import_ecdsa(CK_FUNCTION_LIST  *funcs, CK_SESSION_HANDLE h_session, EVP_PK
     public_template[att_public].pValue     = ec_point;
     public_template[att_public].ulValueLen = ec_point_len;
     att_public += 1;
-
-    rc = funcs->C_CreateObject(h_session, private_template, att_private, &hpKey1);
-    if (rc != CKR_OK) {
-        show_error(stdout, "C_CreateObject", rc);
-        return rc;
-    }
 
     rc = funcs->C_CreateObject(h_session, public_template, att_public, &hpKey2);
     if (rc != CKR_OK) {
@@ -543,6 +589,7 @@ int import(int argc, char **argv)
         free(ibuf);
         free(snbuf);
         X509_free(crt);
+        /* TODO: Find CKA_ID and CKA_LABEL */
     }
 
     if(pkey) {

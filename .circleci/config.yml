@@ -1,0 +1,42 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/pkcs11
+    docker:
+      - image: circleci/ubuntu-server:latest
+        environment:
+          CI: cicleci
+          DEBIAN_FRONTEND: noninteractive
+          CC: clang
+    branches:
+      only:
+        - master
+        - Circle-CI-Support
+    steps:
+      - run:
+          name: "clean apt"
+          command: |
+            sudo apt-get autoclean ; wait ;
+      - run:
+          name: "configure apt repo"
+          command: |
+            sudo apt-add-repository -y "ppa:ubuntu-toolchain-r/test" ; wait ;
+      - run:
+          name: "update apt"
+          command: |
+            sudo apt-get -yq update ; wait ;
+      - run:
+          name: "install dependencies"
+          command: |
+            sudo apt-get -y install build-essential libssl-dev openssl libengine-pkcs11-openssl libnss3 libnss3-tools libnss3-dev libtool clang autotools-dev automake make autoconf git openssh-client pkg-config ; wait ;
+      - checkout
+      - run:
+          name: "fetch and pull"
+          command: |
+            git fetch && git pull --all || true
+      - run:
+          shell: /bin/bash
+          name: "Tests"
+          command: |
+            .circleci/run_ci.sh
+destination: build

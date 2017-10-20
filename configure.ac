@@ -80,7 +80,8 @@ if test x"$pkcs11_module" == x""; then
            if test `uname` == "Darwin" ; then
               pkcs11_module=`ls -1 /usr/local/Cellar/nss/*/lib/libsoftokn3.dylib | sort | tail -1` ;
            else
-              pkcs11_module=`ls -1 /usr/lib*/*/nss/libsoftokn3.so | sort | tail -1` ;
+              # pkcs11_module=`ls -1 /usr/lib*/*/nss/libsoftokn3.so | sort | tail -1` ;
+              pkcs11_module=`find /usr/ -ipath "*/nss/*" -a -iname libsoftokn3.so 2>/dev/null | sort | tail -1` ;
            fi
        fi
    fi
